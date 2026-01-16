@@ -44,6 +44,32 @@ class OpcUaManager:
                 return 20.0 + random.random() * 5
             return "RUNNING"
 
+    async def send_control_command(self, machine_id: str, command: str) -> bool:
+        """
+        Writes to the PLC control tags.
+        Mappings: START -> ns=2;s=StartCmd, STOP -> ns=2;s=StopCmd
+        """
+        print(f"[OPC-UA] Sending {command} to {machine_id}...")
+        
+        if self.use_real_hardware and machine_id in self.clients:
+            try:
+                client = self.clients[machine_id]
+                # Hypothetical Node IDs for controls
+                if command == "START":
+                    node = client.get_node("ns=2;s=StartCmd")
+                    await node.write_value(True)
+                elif command == "STOP":
+                    node = client.get_node("ns=2;s=StopCmd")
+                    await node.write_value(True)
+                return True
+            except Exception as e:
+                print(f"Failed to write command: {e}")
+                return False
+        else:
+            # Mock Success
+            print(f"[MOCK-PLC] Written {command} bit to True for {machine_id}")
+            return True
+
     async def disconnect_all(self):
         if self.use_real_hardware:
             for mid, client in self.clients.items():

@@ -45,3 +45,14 @@ class DigitalTwinService:
 
     def get_machine_status(self, machine_id: str) -> Dict:
         return self.latest_states.get(machine_id, {"status": "UNKNOWN"})
+
+    async def execute_command(self, machine_id: str, command: str) -> bool:
+        """Relays a control command to the IoT Gateway."""
+        # 1. Update Twin State immediately (Optimistic UI)
+        if machine_id in self.latest_states:
+             # If STARTing, set status to BOOTING until next telemetry confirms RUNNING
+            self.latest_states[machine_id]["status"] = "COMMAND_SENT"
+            
+        # 2. Send to Hardware
+        return await self.iot_manager.send_control_command(machine_id, command)
+

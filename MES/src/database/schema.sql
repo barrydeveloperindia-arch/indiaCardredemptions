@@ -102,3 +102,32 @@ CREATE TABLE journal_lines (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+
+-- 8. USERS (Authentication)
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    hashed_password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'operator',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 9. INVENTORY_ITEMS (Raw Materials)
+CREATE TABLE inventory_items (
+    item_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255),
+    material_type VARCHAR(50), -- PLA, STEEL, COOLANT
+    quantity_on_hand DECIMAL(15, 2) DEFAULT 0.0,
+    unit_cost DECIMAL(15, 2) DEFAULT 0.0,
+    unit VARCHAR(20) -- kg, L, pcs
+);
+
+-- 10. MATERIAL_TRANSACTIONS (Inventory History)
+CREATE TABLE material_transactions (
+    transaction_id SERIAL PRIMARY KEY,
+    item_id UUID REFERENCES inventory_items(item_id),
+    job_id UUID REFERENCES dispatch_queue(job_id),
+    quantity_change DECIMAL(15, 2), -- Negative for usage
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

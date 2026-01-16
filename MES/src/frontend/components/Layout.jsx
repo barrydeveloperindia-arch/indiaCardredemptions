@@ -7,12 +7,12 @@ const NavItem = ({ to, icon, label }) => (
         to={to}
         className={({ isActive }) =>
             `flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
-                ? 'bg-englabs-blue/10 text-englabs-blue shadow-sm'
-                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                ? 'bg-englabs-primary/10 text-englabs-primary shadow-[0_0_10px_rgba(6,182,212,0.1)] border border-englabs-primary/20'
+                : 'text-englabs-text-secondary hover:bg-englabs-surface hover:text-englabs-text-primary'
             }`
         }
     >
-        <span className="text-xl">{icon}</span>
+        <span className="text-xl group-hover:scale-110 transition-transform duration-200">{icon}</span>
         <span className="font-medium text-sm">{label}</span>
     </NavLink>
 );
@@ -21,39 +21,42 @@ export default function Layout({ children }) {
     const { user, logout } = useAuth();
 
     return (
-        <div className="flex h-screen bg-[#F5F7FA] overflow-hidden font-sans text-gray-900 bg-[url('https://cdn.pixabay.com/photo/2018/03/10/12/00/chemistry-3213757_1280.jpg')] bg-cover bg-center bg-blend-overlay bg-opacity-90">
+        <div className="flex h-screen bg-englabs-bg overflow-hidden font-sans text-englabs-text-primary">
+            {/* Subtle Abstract Background Pattern (Dots) */}
+            <div className="absolute inset-0 z-0 opacity-40 mix-blend-multiply pointer-events-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:20px_20px]"></div>
 
             {/* Glassmorphism Sidebar */}
-            <aside className="w-64 glass-sidebar h-full flex flex-col z-10 shadow-xl">
+            <aside className="w-64 glass-sidebar h-full flex flex-col z-10 shadow-sm relative">
                 <div className="p-8">
-                    <h1 className="text-2xl font-light tracking-tight text-gray-900">
-                        Englabs<span className="font-bold text-englabs-blue">MES</span>
+                    <h1 className="text-2xl font-light tracking-tight text-englabs-text-primary">
+                        Englabs<span className="font-bold text-englabs-primary">MES</span>
                     </h1>
-                    <div className="mt-1 flex items-center space-x-2">
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                        <span className="text-xs uppercase tracking-widest text-gray-400">System Online</span>
+                    <div className="mt-2 flex items-center space-x-2">
+                        <div className="w-2 h-2 rounded-full bg-englabs-success animate-pulse"></div>
+                        <span className="text-xs font-bold uppercase tracking-widest text-englabs-text-secondary">System Online</span>
                     </div>
                 </div>
 
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     <NavItem to="/" icon="📋" label="Dispatch Command" />
                     <NavItem to="/shop-floor" icon="🏭" label="Shop Floor Live" />
+                    <NavItem to="/inventory" icon="📦" label="Inventory" />
                     <NavItem to="/financials" icon="💰" label="Financial Ledger" />
                 </nav>
 
-                <div className="p-4 border-t border-gray-100 bg-white/40">
+                <div className="p-4 border-t border-englabs-border bg-englabs-bg/50">
                     <div className="flex items-center space-x-3 mb-4">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                        <div className="w-9 h-9 rounded-lg bg-englabs-primary text-white flex items-center justify-center font-bold text-sm shadow-md shadow-englabs-primary/20">
                             {user?.username?.substring(0, 2).toUpperCase() || 'OP'}
                         </div>
                         <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">{user?.username || 'Operator'}</p>
-                            <p className="text-xs text-gray-500 capitalize">{user?.role || 'Access Level 1'}</p>
+                            <p className="text-sm font-semibold text-englabs-text-primary">{user?.username || 'Operator'}</p>
+                            <p className="text-xs text-englabs-text-secondary capitalize">{user?.role || 'Access Level 1'}</p>
                         </div>
                     </div>
                     <button
                         onClick={logout}
-                        className="w-full text-xs text-red-500 hover:bg-red-50 py-2 rounded transition"
+                        className="w-full text-xs font-medium text-englabs-text-secondary hover:text-englabs-danger hover:bg-red-50 py-2.5 rounded-lg transition-colors border border-transparent hover:border-red-100"
                     >
                         Sign Out
                     </button>
@@ -61,8 +64,40 @@ export default function Layout({ children }) {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto p-10 relative">
-                <div className="max-w-7xl mx-auto animate-fade-in glass-panel rounded-3xl p-8 min-h-full">
+            <main className="flex-1 overflow-y-auto relative z-10 flex flex-col">
+                {/* Top Navigation Bar / Search */}
+                <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 px-8 py-4 flex justify-between items-center">
+                    <div className="flex items-center text-slate-400 text-sm">
+                        <span className="mr-2">Pages</span> / <span className="ml-2 text-slate-800 font-medium capitalize">Dashboard</span>
+                    </div>
+
+                    <div className="flex items-center space-x-6">
+                        {/* Global Search */}
+                        <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg className="h-4 w-4 text-slate-400 group-focus-within:text-englabs-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Search orders, machines..."
+                                className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 w-64 focus:w-80 transition-all focus:outline-none focus:ring-2 focus:ring-englabs-primary/20 focus:border-englabs-primary"
+                            />
+                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span className="text-xs text-slate-400 border border-slate-200 rounded px-1.5 py-0.5">/</span>
+                            </div>
+                        </div>
+
+                        {/* Notifications */}
+                        <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                        </button>
+                    </div>
+                </header>
+
+                <div className="p-8 max-w-7xl mx-auto w-full animate-fade-in flex-1">
                     {children}
                 </div>
             </main>

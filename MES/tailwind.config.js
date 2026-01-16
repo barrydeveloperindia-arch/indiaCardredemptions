@@ -4,19 +4,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Englabs Brand Palette
+        // Englabs Modern Corporate Light Palette
         englabs: {
-          blue: '#0056D2', // Primary Action (Deep Industrial Blue)
-          green: '#008A45', // Success / Complete
-          red: '#D92D20',   // Error / Stop
-          grey: {
-            900: '#1A1A1A', // Primary Text (High Contrast)
-            700: '#4A4A4A', // Secondary Text
-            500: '#9AA0A6', // Disabled / Hints
-            100: '#F5F7FA', // Secondary Backgrounds (Sidebar/Cards)
-            50: '#F8F9FA',  // Subtle hovers
-          },
-          white: '#FFFFFF', // Primary Background (Canvas)
+          bg: '#F8FAFC',       // Slate 50 (App Background)
+          surface: '#FFFFFF',  // Pure White (Cards/Sidebar)
+          primary: '#2563EB',  // Royal Blue 600 (Primary Action)
+          primary_hover: '#1D4ED8', // Royal Blue 700
+          secondary: '#64748B', // Slate 500 (Muted Text)
+          success: '#10B981',  // Emerald 500
+          danger: '#EF4444',   // Red 500
+          warning: '#F59E0B',  // Amber 500
+          border: '#E2E8F0',   // Slate 200 (Subtle Borders)
+          text: {
+            primary: '#0F172A',   // Slate 900 (Headings)
+            secondary: '#475569', // Slate 600 (Body)
+          }
         }
       },
       fontFamily: {

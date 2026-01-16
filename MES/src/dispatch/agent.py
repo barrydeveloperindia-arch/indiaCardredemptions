@@ -1,63 +1,69 @@
 from typing import Dict, Any, Tuple
-from .llm_client import LocalLLMClient
-from .vector_store import VectorStoreClient
-from .interference_engine import GeometricKernel
+from sqlalchemy.orm import Session
+from src.database import models
 import uuid
 
 class DispatchAgent:
     def __init__(self):
-        self.llm = LocalLLMClient()
-        self.memory_db = VectorStoreClient()
-        self.interference_engine = GeometricKernel()
+        # self.llm = LocalLLMClient()
+        # self.memory_db = VectorStoreClient()
+        # self.interference_engine = GeometricKernel()
+        pass
 
-    def dispatch_order(self, new_order: Dict[str, Any]) -> str:
+    def dispatch_order(self, new_order: Dict[str, Any], db: Session) -> Tuple[str, str]:
         """
-        Main entry point for "Memory-Augmented" dispatching.
-        new_order expects dict with keys: 'order_id', 'cad_file_path', 'technical_requirements'
+        Deterministic capability-aware dispatching algorithm.
+        1. Filter machines by Material/Process support.
+        2. Score remaining machines by Queue Depth (Load Balancing).
         """
-        # 1. Feature Extraction
-        # Convert mechanical reqs into a vectorizable string format
-        order_features = self.extract_features(new_order.get("cad_file_path", ""), new_order.get("technical_requirements", {}))
+        reqs = new_order.get("technical_requirements", {})
+        material = reqs.get("material", "UNKNOWN")
         
-        # 2. Memory Retrieval (The "Anti-Hallucination" Step)
-        # Find past jobs with similar geometries and materials that succeeded
-        successful_precedents = self.memory_db.query(
-            vector=order_features, 
-            filter={"success": True}, 
-            top_k=3
-        )
+        print(f"[Dispatch] Analyzing machines for {material} part...")
         
-        # 3. Prompt Construction
-        # Inject precedents into the context to ground the LLM
-        system_prompt = self.build_prompt(
-            role="Senior Manufacturing Engineer",
-            context=f"Here are successful past strategies for similar parts: {successful_precedents}",
-            task="Assign best machine and orientation."
-        )
+        # 1. Fetch All Machines
+        machines = db.query(models.Machine).all()
+        candidates = []
         
-        # 4. AI Strategy Generation
-        candidate_plan = self.llm.generate(system_prompt, new_order)
-        
-        # 5. Deterministic Validation (Interference Check)
-        # Never trust the LLM fully for geometry; verify with math.
-        is_safe, collision_data = self.interference_engine.simulate_nesting(
-            machine=candidate_plan.get("machine"),
-            part_geometry=new_order.get("cad_file_path"),
-            orientation=candidate_plan.get("orientation")
-        )
-        
-        if is_safe:
-            # 6. Commit to Digital Thread (Mock)
-            job_id = str(uuid.uuid4())
-            print(f"[Dispatch] Order {new_order.get('order_id')} assigned to {candidate_plan.get('machine')}. Job ID: {job_id}")
+        # 2. Filter by Capability
+        for m in machines:
+            caps = m.capabilities or {}
+            supported_mats = caps.get("materials", [])
             
-            # Store this decision logic in short-term memory
-            self.memory_db.add(features=order_features, plan=candidate_plan, status="Tentative")
-            return job_id
-        else:
-            # Recursion with negative feedback would happen here
-            print(f"[Dispatch] Plan Failed Validation: {collision_data}")
-            return self.handle_conflict(new_order, candidate_plan, collision_data)
+            # If capabilities are empty or contain "Universal", allow it. Otherwise strict check.
+            if not supported_mats or "Universal" in supported_mats or material in supported_mats:
+                candidates.append(m)
+        
+        if not candidates:
+            print(f"[Dispatch] No machine found for material: {material}")
+            return "FAILED_NO_CAPABILITY", None
+            
+        # 3. Score Candidates (Lower Score = Better)
+        # Score = (Current Queue Length * 10)
+        best_machine = None
+        min_score = 9999
+        
+        for m in candidates:
+            # Count queued jobs (simulated for now, real DB query ideal)
+            queue_depth = len([j for j in m.jobs if j.status in ['QUEUED', 'RUNNING']])
+            score = queue_depth * 10
+            
+            if m.current_status == 'IDLE':
+                score -= 5 # Bonus for being free right now
+                
+            print(f"  > Candidate {m.machine_id} ({m.name}): Queue={queue_depth}, Score={score}")
+            
+            if score < min_score:
+                min_score = score
+                best_machine = m
+                
+        # 4. Assign
+        if best_machine:
+            job_id = str(uuid.uuid4())
+            print(f"[Dispatch] Selected {best_machine.machine_id} (Score {min_score})")
+            return job_id, best_machine.machine_id
+            
+        return "FAILED_UNKNOWN", None
 
     def extract_features(self, cad_path: str, specs: Dict[str, Any]) -> str:
         """Simple functional feature extractor."""
