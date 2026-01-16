@@ -16,7 +16,7 @@ export function BudgetEditor({ isOpen, onClose, onSuccess }: BudgetEditorProps) 
 
     // Common categories - in future, could be fetched
     const categories = [
-        "Food & Dining", "Travel", "Shopping", "Utilities",
+        "Food & Dining", "Travel", "Shopping", "Utilities", "Housing",
         "Health & Medicine", "Entertainment", "Education", "Other"
     ];
 

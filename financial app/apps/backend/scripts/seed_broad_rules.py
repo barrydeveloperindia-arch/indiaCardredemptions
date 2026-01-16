@@ -52,6 +52,18 @@ def seed_broad_rules():
             "keywords": ["hotel", "motel", "resort", "inn", "bnb", "oyo", "taj", "marriott", "hyatt"],
             "target_category": "Travel",
             "target_tags": ["hotel", "travel"]
+        },
+        {
+            "name": "Salary",
+            "keywords": ["salary", "credited", "bonus", "payroll", "neft cr", "imps cr"],
+            "target_category": "Salary",
+            "target_tags": ["income"]
+        },
+        {
+            "name": "Rent",
+            "keywords": ["rent", "landlord", "toppo", "broker"],
+            "target_category": "Housing",
+            "target_tags": ["rent", "bills"]
         }
     ]
     

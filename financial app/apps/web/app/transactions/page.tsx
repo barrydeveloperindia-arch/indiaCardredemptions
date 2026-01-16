@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Filter, ArrowLeft, ArrowRight, Download } from 'lucide-react';
+import { Search, Filter, ArrowLeft, ArrowRight, Download, Edit2 } from 'lucide-react';
+import { CategoryEditModal } from '../components/CategoryEditModal';
 
 interface Transaction {
     id: string;
@@ -22,6 +23,7 @@ interface AccountOption {
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
+    const [editingTxn, setEditingTxn] = useState<{ id: string, category: string } | null>(null);
 
     // Filters
     const [search, setSearch] = useState('');
@@ -32,7 +34,7 @@ export default function TransactionsPage() {
 
     // Helper Data
     const categories = [
-        "All", "Food & Dining", "Travel", "Shopping", "Utilities",
+        "All", "Food & Dining", "Travel", "Shopping", "Utilities", "Housing",
         "Health & Medicine", "Entertainment", "Investment", "Salary", "Uncategorized"
     ];
 
@@ -159,9 +161,13 @@ export default function TransactionsPage() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">
-                                                <span className="px-2 py-1 rounded-full bg-gray-100 text-xs font-medium">
+                                                <button
+                                                    onClick={() => setEditingTxn({ id: txn.id, category: txn.category })}
+                                                    className="px-2 py-1 rounded-full bg-gray-100 text-xs font-medium hover:bg-gray-200 flex items-center gap-1 group/btn"
+                                                >
                                                     {txn.category}
-                                                </span>
+                                                    <Edit2 className="w-3 h-3 opacity-0 group-hover/btn:opacity-50" />
+                                                </button>
                                             </td>
                                             <td className={`px-6 py-4 text-sm font-bold text-right ${txn.type === 'CREDIT' ? 'text-green-600' : 'text-black'}`}>
                                                 {txn.type === 'CREDIT' ? '+' : ''}₹{Math.abs(txn.amount).toLocaleString('en-IN')}
@@ -193,6 +199,20 @@ export default function TransactionsPage() {
                     </div>
                 </div>
             </main>
+
+            {/* Edit Modal */}
+            {editingTxn && (
+                <CategoryEditModal
+                    isOpen={!!editingTxn}
+                    onClose={() => setEditingTxn(null)}
+                    transactionId={editingTxn.id}
+                    currentCategory={editingTxn.category}
+                    onSuccess={(newCat) => {
+                        setTransactions(prev => prev.map(t => t.id === editingTxn.id ? { ...t, category: newCat } : t));
+                        setEditingTxn(null);
+                    }}
+                />
+            )}
         </div>
     );
 }

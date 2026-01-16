@@ -5,6 +5,8 @@ from .sbi_strategy import SbiStatementParser
 from .icici_strategy import IciciStatementParser
 from .amex_strategy import AmexStatementParser
 from .hsbc_strategy import HsbcStatementParser
+from .axis_strategy import AxisStatementParser
+from .pnb_strategy import PnbStatementParser
 from .exceptions import UnsupportedStatementError
 
 class ParserFactory:
@@ -17,7 +19,9 @@ class ParserFactory:
         HsbcStatementParser,
         HdfcStatementParser,
         SbiStatementParser,
-        IciciStatementParser
+        IciciStatementParser,
+        AxisStatementParser,
+        PnbStatementParser
     ]
 
     @classmethod

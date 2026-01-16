@@ -1,6 +1,6 @@
 import os
 import shutil
-import PyPDF2
+import pdfplumber
 import traceback
 from app.services.parser.factory import ParserFactory
 from app.services.rule_engine import RuleEngine
@@ -25,7 +25,8 @@ class ImportService:
         os.makedirs(cls.ARCHIVE_DIR, exist_ok=True)
         
         results = {
-            "processed": 0,
+            "processed": 0, # Transaction count
+            "files_processed": 0,
             "failed": 0,
             "errors": []
         }
@@ -33,10 +34,7 @@ class ImportService:
         db = SyncSessionLocal()
         
         # Initialize Rule Engine
-        # Check if we have any rules, if not, verify schema exists (sync issue handling)
         try:
-             # Basic schema check or ensure table exists? 
-             # We assume migration/schema creation happened.
              pass
         except:
             pass
@@ -65,7 +63,8 @@ class ImportService:
                     
                     # Archive
                     shutil.move(filepath, os.path.join(cls.ARCHIVE_DIR, filename))
-                    results["processed"] += 1
+                    results["processed"] += count
+                    results["files_processed"] += 1
                     
                 except Exception as e:
                     print(f"Failed to process {filename}: {e}")
@@ -86,10 +85,11 @@ class ImportService:
     @staticmethod
     def _extract_text_from_pdf(filepath: str) -> str:
         text = ""
-        with open(filepath, 'rb') as f:
-            reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                text += page.extract_text()
+        with pdfplumber.open(filepath) as pdf:
+            for page in pdf.pages:
+                extracted = page.extract_text()
+                if extracted:
+                    text += extracted + "\n"
         return text
 
     @staticmethod

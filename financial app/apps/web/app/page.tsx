@@ -6,6 +6,8 @@ import { SpendPieChart } from './components/charts/SpendPieChart';
 import { TrendBarChart } from './components/charts/TrendBarChart';
 import { BudgetWidget } from './components/BudgetWidget';
 import { ImportWidget } from './components/ImportWidget';
+import { ForecastWidget } from './components/ForecastWidget';
+import { BankConnectWidget } from './components/BankConnectWidget';
 import { useEffect, useState } from 'react';
 
 interface DashboardStats {
@@ -127,6 +129,19 @@ export default function Dashboard() {
                                 <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">+ Set Limit</button>
                             </div>
                             <BudgetWidget />
+                        </div>
+                    </section>
+
+                    {/* AI & Operations Section */}
+                    <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-1 h-64">
+                            <ForecastWidget />
+                        </div>
+                        <div className="md:col-span-1 h-64">
+                            <ImportWidget />
+                        </div>
+                        <div className="md:col-span-1 h-64">
+                            <BankConnectWidget />
                         </div>
                     </section>
 
