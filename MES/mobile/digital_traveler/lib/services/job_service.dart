@@ -26,4 +26,13 @@ class JobService {
       throw Exception('Failed to update status: $e');
     }
   }
+
+  // Engineer Agent: Post-Processing Step Tracking
+  Future<void> updateJobStep(String jobId, String step) async {
+    try {
+      await _dio.post('/shop-floor/jobs/$jobId/step', data: {'step': step});
+    } catch (e) {
+      throw Exception('Failed to update step: $e');
+    }
+  }
 }

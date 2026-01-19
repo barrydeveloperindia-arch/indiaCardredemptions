@@ -93,8 +93,45 @@ def update_job_status(job_id: str, update: JobStatusUpdate, db: Session = Depend
     db.commit()
     return {"status": "success", "new_status": job.status}
 
-@router.post("/jobs/{job_id}/log")
-def log_step(job_id: str, log: JobStepLog):
-    # In a real app, this would write to a JobLogs table
-    print(f"[JOB LOG] {job_id}: {log.step_description} - {log.is_completed}")
-    return {"status": "logged"}
+@router.post("/jobs/{job_id}/step")
+def update_job_step(job_id: str, step: str = Body(..., embed=True), db: Session = Depends(get_db)):
+    """
+    Engineer Agent: Shop Floor Tracking
+    Updates the specific manufacturing step (e.g., WASHING, CURING).
+    """
+    job = db.query(DispatchQueue).filter(DispatchQueue.job_id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    # Update Step
+    prev_step = job.current_step
+    job.current_step = step
+    
+    # Log History
+    history_entry = {
+        "step": step,
+        "from": prev_step,
+        "timestamp": datetime.utcnow().isoformat()
+    }
+    
+    # Append to JSON list (handling potential None default)
+    current_history = list(job.steps_history) if job.steps_history else []
+    current_history.append(history_entry)
+    job.steps_history = current_history
+    
+    # Auto-Update Overall Status
+    if step == "PRINTING":
+        job.status = "RUNNING"
+        if not job.actual_start_time:
+            job.actual_start_time = datetime.utcnow()
+    elif step == "COMPLETED":
+        job.status = "COMPLETED"
+        if not job.actual_end_time:
+            job.actual_end_time = datetime.utcnow()
+            
+    db.commit()
+    return {
+        "status": "success", 
+        "current_step": job.current_step, 
+        "job_status": job.status
+    }

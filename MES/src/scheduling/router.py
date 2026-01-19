@@ -95,41 +95,22 @@ def reschedule_job(
     db.commit()
     return {"status": "success", "message": f"Job {job_id} rescheduled to {req.new_start_time} on {req.machine_id}"}
 
-@router.post("/jobs/auto-schedule")
-def auto_schedule(db: Session = Depends(get_db)):
-    """
-    Very basic heuristic: stack queued jobs on available machines
-    starting from 'now'.
-    """
-    # 1. Get Unscheduled Jobs (Queued but no time?) Or just all QUEUED
-    unscheduled = db.query(DispatchQueue).filter(
-        DispatchQueue.status == "QUEUED"
-    ).all()
-    
-    machines = db.query(Machine).all()
-    if not machines:
-        return {"error": "No machines"}
+from .smart_scheduler import SmartScheduler
 
-    current_time_cursor = {m.machine_id: datetime.utcnow() for m in machines}
+@router.post("/jobs/smart-schedule")
+def smart_schedule(db: Session = Depends(get_db)):
+    """
+    Architect Agent: Smart Scheduling
+    Optimizes schedule by grouping jobs via Material.
+    """
+    # 1. Select all "QUEUED" jobs
+    queued_jobs = db.query(DispatchQueue).filter(DispatchQueue.status == "QUEUED").all()
+    if not queued_jobs:
+        return {"message": "No queued jobs to schedule."}
+        
+    job_ids = [j.job_id for j in queued_jobs]
     
-    scheduled_count = 0
-    for job in unscheduled:
-        # Round Robin or First Fit
-        # Just pick first machine for simplicity
-        target_machine = machines[0] 
-        start_time = current_time_cursor[target_machine.machine_id]
-        
-        if job.estimated_runtime_seconds is None:
-             job.estimated_runtime_seconds = 3600 # Default 1h
-             
-        job.planned_start_time = start_time
-        job.machine_id = target_machine.machine_id
-        job.status = "PLANNED"
-        
-        # Advance cursor
-        current_time_cursor[target_machine.machine_id] = start_time + timedelta(seconds=job.estimated_runtime_seconds) + timedelta(minutes=15) # +15m setup
-        
-        scheduled_count += 1
+    # 2. Run Engine
+    result = SmartScheduler.schedule_jobs(db, job_ids)
     
-    db.commit()
-    return {"message": f"Auto-scheduled {scheduled_count} jobs"}
+    return result

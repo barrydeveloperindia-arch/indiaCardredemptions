@@ -39,7 +39,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                   // Status Card
+                   // Status Card & Workflow Checklist (Engineer Agent)
                    Container(
                      padding: const EdgeInsets.all(24),
                      decoration: GlassTheme.glassDecoration,
@@ -53,9 +53,16 @@ class HomeScreen extends StatelessWidget {
                          ),
                          const SizedBox(height: 8),
                          const Text(
-                           "Status: IDLE",
-                           style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+                           "Running Job: #JOB-1245",
+                           style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
                          ),
+                         const Divider(height: 30),
+                         
+                         // Workflow Steps
+                         _buildStepTile("1. Printing", true),
+                         _buildStepTile("2. Washing", false),
+                         _buildStepTile("3. Curing", false),
+                         _buildStepTile("4. QC Check", false),
                        ],
                      ),
                    ),
@@ -122,6 +129,30 @@ class HomeScreen extends StatelessWidget {
                    ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepTile(String title, bool isCompleted) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Icon(
+            isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
+            color: isCompleted ? Colors.green : Colors.grey,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              color: isCompleted ? Colors.black87 : Colors.grey,
+              decoration: isCompleted ? TextDecoration.lineThrough : null,
             ),
           ),
         ],

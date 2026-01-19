@@ -26,7 +26,11 @@ async def analyze_part(file: UploadFile = File(...), db: Session = Depends(get_d
         file_path=f"storage/parts/{file.filename}", # Relative path for static mount
         material="PLA" if "Lighttrap" not in file.filename else "Resin", # Simple heuristic
         estimated_cost=analysis_result.get("quote", {}).get("total_price", 0.0),
-        preview_url=f"/assets/parts/{file.filename}.png" # Mock preview
+        preview_url=f"/assets/parts/{file.filename}.png", # Mock preview
+        
+        # Phase 5: Suitability Persistence
+        technical_score=analysis_result.get("technical_score", 0.0),
+        economic_action=analysis_result.get("economic_data", {}).get("action", "Evaluate")
     )
     db.add(new_part)
     db.commit()

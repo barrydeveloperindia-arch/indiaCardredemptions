@@ -3,7 +3,9 @@ import random
 from .geometric_engine import GeometricEngine
 from .conversion_worker import ConversionWorker
 from .pricing_engine import PricingEngine
+from .pricing_engine import PricingEngine
 from .storage_manager import StorageManager
+from .suitability_engine import SuitabilityEngine
 
 class PartAnalysisService:
     @staticmethod
@@ -40,6 +42,10 @@ class PartAnalysisService:
         # Determine status
         status = "PRINTABLE" if printability["manifold"] else "NEEDS_REPAIR"
         
+        # 5. Agent A (Analyst): Suitability & Economic Check
+        tech_assessment = SuitabilityEngine.assess_technical(geo_data)
+        econ_assessment = SuitabilityEngine.assess_economic(geo_data, "PLA")
+
         # Flattening response for Frontend (simpler consumption)
         return {
             "filename": filename,
@@ -52,9 +58,14 @@ class PartAnalysisService:
             "poly_count": geo_data["poly_count"],
             
             # Flatted Analysis
-            "printability_score": random.randint(65, 98) if status == "PRINTABLE" else random.randint(20, 50),
+            "printability_score": tech_assessment["score"], # Use calculated score
             "material_suggestion": "PLA (Draft)" if "PLA" in quote else "Nylon (Durable)",
-            "issues": [] if status == "PRINTABLE" else ["Non-manifold geometry detected", "Wall thickness < 0.8mm"],
+            "issues": tech_assessment["reasons"],
+            
+            # Suitability Data (New)
+            "technical_score": tech_assessment["score"],
+            "technical_badge": tech_assessment["badge"],
+            "economic_data": econ_assessment,
             
             # Raw Data (optional, kept for debug)
             "raw_geometry": geo_data,

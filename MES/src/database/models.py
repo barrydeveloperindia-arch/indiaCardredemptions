@@ -50,7 +50,14 @@ class DispatchQueue(Base):
     
     actual_start_time = Column(DateTime)
     actual_end_time = Column(DateTime)
+    actual_start_time = Column(DateTime)
+    actual_end_time = Column(DateTime)
     status = Column(String, default="QUEUED")
+    
+    # Phase 5: Engineer Agent (Granular Steps)
+    # Steps: PRINTING -> WASHING -> CURING -> QC -> COMPLETED
+    current_step = Column(String, default="PENDING") 
+    steps_history = Column(JSON, default=[]) # Log of timestamped transitions
     
     created_at = Column(DateTime, default=datetime.utcnow)
     
@@ -148,5 +155,10 @@ class Part(Base):
     file_path = Column(String) # Path to stored STL/STEP
     material = Column(String, default="PLA")
     estimated_cost = Column(Float, default=0.0)
-    preview_url = Column(String) # For thumbnail
-    created_at = Column(DateTime, default=datetime.utcnow)
+    preview_url = Column(String, nullable=True)
+    
+    # Phase 5: Suitability Analysis
+    technical_score = Column(Float, default=0.0)
+    economic_action = Column(String, default="Evaluate") # "Print", "Mold"
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
