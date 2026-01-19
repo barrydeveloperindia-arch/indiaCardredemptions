@@ -7,6 +7,9 @@ import Invoices from './components/Invoices';
 import Inventory from './components/Inventory';
 import Login from './components/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import PartAnalysis from './components/PartAnalysis';
+import GanttScheduler from './components/GanttScheduler';
+import DigitalTraveler from './components/DigitalTraveler';
 
 function AppRoutes() {
     const { token } = useAuth();
@@ -17,15 +20,26 @@ function AppRoutes() {
 
     return (
         <Router>
-            <Layout>
-                <Routes>
-                    <Route path="/" element={<DispatchBoard />} />
-                    <Route path="/shop-floor" element={<ShopFloor />} />
-                    <Route path="/inventory" element={<Inventory />} />
-                    <Route path="/financials" element={<Invoices />} />
-                    <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-            </Layout>
+            <Routes>
+                {/* Mobile App Route (Standalone) */}
+                <Route path="/digital-traveler" element={<DigitalTraveler />} />
+
+                {/* Desktop App Routes (Wrapped in Layout) */}
+                <Route path="/*" element={
+                    <Layout>
+                        <Routes>
+                            <Route path="/" element={<DispatchBoard />} />
+                            <Route path="/scheduler" element={<GanttScheduler />} />
+                            <Route path="/plm" element={<PartAnalysis />} />
+                            <Route path="/shop-floor" element={<ShopFloor />} />
+                            <Route path="/inventory" element={<Inventory />} />
+                            <Route path="/financials" element={<Invoices />} />
+                            {/* Fallback */}
+                            <Route path="*" element={<Navigate to="/" />} />
+                        </Routes>
+                    </Layout>
+                } />
+            </Routes>
         </Router>
     );
 }

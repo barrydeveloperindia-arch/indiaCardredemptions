@@ -35,7 +35,7 @@ services:
     working_dir: /app
     volumes:
       - ./src/frontend:/app
-    command: sh -c "npm install && npm run dev -- --host"
+    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host"
     ports:
       - "5173:5173"
     depends_on:

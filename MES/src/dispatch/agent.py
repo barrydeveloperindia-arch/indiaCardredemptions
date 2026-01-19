@@ -43,6 +43,7 @@ class DispatchAgent:
         best_machine = None
         min_score = 9999
         
+        print("\n[Dispatch] --- Scoring Candidates ---")
         for m in candidates:
             # Count queued jobs (simulated for now, real DB query ideal)
             queue_depth = len([j for j in m.jobs if j.status in ['QUEUED', 'RUNNING']])
@@ -51,7 +52,10 @@ class DispatchAgent:
             if m.current_status == 'IDLE':
                 score -= 5 # Bonus for being free right now
                 
-            print(f"  > Candidate {m.machine_id} ({m.name}): Queue={queue_depth}, Score={score}")
+            print(f"  > Machine: {m.machine_id} ({m.name})")
+            print(f"    - Queue Depth: {queue_depth}")
+            print(f"    - Status Bonus: {'-5 (IDLE)' if m.current_status == 'IDLE' else '0'}")
+            print(f"    - Final Score: {score}")
             
             if score < min_score:
                 min_score = score
@@ -60,7 +64,7 @@ class DispatchAgent:
         # 4. Assign
         if best_machine:
             job_id = str(uuid.uuid4())
-            print(f"[Dispatch] Selected {best_machine.machine_id} (Score {min_score})")
+            print(f"[Dispatch] >>> Selected {best_machine.machine_id} (Lowest Score {min_score}) <<<\n")
             return job_id, best_machine.machine_id
             
         return "FAILED_UNKNOWN", None

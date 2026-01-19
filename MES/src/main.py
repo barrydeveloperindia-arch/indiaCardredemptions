@@ -16,6 +16,8 @@ from src.auth.router import router as auth_router
 from src.auth.router import get_current_user
 from src.inventory.router import router as inventory_router
 from src.inventory.service import InventoryService
+from src.part_analysis import router as part_analysis_router
+from src.scheduling import router as scheduling_router
 
 app = FastAPI(title="Englabs MES API", version="1.1.0")
 
@@ -37,6 +39,8 @@ inventory_service = InventoryService()
 # Include Routers
 app.include_router(auth_router)
 app.include_router(inventory_router)
+app.include_router(part_analysis_router.router)
+app.include_router(scheduling_router.router)
 
 # Startup Events
 @app.on_event("startup")

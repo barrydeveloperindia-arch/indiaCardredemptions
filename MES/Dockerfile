@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y libpq-dev gcc
 
 # Copy requirements
 # (In a real scenario, you'd have a requirements.txt, generating it inline for simplicity)
-RUN echo "fastapi\nuvicorn\nsqlalchemy\npsycopg2-binary\npydantic\nrequests" > requirements.txt
+RUN echo "fastapi\nuvicorn\nsqlalchemy\npsycopg2-binary\npydantic\nrequests\npython-jose[cryptography]\nbcrypt\npython-multipart" > requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code

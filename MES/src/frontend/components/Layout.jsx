@@ -7,8 +7,8 @@ const NavItem = ({ to, icon, label }) => (
         to={to}
         className={({ isActive }) =>
             `flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
-                ? 'bg-englabs-primary/10 text-englabs-primary shadow-[0_0_10px_rgba(6,182,212,0.1)] border border-englabs-primary/20'
-                : 'text-englabs-text-secondary hover:bg-englabs-surface hover:text-englabs-text-primary'
+                ? 'glass-nav-active'
+                : 'text-englabs-text-secondary hover:bg-white/50 hover:text-englabs-text-primary'
             }`
         }
     >
@@ -21,12 +21,11 @@ export default function Layout({ children }) {
     const { user, logout } = useAuth();
 
     return (
-        <div className="flex h-screen bg-englabs-bg overflow-hidden font-sans text-englabs-text-primary">
-            {/* Subtle Abstract Background Pattern (Dots) */}
-            <div className="absolute inset-0 z-0 opacity-40 mix-blend-multiply pointer-events-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:20px_20px]"></div>
+        <div className="flex h-screen bg-englabs-bg overflow-hidden font-sans text-englabs-text-primary selection:bg-englabs-primary selection:text-white">
+            {/* Clean White Background with subtle gradient handled by body */}
 
-            {/* Glassmorphism Sidebar */}
-            <aside className="w-64 glass-sidebar h-full flex flex-col z-10 shadow-sm relative">
+            {/* Glass Sidebar */}
+            <aside className="w-64 h-full flex flex-col z-10 glass-sidebar relative">
                 <div className="p-8">
                     <h1 className="text-2xl font-light tracking-tight text-englabs-text-primary">
                         Englabs<span className="font-bold text-englabs-primary">MES</span>
@@ -39,12 +38,14 @@ export default function Layout({ children }) {
 
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     <NavItem to="/" icon="📋" label="Dispatch Command" />
+                    <NavItem to="/scheduler" icon="📅" label="Agile Scheduler" />
+                    <NavItem to="/plm" icon="🧊" label="Part Analysis (PLM)" />
                     <NavItem to="/shop-floor" icon="🏭" label="Shop Floor Live" />
                     <NavItem to="/inventory" icon="📦" label="Inventory" />
                     <NavItem to="/financials" icon="💰" label="Financial Ledger" />
                 </nav>
 
-                <div className="p-4 border-t border-englabs-border bg-englabs-bg/50">
+                <div className="p-4 border-t border-white/20 bg-white/30 backdrop-blur-sm">
                     <div className="flex items-center space-x-3 mb-4">
                         <div className="w-9 h-9 rounded-lg bg-englabs-primary text-white flex items-center justify-center font-bold text-sm shadow-md shadow-englabs-primary/20">
                             {user?.username?.substring(0, 2).toUpperCase() || 'OP'}
@@ -56,7 +57,7 @@ export default function Layout({ children }) {
                     </div>
                     <button
                         onClick={logout}
-                        className="w-full text-xs font-medium text-englabs-text-secondary hover:text-englabs-danger hover:bg-red-50 py-2.5 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                        className="w-full text-xs font-medium text-englabs-text-secondary hover:text-englabs-danger hover:bg-red-50/50 py-2.5 rounded-lg transition-colors border border-transparent hover:border-red-100/50"
                     >
                         Sign Out
                     </button>
@@ -66,7 +67,7 @@ export default function Layout({ children }) {
             {/* Main Content Area */}
             <main className="flex-1 overflow-y-auto relative z-10 flex flex-col">
                 {/* Top Navigation Bar / Search */}
-                <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 px-8 py-4 flex justify-between items-center">
+                <header className="bg-white border-b border-englabs-border sticky top-0 z-20 px-8 py-4 flex justify-between items-center shadow-sm">
                     <div className="flex items-center text-slate-400 text-sm">
                         <span className="mr-2">Pages</span> / <span className="ml-2 text-slate-800 font-medium capitalize">Dashboard</span>
                     </div>
