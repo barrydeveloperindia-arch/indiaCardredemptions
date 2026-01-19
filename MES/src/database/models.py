@@ -139,3 +139,14 @@ class JournalLine(Base):
     
     entry = relationship("JournalEntry", back_populates="lines")
     account = relationship("Account", back_populates="journal_lines")
+
+class Part(Base):
+    __tablename__ = "parts"
+    
+    part_id = Column(String, primary_key=True, default=generate_uuid)
+    name = Column(String, nullable=False)
+    file_path = Column(String) # Path to stored STL/STEP
+    material = Column(String, default="PLA")
+    estimated_cost = Column(Float, default=0.0)
+    preview_url = Column(String) # For thumbnail
+    created_at = Column(DateTime, default=datetime.utcnow)

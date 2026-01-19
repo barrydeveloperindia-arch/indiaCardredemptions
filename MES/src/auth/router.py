@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 
 from src.database.connection import get_db
 from src.database.models import User
-from src.auth.utils import verify_password, get_password_hash, create_access_token, SECRET_KEY, ALGORITHM
+from src.auth.security import verify_password, get_password_hash, create_access_token, SECRET_KEY, ALGORITHM
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 

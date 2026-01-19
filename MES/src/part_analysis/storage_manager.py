@@ -8,7 +8,7 @@ class StorageManager:
     Manages physical file storage (simulating S3/MinIO bucket).
     """
     
-    BASE_DIR = "c:\\Users\\abrbh\\Documents\\Antigravity\\MES\\storage\\uploads"
+    BASE_DIR = "/app/storage/parts"
 
     @staticmethod
     def save_upload(file_obj, filename: str) -> str:
@@ -16,17 +16,14 @@ class StorageManager:
         if not os.path.exists(StorageManager.BASE_DIR):
             os.makedirs(StorageManager.BASE_DIR, exist_ok=True)
             
-        # Timestamp the filename to avoid collisions
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_name = f"{timestamp}_{filename}"
-        file_path = os.path.join(StorageManager.BASE_DIR, safe_name)
+        # Keep original filename for this demo to match viewer URL
+        # In prod, we'd sanitize more, but we need it to match `storage/parts/{filename}`
+        file_path = os.path.join(StorageManager.BASE_DIR, filename)
         
-        # Mock writing file (since UploadFile is an async stream we can't easily read in this sync mock without await)
-        # In real implementation: 
-        # with open(file_path, "wb") as buffer:
-        #    shutil.copyfileobj(file_obj.file, buffer)
+        # Write file from SpooledTemporaryFile
+        with open(file_path, "wb") as buffer:
+           shutil.copyfileobj(file_obj, buffer)
         
-        # For this demo, just return the path where it WOULD be
         return file_path
 
     @staticmethod

@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import PartAnalysis from './components/PartAnalysis';
 import GanttScheduler from './components/GanttScheduler';
 import DigitalTraveler from './components/DigitalTraveler';
+import PartCatalog from './components/PartCatalog';
 
 function AppRoutes() {
     const { token } = useAuth();
@@ -30,6 +31,7 @@ function AppRoutes() {
                         <Routes>
                             <Route path="/" element={<DispatchBoard />} />
                             <Route path="/scheduler" element={<GanttScheduler />} />
+                            <Route path="/catalog" element={<PartCatalog />} />
                             <Route path="/plm" element={<PartAnalysis />} />
                             <Route path="/shop-floor" element={<ShopFloor />} />
                             <Route path="/inventory" element={<Inventory />} />

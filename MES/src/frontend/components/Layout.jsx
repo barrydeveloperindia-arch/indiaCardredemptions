@@ -38,8 +38,9 @@ export default function Layout({ children }) {
 
                 <nav className="flex-1 px-4 space-y-2 mt-4">
                     <NavItem to="/" icon="📋" label="Dispatch Command" />
+                    <NavItem to="/catalog" icon="🧊" label="Part Catalog" />
                     <NavItem to="/scheduler" icon="📅" label="Agile Scheduler" />
-                    <NavItem to="/plm" icon="🧊" label="Part Analysis (PLM)" />
+                    <NavItem to="/plm" icon="🔬" label="Part Analysis (PLM)" />
                     <NavItem to="/shop-floor" icon="🏭" label="Shop Floor Live" />
                     <NavItem to="/inventory" icon="📦" label="Inventory" />
                     <NavItem to="/financials" icon="💰" label="Financial Ledger" />

@@ -18,8 +18,23 @@ from src.inventory.router import router as inventory_router
 from src.inventory.service import InventoryService
 from src.part_analysis import router as part_analysis_router
 from src.scheduling import router as scheduling_router
+from src.shop_floor import router as shop_floor_router
+
+import os
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Englabs MES API", version="1.1.0")
+
+# Mount Storage for Static Access (STL/Images)
+STORAGE_DIR = "/app/storage"
+if not os.path.exists(STORAGE_DIR):
+    try:
+        os.makedirs(STORAGE_DIR, exist_ok=True)
+        os.makedirs(os.path.join(STORAGE_DIR, "parts"), exist_ok=True)
+    except Exception as e:
+        print(f"Failed to create storage: {e}")
+
+app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")
 
 # CORS (Allow Frontend)
 app.add_middleware(
@@ -41,6 +56,7 @@ app.include_router(auth_router)
 app.include_router(inventory_router)
 app.include_router(part_analysis_router.router)
 app.include_router(scheduling_router.router)
+app.include_router(shop_floor_router.router, prefix="/api/shop-floor", tags=["Digital Traveler"])
 
 # Startup Events
 @app.on_event("startup")

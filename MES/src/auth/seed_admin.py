@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from src.database.connection import SessionLocal
 from src.database.models import User
-from src.auth.utils import get_password_hash
+from src.auth.security import get_password_hash
 
 def seed_admin():
     db = SessionLocal()
