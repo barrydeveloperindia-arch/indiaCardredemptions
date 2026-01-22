@@ -1,6 +1,5 @@
-import React from 'react';
-import { useAuth } from '../context/AuthContext';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const NavItem = ({ to, icon, label }) => (
     <NavLink
@@ -16,6 +15,8 @@ const NavItem = ({ to, icon, label }) => (
         <span className="font-medium text-sm">{label}</span>
     </NavLink>
 );
+
+import HinataAssistant from './HinataAssistant';
 
 export default function Layout({ children }) {
     const { user, logout } = useAuth();
@@ -103,6 +104,9 @@ export default function Layout({ children }) {
                     {children}
                 </div>
             </main>
+
+            {/* AI Assistant (Fixed to Viewport) */}
+            <HinataAssistant />
         </div>
     );
 }

@@ -1,14 +1,15 @@
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Any
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.database.connection import get_db, engine
+from fastapi.middleware.gzip import GZipMiddleware
 from src.database import models
 from src.dispatch.agent import DispatchAgent
-from src.shop_floor.digital_twin.service import DigitalTwinService
+from src.shop_floor.service_instance import twin_service
 from src.financials.invoicing.generator import InvoiceGenerator
 
 # Auth Imports (FIXED)
@@ -19,14 +20,18 @@ from src.inventory.service import InventoryService
 from src.part_analysis import router as part_analysis_router
 from src.scheduling import router as scheduling_router
 from src.shop_floor import router as shop_floor_router
+from src.shop_floor.hp_router import router as hp_router
+from src.shop_floor.dispatch_router import router as dispatch_router
+from src.ai.router import router as ai_router
 
 import os
+import asyncio
 from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Englabs MES API", version="1.1.0")
 
 # Mount Storage for Static Access (STL/Images)
-STORAGE_DIR = "/app/storage"
+STORAGE_DIR = "storage"
 if not os.path.exists(STORAGE_DIR):
     try:
         os.makedirs(STORAGE_DIR, exist_ok=True)
@@ -39,32 +44,54 @@ app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")
 # CORS (Allow Frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In prod strict origins
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Services (Singletons for this demo)
 dispatch_agent = DispatchAgent()
-twin_service = DigitalTwinService()
+# Moved twin_service to src.shop_floor.service_instance
 invoice_generator = InvoiceGenerator()
 inventory_service = InventoryService()
 
-# Include Routers
-app.include_router(auth_router)
-app.include_router(inventory_router)
+# Include Routers with standardized prefix
+app.include_router(auth_router, prefix="/api")
+app.include_router(inventory_router, prefix="/api")
 app.include_router(part_analysis_router.router)
-app.include_router(scheduling_router.router)
+app.include_router(scheduling_router.router, prefix="/api/scheduling")
 app.include_router(shop_floor_router.router, prefix="/api/shop-floor", tags=["Digital Traveler"])
+app.include_router(hp_router, prefix="/api")
+app.include_router(dispatch_router, prefix="/api/dispatch", tags=["Dispatch Board"])
+app.include_router(ai_router, prefix="/api")
+
+# Ensure Tables Exist
+models.Base.metadata.create_all(bind=engine)
 
 # Startup Events
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     # Pre-register mock machines to the Digital Twin
     twin_service.register_machine("CNC-001", "opc.tcp://mock-cnc-1:4840")
     twin_service.register_machine("CNC-HighPerf-05", "opc.tcp://mock-cnc-5:4840")
     twin_service.register_machine("3D-Printer-02", "opc.tcp://mock-printer:4840")
+    twin_service.register_machine("HP-MJF-4200-01", "https://api.hp.com/3d/v1")
+    
+    # Start Background Telemetry Loop
+    asyncio.create_task(telemetry_loop())
+
+async def telemetry_loop():
+    """Periodically refreshes the Digital Twin state."""
+    while True:
+        try:
+            await twin_service.refresh_all_states()
+            await asyncio.sleep(5) # Poll every 5 seconds
+        except Exception as e:
+            print(f"Telemetry Refresh Error: {e}")
+            await asyncio.sleep(10)
 
 # --- Pydantic Schemas ---
 class OrderCreate(BaseModel):
@@ -78,14 +105,14 @@ class MachineStatus(BaseModel):
     status: str
     temperature: float = 0.0
 
-# --- Endpoints ---
+# --- Endpoints (Internal API) ---
 
-@app.get("/")
+@app.get("/api/health")
 def health_check():
     return {"status": "MES System Online", "auth_mode": "JWT"}
 
 # Module A: Dispatching (PROTECTED)
-@app.post("/orders", status_code=201)
+@app.post("/api/orders", status_code=201)
 def create_order(
     order: OrderCreate, 
     background_tasks: BackgroundTasks, 
@@ -128,19 +155,18 @@ def create_order(
     else:
         return {"order_id": db_order.order_id, "status": "FAILED_NO_CAPABILITY"}
 
-# Module B: Shop Floor
-@app.get("/shop-floor", response_model=List[Dict])
+@app.get("/api/shop-floor-summary")
 def get_shop_floor_status():
     return twin_service.get_shop_floor_status()
 
-@app.get("/machines/{machine_id}")
+@app.get("/api/machines/{machine_id}")
 def get_machine_details(machine_id: str):
     return twin_service.get_machine_status(machine_id)
 
 class MachineCommand(BaseModel):
     command: str # START, STOP, ESTOP
 
-@app.post("/machines/{machine_id}/control")
+@app.post("/api/machines/{machine_id}/control")
 async def control_machine(
     machine_id: str, 
     cmd: MachineCommand, 
@@ -161,48 +187,75 @@ async def control_machine(
 # Module C: Financials
 @app.post("/jobs/{job_id}/complete")
 def complete_job_and_invoice(job_id: str, db: Session = Depends(get_db)):
-    # 1. Fetch Job
+    # 1. Fetch Job with relationships
     job = db.query(models.DispatchQueue).filter(models.DispatchQueue.job_id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
-    # 2. Mock Runtime Mechanics
-    job.status = "COMPLETED"
-    job.actual_end_time = datetime.utcnow()
+    # 2. Mock Runtime Mechanics (if not set by machine)
+    if job.status != "COMPLETED":
+        job.status = "COMPLETED"
+        job.actual_end_time = datetime.utcnow()
+        if not job.actual_start_time:
+            # Assume started 1 hour ago if not tracked
+            job.actual_start_time = datetime.utcnow() - timedelta(hours=1)
     db.commit()
+
+    # 3. Fetch Part Data for Volume/Material
+    # Join Order -> Part (via file path matching or we need direct link)
+    # Ideally Order should link to Part ID. For now, let's use part name heuristic from file path
+    # OR better: add part_id to Order.
+    # FALLBACK: Use Estimated Runtime as proxy for "Size" if Part DB link is weak.
     
-    # 3. Generate Invoice
+    # Let's try to find the part by filename from order
+    order = db.query(models.Order).filter(models.Order.order_id == job.order_id).first()
+    part_vol = 100.0 # Default fallback
+    if order:
+        filename = os.path.basename(order.cad_file_path)
+        part = db.query(models.Part).filter(models.Part.name == filename).first()
+        if part and part.measurements and "volume_cm3" in part.measurements:
+            part_vol = part.measurements["volume_cm3"]
+
+    # Calculate Runtime
+    runtime_min = 60
+    if job.actual_start_time and job.actual_end_time:
+        delta = job.actual_end_time - job.actual_start_time
+        runtime_min = delta.total_seconds() / 60
+    
+    # 4. Generate Invoice
     context = {
         "job_id": job.job_id,
         "order_id": job.order_id,
-        "customer_id": "CUST-DEFAULT",
+        "customer_id": getattr(order, "customer_id", "CUST-DEFAULT"),
         "machine_id": job.machine_id,
-        "material": "PLA",
-        "runtime_minutes": 120,
-        "material_usage": 0.3
+        "material": "PLA", # TODO: Get from Order Requirements
+        "runtime_minutes": runtime_min,
+        "material_usage": part_vol * 1.24 # Volume * Density (PLA)
     }
     
     invoice_data = invoice_generator.generate_invoice_for_job(context)
 
-    # 4. Decrement Inventory (NEW)
+    # 5. Decrement Inventory
     try:
-        # Assuming "PLA" exists as an item_id. In a real app, we'd lookup by material type.
-        inventory_service.update_stock(db, item_id="PLA", quantity_change=-0.3, job_id=job_id)
-        print(f"Inventory: Decremented 0.3 PLA for Job {job_id}")
+        inventory_service.update_stock(db, item_id="PLA", quantity_change=-(context["material_usage"]/1000.0), job_id=job_id) # usage in kg
     except ValueError as e:
-        print(f"Inventory Warning: Could not decrement stock: {e}")
+        print(f"Inventory Warning: {e}")
     
-    # 5. Save Invoice to DB
+    # 6. Save Invoice to DB
+    # We need to extract the breakdown from invoice_data or recalculate for DB columns
+    # invoice_data returns 'total', but check generator implementation.
+    # Generator uses CostingEngine.
+    
     db_inv = models.Invoice(
         invoice_id=invoice_data["invoice_id"],
         job_id=job_id,
         order_id=job.order_id,
-        machine_runtime_cost=100.0,
-        material_cost=50.0,
+        machine_runtime_cost=0.0, # detailed breakdown not in invoice_data yet
+        material_cost=0.0,
         total_amount=invoice_data["total"],
         erp_reference_id=invoice_data["erp_reference"]
     )
     db.add(db_inv)
     db.commit()
     
-    return {"status": "Job Completed", "invoice": invoice_data, "inventory_update": "Attempted"}
+    return {"status": "Job Completed", "invoice": invoice_data}

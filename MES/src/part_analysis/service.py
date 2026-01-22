@@ -22,20 +22,28 @@ class PartAnalysisService:
         stored_path = StorageManager.save_upload(file_obj, filename)
         
         # 2. Agent B: Conversion
+        print(f"[Service] Calling conversion on {stored_path}...")
         stl_path = ConversionWorker.convert_to_stl(stored_path)
+        print(f"[Service] Conversion returned {stl_path}")
         
         # 3. Agent A: Geometry
         if filename.lower().endswith(('.step', '.stp', '.sldprt')):
+            print(f"[Service] Using Exact CAD Analysis for {filename}")
             geo_data = GeometricEngine.analyze_step_or_sldprt(stored_path)
+            geo_data["original_format"] = "CAD"
+            
+            # Generate Thumbnail
+            thumb_path = ConversionWorker.generate_thumbnail(stored_path)
         else:
             geo_data = GeometricEngine.analyze_stl(stl_path)
+            thumb_path = None
             
         printability = ConversionWorker.check_printability(stl_path)
         
         # 4. Agent C: Pricing
         # Defaulting to PLA/FDM for the initial instant quote
         quote = PricingEngine.calculate_quote(
-            volume_cm3=geo_data["volume_cm3"],
+            measurements=geo_data,
             material_key="PLA"
         )
         
@@ -71,5 +79,6 @@ class PartAnalysisService:
             "raw_geometry": geo_data,
             "raw_printability": printability,
             "quote": quote,
-            "storage_path": stored_path
+            "storage_path": stored_path,
+            "thumbnail_path": thumb_path
         }

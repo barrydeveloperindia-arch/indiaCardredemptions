@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext(null);
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
         formData.append('password', password);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/token`, {
+            const response = await fetch(`${API_BASE_URL}/api/auth/token`, {
                 method: 'POST',
                 body: formData,
             });

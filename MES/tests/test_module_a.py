@@ -1,9 +1,11 @@
 from src.dispatch.agent import DispatchAgent
+from src.database.connection import SessionLocal
 
 def test_module_a():
     print("=== Testing Module A: Intelligent Dispatching ===")
     
     agent = DispatchAgent()
+    db = SessionLocal() # Create a real session
     
     # Test Case 1: Standard PLA Order (Should go to 3D Printer)
     order_1 = {
@@ -25,14 +27,15 @@ def test_module_a():
     # The current Mock Interference engine checks 100x100x50 against machine sizes. All should pass unless I force a failure.
     
     print("\n--- Dispatching Order 1 ---")
-    result_1 = agent.dispatch_order(order_1)
+    result_1 = agent.dispatch_order(order_1, db)
     print(f"Result 1: {result_1}")
     
     print("\n--- Dispatching Order 2 ---")
-    result_2 = agent.dispatch_order(order_2)
+    result_2 = agent.dispatch_order(order_2, db)
     print(f"Result 2: {result_2}")
     
     print("\n=== Module A Test Complete ===")
+    db.close()
 
 if __name__ == "__main__":
     test_module_a()

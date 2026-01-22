@@ -28,7 +28,7 @@ def get_gantt_data(db: Session = Depends(get_db)):
     end_timeline = now + timedelta(hours=24)
 
     # 2. Fetch Machines
-    machines = db.query(Machine).all()
+    machines = db.query(models.Machine).all()
     machine_data = [{
         "id": m.machine_id,
         "name": m.name,
@@ -37,8 +37,8 @@ def get_gantt_data(db: Session = Depends(get_db)):
 
     # 3. Fetch Active/Scheduled Jobs
     # In a real app, filter efficiently by date range
-    jobs = db.query(DispatchQueue).filter(
-        DispatchQueue.status.in_(["QUEUED", "RUNNING", "PLANNED"])
+    jobs = db.query(models.DispatchQueue).filter(
+        models.DispatchQueue.status.in_(["QUEUED", "RUNNING", "PLANNED"])
     ).all()
 
     job_data = []
@@ -83,7 +83,7 @@ def reschedule_job(
     db: Session = Depends(get_db),
     # user = Depends(get_current_user) # Commented out for easier verifying
 ):
-    job = db.query(DispatchQueue).filter(DispatchQueue.job_id == job_id).first()
+    job = db.query(models.DispatchQueue).filter(models.DispatchQueue.job_id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
@@ -104,7 +104,7 @@ def smart_schedule(db: Session = Depends(get_db)):
     Optimizes schedule by grouping jobs via Material.
     """
     # 1. Select all "QUEUED" jobs
-    queued_jobs = db.query(DispatchQueue).filter(DispatchQueue.status == "QUEUED").all()
+    queued_jobs = db.query(models.DispatchQueue).filter(models.DispatchQueue.status == "QUEUED").all()
     if not queued_jobs:
         return {"message": "No queued jobs to schedule."}
         

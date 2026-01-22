@@ -13,29 +13,57 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U mes_admin -d mes_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # 2. Backend API (FastAPI)
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: englabs_backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://mes_admin:secure_password@db/mes_db
+      HP_CLIENT_ID: akaqtcgj93enbvl5sivui55f9cg208in
+      HP_CLIENT_SECRET: cfrkv2hiv96sv4lb130vbb2du520tk32
+      OPENAI_API_KEY: "" # Add your OpenAI API Key here
+      GEMINI_API_KEY: "" # Add your Gemini API Key here
     ports:
-      - "8000:8000"
+      - "8008:8000"
     volumes:
-      - ./src:/app/src # Hot reload for dev
+      - ./src:/app/src
+      - ./storage:/app/storage
+
+  # 4. CAD Converter Sidecar (For FreeCAD)
+  converter:
+    build:
+      context: ./src/converter
+      dockerfile: Dockerfile
+    container_name: englabs_converter
+    ports:
+      - "5000" # Internal only, usually
+    volumes:
+      # Mount converter source code to allow hot-reloading if we ran with --reload, 
+      # but main.py is copied in Dockerfile. We mount to allow easy edits.
+      - ./src/converter:/app
 
   # 3. Frontend (Node/Vite)
-  # Assuming you have a Dockerfile in src/frontend or use a generic node image
   frontend:
-    image: node:18-alpine
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
     container_name: englabs_frontend
-    working_dir: /app
+    environment:
+      VITE_API_URL: http://localhost:8008
     volumes:
       - ./src/frontend:/app
-    command: sh -c "npm install --legacy-peer-deps && npm run dev -- --host"
+      - /app/node_modules
     ports:
       - "5173:5173"
     depends_on:

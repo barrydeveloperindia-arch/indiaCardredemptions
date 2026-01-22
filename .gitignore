@@ -74,3 +74,6 @@ android/.gradle
 
 # Local Config
 .vscode/
+
+.venv/
+MES/storage/

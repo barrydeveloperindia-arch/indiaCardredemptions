@@ -2,6 +2,10 @@ __pycache__
 *.pyc
 *.pyo
 venv/
+.venv/
 .git/
 .env
 .DS_Store
+node_modules
+dist
+storage/temp_*

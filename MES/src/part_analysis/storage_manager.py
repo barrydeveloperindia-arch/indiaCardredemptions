@@ -8,7 +8,7 @@ class StorageManager:
     Manages physical file storage (simulating S3/MinIO bucket).
     """
     
-    BASE_DIR = "/app/storage/parts"
+    BASE_DIR = "storage/parts"
 
     @staticmethod
     def save_upload(file_obj, filename: str) -> str:
@@ -31,3 +31,23 @@ class StorageManager:
         # Mock generating a signed URL
         filename = os.path.basename(local_path)
         return f"/api/storage/files/{filename}"
+
+    @staticmethod
+    def delete_file(file_path: str):
+        """
+        Deletes a file if it exists.
+        """
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"[Storage] Deleted {file_path}")
+                
+            # Check for associated STL (if conversion happened)
+            base, ext = os.path.splitext(file_path)
+            if ext.lower() != ".stl":
+                stl_path = base + ".stl"
+                if os.path.exists(stl_path):
+                    os.remove(stl_path)
+                    print(f"[Storage] Deleted associated STL {stl_path}")
+        except Exception as e:
+            print(f"[Storage] Error deleting {file_path}: {e}")

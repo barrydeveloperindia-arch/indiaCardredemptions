@@ -23,6 +23,12 @@ def seed_machines():
             "name": "Stratasys F120", 
             "capabilities": {"process": "PRINTING", "materials": ["PLA", "ABS", "PETG"], "precision": "LOW"},
             "telemetry_topic": "opc.tcp://mock-printer:4840"
+        },
+        {
+            "machine_id": "HP-MJF-4200-01", 
+            "name": "HP Jet Fusion 4200", 
+            "capabilities": {"process": "3D_PRINTING", "materials": ["PA12", "PA11"], "precision": "HIGH"},
+            "telemetry_topic": "https://api.hp.com/3d/v1"
         }
     ]
     

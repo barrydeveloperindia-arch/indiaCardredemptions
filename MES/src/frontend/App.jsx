@@ -1,16 +1,37 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Layout from './components/Layout';
-import DispatchBoard from './components/DispatchBoard';
-import ShopFloor from './components/ShopFloor';
-import Invoices from './components/Invoices';
-import Inventory from './components/Inventory';
-import Login from './components/Login';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import PartAnalysis from './components/PartAnalysis';
-import GanttScheduler from './components/GanttScheduler';
+import { useEffect } from 'react';
+import { Navigate, Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
 import DigitalTraveler from './components/DigitalTraveler';
+import DispatchBoard from './components/DispatchBoard';
+import GanttScheduler from './components/GanttScheduler';
+import Inventory from './components/Inventory';
+import Invoices from './components/Invoices';
+import Layout from './components/Layout';
+import Login from './components/Login';
+import PartAnalysis from './components/PartAnalysis';
 import PartCatalog from './components/PartCatalog';
+import ShopFloor from './components/ShopFloor';
+import StandaloneViewer from './components/StandaloneViewer';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+function SessionRestorer() {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Save current path to storage on every change
+        localStorage.setItem('englabs_last_path', location.pathname);
+    }, [location]);
+
+    useEffect(() => {
+        // On mount, check if there is a saved path and we are currently at root (fresh load)
+        const savedPath = localStorage.getItem('englabs_last_path');
+        if (savedPath && savedPath !== '/' && location.pathname === '/') {
+            navigate(savedPath);
+        }
+    }, []); // Run once on mount
+
+    return null;
+}
 
 function AppRoutes() {
     const { token } = useAuth();
@@ -21,9 +42,11 @@ function AppRoutes() {
 
     return (
         <Router>
+            <SessionRestorer />
             <Routes>
                 {/* Mobile App Route (Standalone) */}
                 <Route path="/digital-traveler" element={<DigitalTraveler />} />
+                <Route path="/viewer" element={<StandaloneViewer />} />
 
                 {/* Desktop App Routes (Wrapped in Layout) */}
                 <Route path="/*" element={

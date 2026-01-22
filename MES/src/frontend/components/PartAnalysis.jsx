@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Upload, FileText, CheckCircle, AlertTriangle, Box, RefreshCw } from 'lucide-react';
-import { API_BASE_URL } from '../config';
-import { Canvas, useLoader } from '@react-three/fiber';
-import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import { OrbitControls, Stage } from '@react-three/drei';
+import { Canvas, useLoader } from '@react-three/fiber';
+import { AlertTriangle, Box, CheckCircle, RefreshCw, Upload } from 'lucide-react';
+import React, { useState } from 'react';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+import { API_BASE_URL } from '../config';
 
 function STLModel({ url }) {
     const geom = useLoader(STLLoader, url);
@@ -14,10 +14,43 @@ const PartAnalysis = () => {
     const [analyzing, setAnalyzing] = useState(false);
     const [result, setResult] = useState(null);
     const [fileUrl, setFileUrl] = useState(null);
+    const [showFusionModal, setShowFusionModal] = useState(false);
+
+    const fusionScript = `import adsk.core, adsk.fusion, traceback
+import os, tempfile, urllib.request
+
+# URL of your MES Server
+MES_SERVER_URL = "http://localhost:8008/api/part-analysis/analyze"
+
+def run(context):
+    try:
+        app = adsk.core.Application.get()
+        ui, design = app.userInterface, app.activeProduct
+        if not design: return ui.messageBox('No active design')
+
+        # Export STEP
+        temp = tempfile.gettempdir()
+        fname = app.activeDocument.name.split(' v')[0] + '.step'
+        path = os.path.join(temp, fname)
+        design.exportManager.execute(design.exportManager.createSTEPExportOptions(path))
+
+        # Upload
+        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+        with open(path, 'rb') as f: bytes = f.read()
+        body = (f'--{boundary}\\r\\nContent-Disposition: form-data; name="file"; filename="{fname}"\\r\\nContent-Type: application/step\\r\\n\\r\\n').encode() + bytes + (f'\\r\\n--{boundary}--').encode()
+        
+        req = urllib.request.Request(MES_SERVER_URL, data=body)
+        req.add_header('Content-Type', f'multipart/form-data; boundary={boundary}')
+        with urllib.request.urlopen(req) as r:
+            ui.messageBox(f'Uploaded! Res: {r.read().decode()}')
+    except:
+        if ui: ui.messageBox(traceback.format_exc())`;
 
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+
 
         // Create local preview URL
         const url = URL.createObjectURL(file);
@@ -61,13 +94,13 @@ const PartAnalysis = () => {
                         <Upload className="w-8 h-8 text-englabs-blue" />
                     </div>
                     <h3 className="text-lg font-semibold text-englabs-grey-900 mb-2">Upload CAD File</h3>
-                    <p className="text-sm text-englabs-grey-500 mb-6 text-center">Drag & drop or click to browse<br />(STL, STEP, SLDPRT supported)</p>
+                    <p className="text-sm text-englabs-grey-500 mb-6 text-center">Drag & drop or click to browse<br />(STL, STEP, SLDPRT, X_T supported)</p>
                     <input
                         type="file"
                         onChange={handleFileUpload}
                         className="hidden"
                         id="file-upload"
-                        accept=".stl,.step,.stp,.obj,.sldprt"
+                        accept=".stl,.step,.stp,.obj,.sldprt,.x_t"
                     />
                     <label
                         htmlFor="file-upload"
@@ -75,7 +108,67 @@ const PartAnalysis = () => {
                     >
                         Select File
                     </label>
+
+                    {/* Extension Integrations */}
+                    <div className="mt-8 pt-6 border-t border-englabs-grey-100 w-full flex flex-col items-center">
+                        <p className="text-xs text-englabs-grey-400 mb-2 font-semibold uppercase tracking-wider">Extensions</p>
+                        <button
+                            onClick={() => setShowFusionModal(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-orange-200 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors text-sm font-medium"
+                        >
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Autodesk_Fusion_360_icon.svg/2048px-Autodesk_Fusion_360_icon.svg.png" className="w-5 h-5 object-contain" alt="Fusion 360" />
+                            Import from Fusion 360
+                        </button>
+                    </div>
                 </div>
+
+                {/* Fusion Modal */}
+                {showFusionModal && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 animate-fade-in-up">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold flex items-center gap-2">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Autodesk_Fusion_360_icon.svg/2048px-Autodesk_Fusion_360_icon.svg.png" className="w-6 h-6 object-contain" />
+                                    Fusion 360 Connector
+                                </h2>
+                                <button onClick={() => setShowFusionModal(false)} className="text-gray-400 hover:text-gray-600">
+                                    <Upload className="w-6 h-6 rotate-45" /> {/* Close Icon Simulation */}
+                                </button>
+                            </div>
+
+                            <div className="space-y-4 mb-6">
+                                <div className="p-4 bg-orange-50 border border-orange-100 rounded-lg text-sm text-orange-800">
+                                    <strong>How to Use:</strong> This extension script allows you to send CAD data directly from your local Fusion 360 to this MES application.
+                                </div>
+
+                                <ol className="list-decimal pl-5 space-y-2 text-sm text-gray-700">
+                                    <li>Open <strong>Autodesk Fusion 360</strong> on your PC.</li>
+                                    <li>Go to the <strong>UTILITIES</strong> tab &rarr; <strong>Scripts and Add-Ins</strong> (Shift+S).</li>
+                                    <li>Create a new Script (Python) and paste the code below code into it.</li>
+                                    <li>Run the script whenever you want to send your active design to Englabs MES.</li>
+                                </ol>
+
+                                <div className="relative">
+                                    <div className="absolute top-2 right-2 flex gap-2">
+                                        <button
+                                            onClick={() => navigator.clipboard.writeText(fusionScript)}
+                                            className="text-xs bg-gray-800 text-white px-2 py-1 rounded hover:bg-black transition"
+                                        >
+                                            Copy Code
+                                        </button>
+                                    </div>
+                                    <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-auto h-48 font-mono">
+                                        {fusionScript}
+                                    </pre>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <button onClick={() => setShowFusionModal(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Results Analysis */}
                 <div className="bg-white rounded-lg shadow-englabs-card p-6 min-h-[400px] relative">
@@ -115,6 +208,10 @@ const PartAnalysis = () => {
                             <div className="flex items-center justify-between mb-6 pb-4 border-b border-englabs-grey-100">
                                 <div>
                                     <h2 className="text-xl font-bold text-englabs-grey-900">{result.filename}</h2>
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 mr-2 bg-blue-100 text-blue-800`}>
+                                        <CheckCircle className="w-3 h-3 mr-1" />
+                                        Saved to Catalog
+                                    </span>
                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${result.status === 'PRINTABLE' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                         }`}>
                                         {result.status}
@@ -134,6 +231,21 @@ const PartAnalysis = () => {
                                 <div className="p-4 bg-englabs-grey-50 rounded">
                                     <div className="text-sm text-englabs-grey-500">Material</div>
                                     <div className="text-lg font-semibold">{result.material_suggestion}</div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mb-6">
+                                <div className="p-4 bg-englabs-grey-50 rounded">
+                                    <div className="text-sm text-englabs-grey-500">Dimensions (mm)</div>
+                                    <div className="text-lg font-semibold">
+                                        {result.bounding_box ?
+                                            `${result.bounding_box.x} x ${result.bounding_box.y} x ${result.bounding_box.z}`
+                                            : 'N/A'}
+                                    </div>
+                                </div>
+                                <div className="p-4 bg-englabs-grey-50 rounded">
+                                    <div className="text-sm text-englabs-grey-500">Poly Count</div>
+                                    <div className="text-lg font-semibold">{result.poly_count ? result.poly_count.toLocaleString() : 'N/A'}</div>
                                 </div>
                             </div>
 
@@ -157,8 +269,11 @@ const PartAnalysis = () => {
                             </div>
 
                             <div className="pt-4 border-t border-englabs-grey-100 flex justify-end">
-                                <button className="text-englabs-blue font-medium hover:text-blue-800">
-                                    Save to Catalog &rarr;
+                                <button
+                                    onClick={() => window.location.href = '/catalog'}
+                                    className="text-englabs-blue font-medium hover:text-blue-800"
+                                >
+                                    Go to Catalog &rarr;
                                 </button>
                             </div>
                         </div>

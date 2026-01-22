@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+pydantic
+requests
+python-jose[cryptography]
+bcrypt
+python-multipart
+passlib
+cadquery
+trimesh[easy]
+numpy
+scipy
+fpdf2
+openai
+google-generativeai

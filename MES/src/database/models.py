@@ -1,6 +1,8 @@
-from sqlalchemy import Column, String, Integer, Float, Boolean, ForeignKey, JSON, DateTime, DECIMAL
+
+from sqlalchemy import Column, String, Integer, Float, Boolean, ForeignKey, JSON, DateTime, DECIMAL, Enum
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.sql import func
 from datetime import datetime
 import uuid
 from .connection import Base
@@ -160,5 +162,12 @@ class Part(Base):
     # Phase 5: Suitability Analysis
     technical_score = Column(Float, default=0.0)
     economic_action = Column(String, default="Evaluate") # "Print", "Mold"
+    
+    # Phase 2: Detailed Analysis
+    measurements = Column(JSON, default={}) # Volume, BBox, Area
+    
+    # Metadata for Categorization
+    project_id = Column(String, nullable=True, index=True) # e.g. "AEBOCODE"
+    source_path = Column(String, nullable=True) # Original path on user disk
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

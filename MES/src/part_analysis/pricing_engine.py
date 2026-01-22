@@ -20,7 +20,8 @@ class PricingEngine:
     }
 
     @staticmethod
-    def calculate_quote(volume_cm3: float, material_key: str, machine_type: str = "FDM_STANDARD"):
+    def calculate_quote(measurements: dict, material_key: str, machine_type: str = "FDM_STANDARD"):
+        volume_cm3 = measurements.get("volume_cm3", 0.0) or 0.0
         
         material_info = PricingEngine.MATERIALS_DB.get(material_key, PricingEngine.MATERIALS_DB["PLA"])
         
