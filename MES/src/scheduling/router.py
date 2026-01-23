@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from src.database.connection import get_db
 from src.database import models
-from src.auth.router import get_current_user # Uses security internally now import get_current_user
+# from src.auth.router import get_current_user # Uses security internally now import get_current_user
 
 router = APIRouter()
 
@@ -19,50 +19,76 @@ def get_gantt_data(db: Session = Depends(get_db)):
     """
     Fetch data for the Gantt Chart:
     - Timeline Range (Start/End)
-    - Machines (Lanes)
-    - Jobs (Blocks)
+    - Machines (Lanes) - Sorted by ID
+    - Jobs (Blocks) - Joined with Order for real Part Names
     """
     # 1. Determine Timeline (e.g., -12h to +24h from now)
     now = datetime.utcnow()
     start_timeline = now - timedelta(hours=12)
     end_timeline = now + timedelta(hours=24)
 
-    # 2. Fetch Machines
-    machines = db.query(models.Machine).all()
+    # 2. Fetch Machines (Sorted)
+    machines = db.query(models.Machine).order_by(models.Machine.machine_id).all()
     machine_data = [{
         "id": m.machine_id,
         "name": m.name,
-        "group": "CNC" if "CNC" in m.name else "Printing" # Simple group logic
+        "group": "CNC" if "CNC" in m.name else ("Printers" if "Printer" in m.name else "Other")
     } for m in machines]
 
-    # 3. Fetch Active/Scheduled Jobs
-    # In a real app, filter efficiently by date range
-    jobs = db.query(models.DispatchQueue).filter(
-        models.DispatchQueue.status.in_(["QUEUED", "RUNNING", "PLANNED"])
+    # 3. Fetch Active/Scheduled Jobs Joined with Orders
+    results = db.query(
+        models.DispatchQueue, 
+        models.Order.cad_file_path, 
+        models.Order.priority_level
+    ).join(
+        models.Order, 
+        models.DispatchQueue.order_id == models.Order.order_id
+    ).filter(
+        models.DispatchQueue.status.in_(["QUEUED", "RUNNING", "PLANNED", "COMPLETED"])
     ).all()
 
     job_data = []
-    for job in jobs:
-        if not job.planned_start_time or not job.estimated_runtime_seconds:
-            continue
-            
-        start_time = job.planned_start_time
-        end_time = start_time + timedelta(seconds=job.estimated_runtime_seconds)
+    
+    # Auto-schedule helper for visualizing QUEUED jobs without times
+    last_end_time_per_machine = {m.machine_id: now for m in machines}
+
+    for job, cad_file, priority in results:
+        # Determine Part Name
+        part_name = "Unknown"
+        if cad_file:
+             part_name = cad_file.split("/")[-1]
+             if len(part_name) > 20: 
+                 part_name = part_name[:17] + "..."
+
+        # Heuristic Scheduling for Visualization
+        if job.planned_start_time:
+            start_time = job.planned_start_time
+        elif job.actual_start_time:
+            start_time = job.actual_start_time
+        else:
+            base_time = last_end_time_per_machine.get(job.machine_id, now)
+            start_time = max(base_time, now)
         
+        duration_sec = job.estimated_runtime_seconds if job.estimated_runtime_seconds else 3600
+        end_time = start_time + timedelta(seconds=duration_sec)
+        
+        if end_time > last_end_time_per_machine.get(job.machine_id, now):
+            last_end_time_per_machine[job.machine_id] = end_time
+
         # Color coding
-        color = "#3B82F6" # Blue (Default/Planned)
+        color = "#3B82F6"
         if job.status == "RUNNING":
-            color = "#10B981" # Green
+            color = "#10B981"
         elif job.status == "COMPLETED":
-            color = "#6B7280" # Grey
+            color = "#6B7280"
         elif job.status == "QUEUED":
-             color = "#F59E0B" # Amber
+             color = "#F59E0B"
 
         job_data.append({
             "id": job.job_id,
             "machine_id": job.machine_id,
             "order_id": job.order_id,
-            "part_name": f"Part-{job.job_id[:4]}", # Placeholder name logic
+            "part_name": part_name, 
             "start_time": start_time.isoformat(),
             "end_time": end_time.isoformat(),
             "status": job.status,
@@ -94,6 +120,7 @@ def reschedule_job(
     
     db.commit()
     return {"status": "success", "message": f"Job {job_id} rescheduled to {req.new_start_time} on {req.machine_id}"}
+
 
 from .smart_scheduler import SmartScheduler
 

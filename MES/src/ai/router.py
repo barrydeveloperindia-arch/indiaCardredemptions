@@ -40,12 +40,12 @@ async def ask_ai(request: ChatRequest):
             return {"response": "Error: GEMINI_API_KEY not configured. Please set it in docker-compose.yml"}
         
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-flash-latest')
 
         # 2. Build Context (System Prompt + Memory)
         facts = load_memory()
         system_prompt = (
-            "You are Hinata, an advanced AI manufacturing assistant for Englabs MES. "
+            "You are GOKU, an advanced AI manufacturing assistant for Englabs MES. "
             "You are helpful, precise, and friendly. "
             "You have access to the following 'Learned Knowledge' from previous conversations: \n"
             + "\n".join([f"- {f}" for f in facts]) + "\n\n"

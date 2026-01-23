@@ -1,4 +1,4 @@
-import { Html, OrbitControls, Stage } from '@react-three/drei';
+import { Html, OrbitControls } from '@react-three/drei';
 import { Canvas, useLoader, useThree } from '@react-three/fiber';
 import { jsPDF } from 'jspdf';
 import { Box, Download, FileText, Maximize2, Minimize2, Palette, Ruler, Settings } from 'lucide-react';
@@ -179,9 +179,10 @@ const STLViewer = ({ url, onClose, isStandalone = false, partData }) => {
                 <div className="flex-1 bg-gradient-to-br from-gray-100 to-gray-200 relative">
                     <Canvas shadows camera={{ position: [0, 0, 150], fov: 50 }} gl={{ preserveDrawingBuffer: true }}>
                         <Suspense fallback={<Html center>Loading...</Html>}>
-                            <Stage environment="city" intensity={0.6} castShadow={false}>
-                                <Model url={url} color={color} scale={scale} setBounds={setBounds} />
-                            </Stage>
+                            {/* Stage replaced with manual lights for offline reliability */}
+                            <ambientLight intensity={0.5} />
+                            <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
+                            <Model url={url} color={color} scale={scale} setBounds={setBounds} />
                             <PdfExporter triggerExport={exporting} onComplete={() => setExporting(false)} bounds={bounds} />
                         </Suspense>
                         {/* Middle Click Pan: mouseButtons={{ LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN }} */}

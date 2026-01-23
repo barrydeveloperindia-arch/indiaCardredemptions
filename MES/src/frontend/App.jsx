@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
+import DigitalDrawingViewer from './components/DigitalDrawingViewer';
 import DigitalTraveler from './components/DigitalTraveler';
 import DispatchBoard from './components/DispatchBoard';
 import GanttScheduler from './components/GanttScheduler';
@@ -47,6 +48,7 @@ function AppRoutes() {
                 {/* Mobile App Route (Standalone) */}
                 <Route path="/digital-traveler" element={<DigitalTraveler />} />
                 <Route path="/viewer" element={<StandaloneViewer />} />
+                <Route path="/drawing-viewer" element={<DigitalDrawingViewer />} />
 
                 {/* Desktop App Routes (Wrapped in Layout) */}
                 <Route path="/*" element={

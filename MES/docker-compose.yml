@@ -5,6 +5,7 @@ services:
   db:
     image: postgres:15-alpine
     container_name: englabs_postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: mes_admin
       POSTGRES_PASSWORD: secure_password
@@ -25,6 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: englabs_backend
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
@@ -33,7 +35,7 @@ services:
       HP_CLIENT_ID: akaqtcgj93enbvl5sivui55f9cg208in
       HP_CLIENT_SECRET: cfrkv2hiv96sv4lb130vbb2du520tk32
       OPENAI_API_KEY: "" # Add your OpenAI API Key here
-      GEMINI_API_KEY: "" # Add your Gemini API Key here
+      GEMINI_API_KEY: "AIzaSyAQib5iRpK6u01A6XpIpju9q8dBEC2RaEk" # Add your Gemini API Key here
     ports:
       - "8008:8000"
     volumes:
@@ -46,6 +48,7 @@ services:
       context: ./src/converter
       dockerfile: Dockerfile
     container_name: englabs_converter
+    restart: unless-stopped
     ports:
       - "5000" # Internal only, usually
     volumes:
@@ -59,6 +62,7 @@ services:
       context: ./src/frontend
       dockerfile: Dockerfile
     container_name: englabs_frontend
+    restart: unless-stopped
     environment:
       VITE_API_URL: http://localhost:8008
     volumes:

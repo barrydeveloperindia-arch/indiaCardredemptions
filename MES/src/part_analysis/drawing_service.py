@@ -1,18 +1,20 @@
 import cadquery as cq
 import os
 from typing import Dict, Any, List
+from fpdf import FPDF
+import datetime
 
 class DrawingService:
     """
     Service for generating 2D technical drawings from 3D models.
-    Uses CadQuery to project views and export SVGs.
+    Uses CadQuery to project views and FPDF2 to compose a professional PDF.
     """
     
     @staticmethod
     def generate_technical_drawing(file_path: str, output_dir: str = "storage/drawings") -> Dict[str, str]:
         """
-        Generates 3-view (Top, Front, Right) SVG drawings for a given CAD/STL file.
-        Returns a dictionary of paths to the generated SVGs.
+        Generates 3-view + Iso SVG drawings AND a composed PDF technical drawing.
+        Returns paths to SVGs and the final PDF.
         """
         if not os.path.exists(output_dir):
             os.makedirs(output_dir, exist_ok=True)
@@ -20,53 +22,186 @@ class DrawingService:
         filename = os.path.basename(file_path)
         base_name = os.path.splitext(filename)[0]
         
-        # 1. Load Model
+        # 1. Load Model & Generate SVGs
+        model = None
+        is_step = False
+        bbox = None
+        
         try:
             # CadQuery works best with STEP.
             if file_path.lower().endswith(('.step', '.stp')):
                 model = cq.importers.importStep(file_path)
+                is_step = True
+                
+                # Calculate Bounding Box for dimensions
+                # Combined bounding box of all solids
+                bbox = model.val().BoundingBox()
+                
             else:
-                # Fallback for STL
-                return DrawingService._generate_fallback_stl_views(file_path, output_dir, base_name)
+                # Fallback for STL (no dimensions extraction easily via CQ yet)
+                pass 
         except Exception as e:
             print(f"CQ Import Failed: {e}")
-            return DrawingService._generate_fallback_stl_views(file_path, output_dir, base_name)
 
-        # 2. Define Views
         views = {
             "top": (0, 0, 1),
-            "front": (0, 1, 0),
+            "front": (0, -1, 0), # Standard Front
             "right": (1, 0, 0),
             "iso": (1, 1, 1)
         }
         
-        results = {}
+        generated_images = {}
         
-        for name, direction in views.items():
-            out_path = os.path.join(output_dir, f"{base_name}_{name}.svg")
-            try:
-                cq.exporters.export(
-                    model,
-                    out_path,
-                    opt={
-                        "width": 600,
-                        "height": 600,
-                        "marginLeft": 10,
-                        "marginTop": 10,
-                        "showAxes": False,
-                        "projectionDir": direction,
-                        "strokeColor": (0, 0, 0),
-                        "showHidden": False
-                    }
-                )
-                
-                # Fix path for Web
-                results[name] = DrawingService._format_web_path(out_path)
+        # Generate SVGs
+        if is_step and model:
+            for name, direction in views.items():
+                out_path = os.path.join(output_dir, f"{base_name}_{name}.svg")
+                try:
+                    cq.exporters.export(
+                        model,
+                        out_path,
+                        opt={
+                            "width": 1000, # Higher res for PDF
+                            "height": 1000,
+                            "marginLeft": 20,
+                            "marginTop": 20,
+                            "showAxes": False,
+                            "projectionDir": direction,
+                            "strokeColor": (0, 0, 0),
+                            "showHidden": False
+                        }
+                    )
+                    generated_images[name] = out_path
+                except Exception as e:
+                    print(f"Failed to generate {name} view: {e}")
+        else:
+             # Fallback STL logic (simplified for brevity, reuse previous if needed)
+             return DrawingService._generate_fallback_stl_views(file_path, output_dir, base_name)
 
-            except Exception as e:
-                print(f"Failed to generate {name} view: {e}")
+        # 2. Generate PDF
+        pdf_path = os.path.join(output_dir, f"{base_name}_drawing.pdf")
+        
+        try:
+            DrawingService._create_engineering_pdf(
+                pdf_path, 
+                filename, 
+                generated_images, 
+                bbox
+            )
+            web_pdf_path = DrawingService._format_web_path(pdf_path)
+            
+            # Prepare result
+            results = {k: DrawingService._format_web_path(v) for k, v in generated_images.items()}
+            results["pdf_url"] = web_pdf_path
+            return results
+            
+        except Exception as e:
+            print(f"PDF Gen failed: {e}")
+            # Return just images if PDF fails
+            return {k: DrawingService._format_web_path(v) for k, v in generated_images.items()}
+
+    @staticmethod
+    def _create_engineering_pdf(output_path, part_name, images, bbox):
+        """Composes the A4 Landscape PDF."""
+        pdf = FPDF(orientation='L', unit='mm', format='A4')
+        pdf.add_page()
+        
+        # Dimensions (A4 Landscape = 297mm x 210mm)
+        w, h = 297, 210
+        margin = 10
+        
+        # 1. Border
+        pdf.set_line_width(0.5)
+        pdf.rect(margin, margin, w - 2*margin, h - 2*margin)
+        
+        # 2. Title Block (Bottom Right)
+        # Block size: 100mm wide, 30mm high
+        tb_w, tb_h = 90, 30
+        tb_x = w - margin - tb_w
+        tb_y = h - margin - tb_h
+        
+        pdf.rect(tb_x, tb_y, tb_w, tb_h)
+        
+        # Title Block Grid
+        # Row 1: Logo/Company (Left 40), Title (Right 50)
+        pdf.line(tb_x + 40, tb_y, tb_x + 40, tb_y + tb_h)
+        pdf.line(tb_x, tb_y + 10, tb_x + tb_w, tb_y + 10) # H-line top (date/scale)
+        pdf.line(tb_x + 40, tb_y + 20, tb_x + tb_w, tb_y + 20) # H-line middle
+        
+        # Text
+        pdf.set_font('helvetica', 'B', 12)
+        pdf.text(tb_x + 2, tb_y + 8, "ENGLABS")
+        pdf.set_font('helvetica', '', 8)
+        pdf.text(tb_x + 2, tb_y + 25, "MES SYSTEM")
+        
+        # Part Name
+        pdf.set_font('helvetica', 'B', 10)
+        pdf.set_xy(tb_x + 42, tb_y + 12)
+        pdf.multi_cell(45, 4, part_name)
+        
+        # Date
+        pdf.set_font('helvetica', '', 7)
+        pdf.text(tb_x + 42, tb_y + 28, f"Date: {datetime.date.today()}")
+        pdf.text(tb_x + 42, tb_y + 24, "Scale: N.T.S.")
+        
+        # 3. View Placement
+        # Layout:
+        # Top Left: Top View
+        # Bottom Left: Front View
+        # Bottom Right (center): Right View
+        # Top Right: Iso View
+        
+        # Viewport sizes
+        vp_size = 80 # 80x80mm box per view
+        
+        # Positions
+        pos = {
+            "top":   (margin + 20, margin + 20),
+            "front": (margin + 20, margin + 20 + vp_size + 10),
+            "right": (margin + 20 + vp_size + 20, margin + 20 + vp_size + 10),
+            "iso":   (w - margin - vp_size - 10, margin + 10)
+        }
+        
+        for name, xy in pos.items():
+            if name in images:
+                # Draw Viewport Box (optional, creates clean look)
+                # pdf.set_draw_color(200, 200, 200)
+                # pdf.rect(xy[0], xy[1], vp_size, vp_size)
+                # pdf.set_draw_color(0, 0, 0)
                 
-        return results
+                # Image
+                pdf.image(images[name], x=xy[0], y=xy[1], w=vp_size, h=vp_size)
+                
+                # Label
+                pdf.set_font('helvetica', 'B', 9)
+                pdf.text(xy[0], xy[1] - 2, f"{name.upper()} VIEW")
+                
+                # Dimensions Overlay
+                if bbox:
+                    pdf.set_font('courier', '', 8)
+                    pdf.set_text_color(255, 0, 0) # Red dimensions
+                    
+                    if name == "top":
+                        # Width (X) and Depth (Z in webgl, Y here?) 
+                        # CQ Bbox: xlen, ylen, zlen
+                        pdf.text(xy[0] + vp_size/2 - 10, xy[1] + vp_size + 4, f"L: {bbox.xlen:.2f}mm")
+                        pdf.text(xy[0] - 15, xy[1] + vp_size/2, f"D: {bbox.zlen:.2f}mm") # Assuming Z is depth
+                        
+                    elif name == "front":
+                        # Length (X) and Height (Y or Z)
+                        pdf.text(xy[0] + vp_size/2 - 10, xy[1] + vp_size + 4, f"L: {bbox.xlen:.2f}mm")
+                        pdf.text(xy[0] - 15, xy[1] + vp_size/2, f"H: {bbox.ylen:.2f}mm")
+                        
+                    elif name == "right":
+                        # Depth (Z) and Height (Y)
+                        pdf.text(xy[0] + vp_size/2 - 10, xy[1] + vp_size + 4, f"D: {bbox.zlen:.2f}mm")
+                        pdf.text(xy[0] - 15, xy[1] + vp_size/2, f"H: {bbox.ylen:.2f}mm")
+                        
+                    pdf.set_text_color(0, 0, 0)
+
+        # 4. Save
+        pdf.output(output_path)
+
 
     @staticmethod
     def _generate_fallback_stl_views(file_path: str, output_dir: str, base_name: str) -> Dict[str, str]:
@@ -75,11 +210,8 @@ class DrawingService:
         """
         try:
             import trimesh
-            import numpy as np
-            from shapely.geometry import Polygon
-            from shapely.ops import unary_union
         except ImportError:
-            print("Missing dependencies for STL drawing (trimesh/shapely)")
+            print("Missing dependencies for STL drawing (trimesh)")
             return {}
 
         results = {}
@@ -90,28 +222,16 @@ class DrawingService:
             if isinstance(mesh, trimesh.Scene):
                 mesh = mesh.dump(concatenate=True)
             
-            axes = {
-                "top": [0, 0, 1], 
-                "front": [0, 1, 0],
-                "right": [1, 0, 0]
-            }
+            axes = ["top", "front", "right"]
             
-            for name, normal in axes.items():
+            for name in axes:
                 out_path = os.path.join(output_dir, f"{base_name}_{name}.svg")
-                
-                # Project vertices to plane
-                # Simple projection: flatten coords
-                # This is a very rough approximation for a "drawing"
-                # A proper hidden line removal on mesh is slow.
-                # We will just generate a placeholder SVG with bounding box.
-                
-                # Create SVG manually
                 DrawingService._create_placeholder_svg(out_path, name, mesh.bounds)
                 results[name] = DrawingService._format_web_path(out_path)
                 
         except Exception as e:
-            print(f"STL Fallback failed: {e}")
-            
+             print(f"STL Fallback failed: {e}")
+             
         return results
 
     @staticmethod
@@ -123,7 +243,7 @@ class DrawingService:
             f.write(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">')
             f.write(f'<rect width="100%" height="100%" fill="#f9f9f9" stroke="#ccc" />')
             f.write(f'<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" fill="#333">{label.upper()} VIEW</text>')
-            f.write(f'<text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="monospace" fill="#666" font-size="10">STL Projection Not Supported Yet</text>')
+            f.write(f'<text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="monospace" fill="#666" font-size="10">STL Projection Not Supported</text>')
             f.write('</svg>')
 
     @staticmethod
@@ -131,8 +251,15 @@ class DrawingService:
         """Converts filesystem path to web storage path."""
         # Normalize slashes
         p = fs_path.replace("\\", "/")
-        # Ensure it starts with /storage
-        if "/storage/" in p:
-             return "/storage/" + p.split("/storage/", 1)[1]
+        
+        # Find 'storage' segment
+        if "storage/" in p:
+             # Ensure we extract from 'storage' folder onwards and add leading slash
+             idx = p.find("storage/")
+             return "/" + p[idx:]
+        
+        # Fallback: if not in storage, assume it is relative to root, add slash
+        if not p.startswith("/"):
+            return "/" + p
         return p
 

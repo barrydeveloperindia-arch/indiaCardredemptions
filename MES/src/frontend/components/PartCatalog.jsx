@@ -220,7 +220,7 @@ const PartCatalog = () => {
                                         className="w-full h-48 object-contain p-4 bg-gray-50"
                                         onError={(e) => {
                                             e.target.onerror = null;
-                                            e.target.src = 'https://placehold.co/400x300?text=No+Preview';
+                                            e.target.src = '/placeholder.svg';
                                             console.warn("Failed to load image:", part.preview_url);
                                         }}
                                     />
@@ -266,7 +266,7 @@ const PartCatalog = () => {
                                             let viewerUrl = part.file_path;
                                             console.log("Original File Path:", viewerUrl);
                                             const lowerUrl = viewerUrl.toLowerCase();
-                                            if (lowerUrl.endsWith('.step') || lowerUrl.endsWith('.stp') || lowerUrl.endsWith('.sldprt')) {
+                                            if (lowerUrl.endsWith('.step') || lowerUrl.endsWith('.stp') || lowerUrl.endsWith('.sldprt') || lowerUrl.endsWith('.x_t')) {
                                                 viewerUrl = viewerUrl.substring(0, viewerUrl.lastIndexOf('.')) + '.stl';
                                             }
 
@@ -291,7 +291,10 @@ const PartCatalog = () => {
                                         View 3D
                                     </button>
                                     <button
-                                        onClick={(e) => handleGenerateDrawing(part.part_id, e)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            window.open(`/drawing-viewer?part_id=${part.part_id}`, '_blank');
+                                        }}
                                         className="bg-white/90 text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium hover:bg-white backdrop-blur-sm shadow-sm ml-2"
                                     >
                                         2D Dwg
@@ -354,45 +357,7 @@ const PartCatalog = () => {
                 </div>
             )}
 
-            {/* Drawing Modal */}
-            {
-                drawingModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-                            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                                <h3 className="font-bold text-gray-800">Technical Drawings</h3>
-                                <button onClick={() => setDrawingModalOpen(false)} className="text-gray-500 hover:text-gray-700">
-                                    X
-                                </button>
-                            </div>
-                            <div className="p-6 overflow-y-auto bg-gray-100 flex-1">
-                                {generatingDrawing ? (
-                                    <div className="flex flex-col items-center justify-center h-64">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                                        <p className="text-gray-500">Generating Projection Views...</p>
-                                    </div>
-                                ) : drawingData ? (
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {Object.entries(drawingData).map(([view, url]) => (
-                                            <div key={view} className="bg-white p-2 rounded shadow-sm">
-                                                <p className="text-xs font-bold uppercase text-gray-400 mb-2 border-b pb-1">{view} View</p>
-                                                <img src={`${API_BASE_URL}${encodeURI(url)}`} alt={view} className="w-full h-auto border border-gray-100" />
-                                            </div>
-                                        ))}
-                                        {Object.keys(drawingData).length === 0 && (
-                                            <div className="col-span-2 text-center py-10 text-gray-400">
-                                                No views could be generated for this file format.
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="text-center text-red-500">Failed to load data.</div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
+            {/* Modal removed in favor of new window viewer */}
         </div >
     );
 };

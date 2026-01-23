@@ -131,16 +131,7 @@ const GanttScheduler = () => {
 
     return (
         <div className="p-6 h-screen flex flex-col bg-englabs-grey-100 overflow-hidden relative">
-            {/* FORCE DEBUG OVERLAY */}
-            <div className="absolute top-0 right-0 p-4 bg-yellow-100 border-b border-l border-yellow-300 z-50 shadow-lg text-xs font-mono max-w-lg overflow-auto max-h-40 opacity-90">
-                <strong>DEBUG V3</strong><br />
-                API: {API_BASE_URL}<br />
-                Loading: {String(loading)}<br />
-                Error: {String(error)}<br />
-                Data: {data ? "Present" : "Null"}<br />
-                Machines: {data?.machines?.length || 0}<br />
-                Jobs: {data?.jobs?.length || 0}
-            </div>
+            {/* Debug overlay removed */}
 
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold text-englabs-grey-900 flex items-center gap-2">

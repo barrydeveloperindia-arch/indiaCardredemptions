@@ -1,12 +1,13 @@
 import { Bot, Mic, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 
 const HinataAssistant = () => {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: "Hi, I'm Hinata. How can I help you manage the factory today?" }
+        { role: 'assistant', content: "Hi, I'm GOKU. How can I help you manage the factory today?" }
     ]);
     const [input, setInput] = useState('');
     const [isListening, setIsListening] = useState(false);
@@ -16,12 +17,12 @@ const HinataAssistant = () => {
     const speak = (text) => {
         if (!window.speechSynthesis) return;
         const utterance = new SpeechSynthesisUtterance(text);
-        // Try to find a female voice
+        // Try to find a male voice
         const voices = window.speechSynthesis.getVoices();
-        const specificVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Google US English') || v.name.includes('Zira'));
+        const specificVoice = voices.find(v => v.name.includes('Male') || v.name.includes('David') || v.name.includes('Mark'));
         if (specificVoice) utterance.voice = specificVoice;
         utterance.rate = 1.0;
-        utterance.pitch = 1.1; // Slightly higher pitch for "Hinata"
+        utterance.pitch = 0.9; // Slightly lower pitch for "GOKU"
         window.speechSynthesis.speak(utterance);
     };
 
@@ -164,7 +165,7 @@ const HinataAssistant = () => {
             <button
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-6 right-6 w-14 h-14 bg-englabs-primary text-white rounded-full shadow-lg hover:bg-blue-600 transition-all z-50 flex items-center justify-center animate-bounce-slow"
-                title="Ask Hinata"
+                title="Ask GOKU"
             >
                 <Bot className="w-8 h-8" />
             </button>
@@ -180,7 +181,7 @@ const HinataAssistant = () => {
                         <Bot className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-lg">Hinata</h3>
+                        <h3 className="font-bold text-lg">GOKU</h3>
                         <div className="text-xs text-blue-100 flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                             Online
@@ -222,7 +223,7 @@ const HinataAssistant = () => {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder={isListening ? "Listening..." : "Ask Hinata..."}
+                        placeholder={isListening ? "Listening..." : "Ask GOKU..."}
                         className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-gray-700 placeholder-gray-400"
                     />
 

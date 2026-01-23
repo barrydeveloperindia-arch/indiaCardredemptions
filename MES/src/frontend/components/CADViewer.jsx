@@ -17,8 +17,8 @@ const CADViewer = ({ url, onClose, isStandalone = false, partData = null }) => {
     useEffect(() => {
         // Only initialize Online 3D Viewer for non-STL files that it supports
         if (fileType && fileType !== 'stl' && parentRef.current && !viewerRef.current) {
-            // Set up the library paths to a CDN to ensure workers/wasm are found
-            OV.SetExternalLibLocation('https://cdn.jsdelivr.net/npm/online-3d-viewer@0.18.0/libs');
+            // Set up the library paths to a local directory for offline support
+            OV.SetExternalLibLocation('/libs');
 
             // Initialize the viewer
             const viewer = new OV.EmbeddedViewer(parentRef.current, {
@@ -34,14 +34,7 @@ const CADViewer = ({ url, onClose, isStandalone = false, partData = null }) => {
                     edgeColor: new OV.RGBColor(0, 0, 0),
                     edgeThreshold: 1
                 },
-                environmentSettings: {
-                    environmentMap: [
-                        '/env/posx.jpg', '/env/negx.jpg',
-                        '/env/posy.jpg', '/env/negy.jpg',
-                        '/env/posz.jpg', '/env/negz.jpg'
-                    ],
-                    backgroundIsEnvMap: false
-                }
+                // environmentSettings removed for offline compatibility (missing assets)
             });
 
             // Load the model
