@@ -1,13 +1,15 @@
-import { Calendar, RefreshCw, Zap } from 'lucide-react';
+import { Calendar, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { API_BASE_URL } from '../config';
 
-const GanttScheduler = () => {
+const AgileScheduler = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [draggedJob, setDraggedJob] = useState(null);
+
+    const PROCESSES = ["MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"];
 
     // Calculate window reference (Today 00:00)
     const getWindowStart = () => {
@@ -22,7 +24,8 @@ const GanttScheduler = () => {
     const fetchData = () => {
         setLoading(true);
         setError(null);
-        const url = `${API_BASE_URL}/api/scheduling/gantt`;
+        // Use Dispatch Board endpoint as requested
+        const url = `${API_BASE_URL}/api/dispatch/board`;
         console.log("Fetching from:", url);
 
         fetch(url)
@@ -32,7 +35,32 @@ const GanttScheduler = () => {
             })
             .then(d => {
                 console.log("Data received:", d);
-                setData(d);
+
+                // Transform Production Jobs for Scheduler
+                const schedulerJobs = (d.production || []).map(job => {
+                    // Determine start time
+                    const startMs = job.actual_start_time ? new Date(job.actual_start_time).getTime() :
+                        (job.planned_start_time ? new Date(job.planned_start_time).getTime() : new Date().getTime());
+
+                    // Determine duration (ms)
+                    const durationMs = (job.estimated_runtime_seconds || 3600) * 1000;
+
+                    return {
+                        id: job.id,
+                        part_name: job.part_name,
+                        status: job.status,
+                        process: job.manufacturing_process || "Others",
+                        material: job.material || "N/A", // Ensure mapping
+                        start_time: new Date(startMs).toISOString(),
+                        end_time: new Date(startMs + durationMs).toISOString(),
+                        color: getStatusColor(job.status)
+                    };
+                });
+
+                setData({
+                    rows: PROCESSES.map(p => ({ id: p, name: p })), // Rows are processes now
+                    jobs: schedulerJobs
+                });
                 setLoading(false);
             })
             .catch(err => {
@@ -42,15 +70,21 @@ const GanttScheduler = () => {
             });
     };
 
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'RUNNING': return '#3b82f6'; // Blue
+            case 'COMPLETED': return '#10b981'; // Green
+            case 'QUEUED': return '#f59e0b'; // Amber
+            default: return '#6b7280'; // Gray
+        }
+    };
+
     useEffect(() => {
         fetchData();
+        // Polling for "automatic" updates as requested
+        const interval = setInterval(fetchData, 10000);
+        return () => clearInterval(interval);
     }, []);
-
-    const handleAutoSchedule = () => {
-        fetch(`${API_BASE_URL}/api/scheduling/jobs/auto-schedule`, { method: 'POST' })
-            .then(res => res.json())
-            .then(() => fetchData());
-    };
 
     // --- Helpers for Visualization ---
     const getPosition = (dateStr) => {
@@ -65,13 +99,13 @@ const GanttScheduler = () => {
         const start = new Date(startStr).getTime();
         const end = new Date(endStr).getTime();
         const duration = end - start;
-        return (duration / WINDOW_MS) * 100;
+        return Math.max((duration / WINDOW_MS) * 100, 1); // Min width 1%
     };
 
     // Percent position for "Now" line
     const nowPos = ((new Date().getTime() - windowStart) / WINDOW_MS) * 100;
 
-    // --- Drag and Drop Handlers ---
+    // --- Drag and Drop Handlers (Visual only for now, logic would require updating Dispatch Job params) ---
     const handleDragStart = (e, job) => {
         setDraggedJob(job);
         e.dataTransfer.effectAllowed = "move";
@@ -82,77 +116,29 @@ const GanttScheduler = () => {
         e.dataTransfer.dropEffect = "move";
     };
 
-    const handleLaneDrop = (e, machineId) => {
+    const handleLaneDrop = (e, processName) => {
         e.preventDefault();
-        if (!draggedJob) return;
-
-        // Calculate new start time based on drop position x
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const width = rect.width;
-        const percentage = x / width;
-
-        const newTimeMs = windowStart + (percentage * WINDOW_MS);
-        const newDate = new Date(newTimeMs);
-
-        // Round to nearest 15 mins for cleanliness
-        const minutes = newDate.getMinutes();
-        const roundedMinutes = Math.round(minutes / 15) * 15;
-        newDate.setMinutes(roundedMinutes);
-        newDate.setSeconds(0);
-        newDate.setMilliseconds(0);
-
-        const newStartTimeStr = newDate.toISOString();
-
-        console.log(`Dropping job ${draggedJob.id} to ${machineId} at ${newStartTimeStr}`);
-
-        // Call backend to reschedule
-        fetch(`${API_BASE_URL}/api/scheduling/jobs/${draggedJob.id}/reschedule`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                new_start_time: newStartTimeStr,
-                machine_id: machineId
-            })
-        })
-            .then(res => {
-                if (res.ok) {
-                    fetchData();
-                } else {
-                    console.error("Failed to reschedule");
-                }
-                setDraggedJob(null);
-            })
-            .catch(err => {
-                console.error("Error rescheduling:", err);
-                setDraggedJob(null);
-            });
+        // Here we would presumably update the manufacturing_process of the part?
+        // For now, this is a visualized scheduler as requested.
+        console.log(`Dropped ${draggedJob?.part_name} on ${processName}`);
+        setDraggedJob(null);
     };
 
     return (
         <div className="p-6 h-screen flex flex-col bg-englabs-grey-100 overflow-hidden relative">
-            {/* Debug overlay removed */}
-
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold text-englabs-grey-900 flex items-center gap-2">
                     <Calendar className="w-6 h-6" /> Agile Scheduler
                 </h1>
                 <div className="flex items-center space-x-4">
-                    <button
-                        onClick={handleAutoSchedule}
-                        className="flex items-center gap-2 px-3 py-1 bg-englabs-blue text-white rounded hover:bg-blue-600 transition"
-                    >
-                        <Zap className="w-4 h-4" /> Auto-Schedule
-                    </button>
                     <button onClick={fetchData} className="p-1 hover:bg-gray-200 rounded">
                         <RefreshCw className="w-4 h-4 text-englabs-grey-600" />
                     </button>
                 </div>
             </div>
 
-            {/* Main Content Area with Conditional Rendering */}
             <div className="flex-1 bg-white rounded-lg shadow-englabs-card overflow-hidden flex flex-col border border-englabs-grey-200">
-                {loading && (
+                {loading && !data && (
                     <div className="flex-1 flex items-center justify-center text-englabs-grey-500">
                         Loading...
                     </div>
@@ -168,61 +154,99 @@ const GanttScheduler = () => {
                     </div>
                 )}
 
-                {!loading && !error && !data && (
-                    <div className="flex-1 flex items-center justify-center text-englabs-grey-500">
-                        No Data Received.
-                    </div>
-                )}
-
                 {!loading && !error && data && (
                     <>
                         {/* Timeline Header */}
-                        <div className="h-10 border-b border-englabs-grey-200 bg-englabs-grey-50 relative">
-                            {[0, 6, 12, 18, 24, 30, 36].map(h => (
-                                <div key={h} className="absolute top-0 bottom-0 border-l border-englabs-grey-200 text-xs pl-1 pt-1 text-gray-400"
-                                    style={{ left: `${(h / 36) * 100}%` }}>+{h}h</div>
-                            ))}
-                            <div className="absolute top-0 bottom-0 border-l-2 border-red-500 z-10" style={{ left: `${nowPos}%` }} title="Current Time" />
+                        <div className="h-10 border-b border-englabs-grey-200 bg-englabs-grey-50 relative flex">
+                            {/* First Column Header */}
+                            <div className="w-48 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
+                                Manufacturing Processes
+                            </div>
+                            {/* Second Column Header */}
+                            <div className="w-64 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
+                                Job Details
+                            </div>
+
+                            <div className="flex-1 relative min-w-[600px]">
+                                {[0, 6, 12, 18, 24, 30, 36].map(h => (
+                                    <div key={h} className="absolute top-0 bottom-0 border-l border-englabs-grey-200 text-xs pl-1 pt-1 text-gray-400"
+                                        style={{ left: `${(h / 36) * 100}%` }}>+{h}h</div>
+                                ))}
+                                <div className="absolute top-0 bottom-0 border-l-2 border-red-500 z-10" style={{ left: `${nowPos}%` }} title="Current Time" />
+                            </div>
                         </div>
 
-                        {/* Machines Rows */}
+                        {/* Rows */}
                         <div className="flex-1 overflow-y-auto">
-                            {data?.machines?.map(machine => (
-                                <div key={machine.id} className="flex border-b border-englabs-grey-100 min-h-[80px]">
-                                    <div className="w-48 p-4 border-r border-englabs-grey-200 bg-englabs-grey-50 flex flex-col justify-center">
-                                        <div className="font-semibold text-sm text-englabs-grey-900">{machine.name}</div>
-                                        <div className="text-xs text-englabs-grey-500">{machine.group}</div>
-                                    </div>
+                            {data.rows.map(row => {
+                                // Filter jobs for this row
+                                const rowJobs = data.jobs.filter(j => {
+                                    if (row.id === "Others") {
+                                        return !PROCESSES.slice(0, 7).includes(j.process) || j.process === "Others";
+                                    }
+                                    return j.process === row.id;
+                                });
 
-                                    <div
-                                        className="flex-1 relative bg-white transition-colors hover:bg-blue-50/30"
-                                        onDragOver={handleDragOver}
-                                        onDrop={(e) => handleLaneDrop(e, machine.id)}
-                                    >
-                                        {[0, 6, 12, 18, 24, 30, 36].map(h => (
-                                            <div key={h} className="absolute top-0 bottom-0 border-l border-englabs-grey-100" style={{ left: `${(h / 36) * 100}%` }} />
-                                        ))}
+                                return (
+                                    <div key={row.id} className="flex border-b border-englabs-grey-100 min-h-[100px]">
+                                        {/* Column 1: Process */}
+                                        <div className="w-48 p-4 border-r border-englabs-grey-200 bg-englabs-grey-50 flex flex-col justify-center shrink-0">
+                                            <div className="font-semibold text-sm text-englabs-grey-900">{row.name}</div>
+                                            <div className="text-xs text-englabs-grey-500">Processing Line</div>
+                                            <div className="mt-2 text-xs font-medium text-slate-600 bg-slate-200 px-2 py-0.5 rounded-full w-fit">{rowJobs.length} Jobs</div>
+                                        </div>
 
-                                        {data?.jobs?.filter(j => j.machine_id === machine.id).map(job => (
-                                            <div
-                                                key={job.id}
-                                                draggable
-                                                onDragStart={(e) => handleDragStart(e, job)}
-                                                className="absolute top-2 bottom-2 rounded px-2 py-1 text-xs text-white shadow-sm hover:shadow-md cursor-grab active:cursor-grabbing flex flex-col justify-center transition-all opacity-90 hover:opacity-100 hover:scale-[1.02]"
-                                                style={{
-                                                    left: `${getPosition(job.start_time)}%`,
-                                                    width: `${getWidth(job.start_time, job.end_time)}%`,
-                                                    backgroundColor: job.color || '#3b82f6'
-                                                }}
-                                                title={`${job.part_name} - ${job.status}`}
-                                            >
-                                                <div className="font-bold truncate">{job.part_name}</div>
-                                                <div className="truncate opacity-80 text-[10px]">{job.status}</div>
-                                            </div>
-                                        ))}
+                                        {/* Column 2: Job Details List */}
+                                        <div className="w-64 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
+                                            {rowJobs.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {rowJobs.map(job => (
+                                                        <div key={job.id} className="text-xs p-2 bg-slate-50 border border-slate-100 rounded hover:bg-slate-100">
+                                                            <div className="font-bold text-slate-800 truncate" title={job.part_name}>{job.part_name}</div>
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-100 font-medium">
+                                                                    {job.material || 'N/A'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-xs text-slate-300 italic text-center mt-4">No active jobs</div>
+                                            )}
+                                        </div>
+
+                                        {/* Column 3: Timeline */}
+                                        <div
+                                            className="flex-1 relative bg-white transition-colors hover:bg-blue-50/10 min-w-[600px]"
+                                            onDragOver={handleDragOver}
+                                            onDrop={(e) => handleLaneDrop(e, row.id)}
+                                        >
+                                            {[0, 6, 12, 18, 24, 30, 36].map(h => (
+                                                <div key={h} className="absolute top-0 bottom-0 border-l border-englabs-grey-100" style={{ left: `${(h / 36) * 100}%` }} />
+                                            ))}
+
+                                            {rowJobs.map(job => (
+                                                <div
+                                                    key={job.id}
+                                                    draggable
+                                                    onDragStart={(e) => handleDragStart(e, job)}
+                                                    className="absolute top-3 bottom-3 rounded px-2 py-1 text-xs text-white shadow-sm hover:shadow-md cursor-grab active:cursor-grabbing flex flex-col justify-center transition-all opacity-90 hover:opacity-100 group"
+                                                    style={{
+                                                        left: `${getPosition(job.start_time)}%`,
+                                                        width: `${getWidth(job.start_time, job.end_time)}%`,
+                                                        backgroundColor: job.color
+                                                    }}
+                                                    title={`${job.part_name} - ${job.material}`}
+                                                >
+                                                    <div className="font-bold truncate">{job.part_name}</div>
+                                                    <div className="truncate opacity-80 text-[10px] hidden group-hover:block">{job.material}</div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </>
                 )}
@@ -231,4 +255,4 @@ const GanttScheduler = () => {
     );
 };
 
-export default GanttScheduler;
+export default AgileScheduler;

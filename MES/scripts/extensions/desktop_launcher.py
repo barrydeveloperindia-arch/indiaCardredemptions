@@ -20,8 +20,8 @@ APPS = {
     # Blender: Start Menu Shortcut
     "blender": r"C:\Users\pc\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Blender.lnk",
     
-    # Excel: Standard Path (kept generic or updated if needed, user didn't specify so keeping heuristic)
-    "excel": "excel" 
+    # Excel: Updated based on user feedback
+    "excel": r"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE"
 }
 
 def find_executable(name):
@@ -91,6 +91,29 @@ if __name__ == "__main__":
     print("Supports: Fusion 360, IdeaMaker, Blender, Excel")
     print("\n[NOTE] In this production environment, please ensure paths in the script match your installation.")
     
+    print(f"Monitoring {MES_URL} for commands (Interval: {POLL_INTERVAL}s)...")
+    
     while True:
-        cmd = input("\n[Simulation] Waiting for command (or type app name to test): ")
-        execute_command(cmd)
+        try:
+            # Poll the API
+            try:
+                resp = requests.get(MES_URL, timeout=2)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    commands = data.get("commands", [])
+                    for cmd_data in commands:
+                        app_name = cmd_data.get("app")
+                        print(f"[Remote Command] Received request for: {app_name}")
+                        execute_command(app_name)
+            except requests.exceptions.ConnectionError:
+                # Backend might be down or restarting
+                pass
+            
+            time.sleep(POLL_INTERVAL)
+            
+        except KeyboardInterrupt:
+            print("Stopping Launcher...")
+            break
+        except Exception as e:
+            print(f"Error: {e}")
+            time.sleep(POLL_INTERVAL)

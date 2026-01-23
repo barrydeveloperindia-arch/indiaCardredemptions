@@ -124,11 +124,12 @@ def reschedule_job(
 
 from .smart_scheduler import SmartScheduler
 
-@router.post("/jobs/smart-schedule")
+@router.post("/jobs/auto-schedule")
 def smart_schedule(db: Session = Depends(get_db)):
     """
     Architect Agent: Smart Scheduling
     Optimizes schedule by grouping jobs via Material.
+    (Exposed as /auto-schedule to match frontend)
     """
     # 1. Select all "QUEUED" jobs
     queued_jobs = db.query(models.DispatchQueue).filter(models.DispatchQueue.status == "QUEUED").all()

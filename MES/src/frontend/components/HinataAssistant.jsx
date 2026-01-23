@@ -1,4 +1,4 @@
-import { Bot, Mic, Send, X } from 'lucide-react';
+import { Mic, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
@@ -85,8 +85,22 @@ const HinataAssistant = () => {
             window.location.href = "fusion360://";
             response = "Launching Autodesk Fusion 360...";
         } else if (lower.includes('open excel')) {
-            window.location.href = "ms-excel:";
-            response = "Opening Microsoft Excel...";
+            // window.location.href = "ms-excel:"; // Legacy Protocol
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/system/command`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ app: "excel" })
+                });
+                if (res.ok) {
+                    response = "Command sent to Desktop Bridge: Opening Excel...";
+                } else {
+                    response = `Server Error: ${res.status}`;
+                }
+            } catch (err) {
+                console.error(err);
+                response = "Error contacting Desktop Bridge.";
+            }
         } else if (lower.includes('open blender')) {
             response = "Launching Blender (via Desktop Bridge)...";
             // In real app: call backend -> which notifies local agent
@@ -164,10 +178,10 @@ const HinataAssistant = () => {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-englabs-primary text-white rounded-full shadow-lg hover:bg-blue-600 transition-all z-50 flex items-center justify-center animate-bounce-slow"
+                className="fixed bottom-6 right-6 w-14 h-14 bg-white text-englabs-primary rounded-full shadow-lg hover:scale-110 transition-all z-50 flex items-center justify-center animate-bounce-slow overflow-hidden border-2 border-englabs-primary"
                 title="Ask GOKU"
             >
-                <Bot className="w-8 h-8" />
+                <img src="/goku_logo.jpg" alt="Goku" className="w-full h-full object-cover" />
             </button>
         );
     }
@@ -177,8 +191,8 @@ const HinataAssistant = () => {
             {/* Header */}
             <div className="bg-englabs-primary p-4 flex justify-between items-center text-white">
                 <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/50">
-                        <Bot className="w-6 h-6 text-white" />
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border-2 border-white/50 overflow-hidden">
+                        <img src="/goku_logo.jpg" alt="Goku" className="w-full h-full object-cover" />
                     </div>
                     <div>
                         <h3 className="font-bold text-lg">GOKU</h3>

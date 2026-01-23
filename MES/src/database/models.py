@@ -156,6 +156,7 @@ class Part(Base):
     name = Column(String, nullable=False)
     file_path = Column(String) # Path to stored STL/STEP
     material = Column(String, default="PLA")
+    manufacturing_process = Column(String, default="MJF")
     estimated_cost = Column(Float, default=0.0)
     preview_url = Column(String, nullable=True)
     

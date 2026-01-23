@@ -16,41 +16,23 @@ const PartAnalysis = () => {
     const [fileUrl, setFileUrl] = useState(null);
     const [showFusionModal, setShowFusionModal] = useState(false);
 
-    const fusionScript = `import adsk.core, adsk.fusion, traceback
-import os, tempfile, urllib.request
+    const [manufacturingProcess, setManufacturingProcess] = useState('MJF');
+    const [customProcess, setCustomProcess] = useState('');
+    const [material, setMaterial] = useState('PLA');
+    const [customMaterial, setCustomMaterial] = useState('');
 
-# URL of your MES Server
-MES_SERVER_URL = "http://localhost:8008/api/part-analysis/analyze"
+    const PROCESS_OPTIONS = [
+        "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
+    ];
 
-def run(context):
-    try:
-        app = adsk.core.Application.get()
-        ui, design = app.userInterface, app.activeProduct
-        if not design: return ui.messageBox('No active design')
-
-        # Export STEP
-        temp = tempfile.gettempdir()
-        fname = app.activeDocument.name.split(' v')[0] + '.step'
-        path = os.path.join(temp, fname)
-        design.exportManager.execute(design.exportManager.createSTEPExportOptions(path))
-
-        # Upload
-        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
-        with open(path, 'rb') as f: bytes = f.read()
-        body = (f'--{boundary}\\r\\nContent-Disposition: form-data; name="file"; filename="{fname}"\\r\\nContent-Type: application/step\\r\\n\\r\\n').encode() + bytes + (f'\\r\\n--{boundary}--').encode()
-        
-        req = urllib.request.Request(MES_SERVER_URL, data=body)
-        req.add_header('Content-Type', f'multipart/form-data; boundary={boundary}')
-        with urllib.request.urlopen(req) as r:
-            ui.messageBox(f'Uploaded! Res: {r.read().decode()}')
-    except:
-        if ui: ui.messageBox(traceback.format_exc())`;
+    const MATERIAL_OPTIONS = [
+        "ABS", "NYLON PA-12", "NYLON PA-3200", "NYLON PA-2200", "NYLON PA-11",
+        "PLA", "TPU", "PET-G", "ALUMINIUM", "SS", "MS", "WOOD", "SILICONE", "Others"
+    ];
 
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-
 
         // Create local preview URL
         const url = URL.createObjectURL(file);
@@ -59,9 +41,11 @@ def run(context):
         setAnalyzing(true);
         setResult(null);
 
-        // Simulate API Call
+        // API Call
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('manufacturing_process', manufacturingProcess === 'Others' ? customProcess : manufacturingProcess);
+        formData.append('material', material === 'Others' ? customMaterial : material);
 
         fetch(`${API_BASE_URL}/api/part-analysis/analyze`, {
             method: 'POST',
@@ -69,7 +53,7 @@ def run(context):
         })
             .then(res => res.json())
             .then(data => {
-                console.log("Analyzed Data:", data); // DEBUG
+                console.log("Analyzed Data:", data);
                 setTimeout(() => { // Artifical delay for effect
                     setResult(data);
                     setAnalyzing(false);
@@ -89,7 +73,57 @@ def run(context):
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                 {/* Upload Zone */}
-                <div className="bg-white rounded-lg shadow-englabs-card p-8 flex flex-col items-center justify-center border-2 border-dashed border-englabs-grey-300 hover:border-englabs-blue transition-colors">
+                <div className="bg-white rounded-lg shadow-englabs-card p-8 flex flex-col items-center justify-center border-2 border-dashed border-englabs-grey-300 hover:border-englabs-blue transition-colors relative">
+
+                    {/* Manufacturing Process Selection */}
+                    <div className="w-full mb-6 grid grid-cols-1 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Manufacturing Process</label>
+                            <select
+                                value={manufacturingProcess}
+                                onChange={(e) => setManufacturingProcess(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                {PROCESS_OPTIONS.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+
+                            {manufacturingProcess === 'Others' && (
+                                <input
+                                    type="text"
+                                    placeholder="Enter custom process type..."
+                                    value={customProcess}
+                                    onChange={(e) => setCustomProcess(e.target.value)}
+                                    className="mt-2 w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
+                            <select
+                                value={material}
+                                onChange={(e) => setMaterial(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                {MATERIAL_OPTIONS.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+
+                            {material === 'Others' && (
+                                <input
+                                    type="text"
+                                    placeholder="Enter custom material..."
+                                    value={customMaterial}
+                                    onChange={(e) => setCustomMaterial(e.target.value)}
+                                    className="mt-2 w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            )}
+                        </div>
+                    </div>
+
                     <div className="bg-englabs-blue/10 p-4 rounded-full mb-4">
                         <Upload className="w-8 h-8 text-englabs-blue" />
                     </div>

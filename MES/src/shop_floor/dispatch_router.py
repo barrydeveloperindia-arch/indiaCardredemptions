@@ -20,6 +20,10 @@ class JobUpdate(BaseModel):
     # For QC
     qc_notes: Optional[str] = None
     current_step: Optional[str] = None
+    # Part Editing
+    manufacturing_process: Optional[str] = None
+    material: Optional[str] = None
+    part_name: Optional[str] = None
 
 # --- Endpoints ---
 
@@ -44,14 +48,25 @@ def get_dispatch_board(db: Session = Depends(get_db)):
     
     def format_job(job):
         cad_path = job.order.cad_file_path if job.order else "Unknown"
+        part_name = cad_path.split('/')[-1]
+        
+        # Try to find part to get process info
+        part = db.query(models.Part).filter(models.Part.name == part_name).first()
+        process = part.manufacturing_process if part else "Unknown"
+        
         return {
             "id": job.job_id,
             "order_id": job.order_id,
-            "part_name": cad_path.split('/')[-1], # Show filename
+            "part_name": part_name,
             "machine": job.machine_id,
             "status": job.status,
             "eta": f"{job.estimated_runtime_seconds // 60}m" if job.estimated_runtime_seconds else "N/A",
+            "estimated_runtime_seconds": job.estimated_runtime_seconds,
+            "planned_start_time": job.planned_start_time.isoformat() if job.planned_start_time else None,
+            "actual_start_time": job.actual_start_time.isoformat() if job.actual_start_time else None,
             "priority": "High" if str(job.job_id).startswith("1") else "Normal",
+            "manufacturing_process": process,
+            "material": part.material if part else "Unknown",
             "order": {
                 "cad_file_path": cad_path,
                 "customer_id": job.order.customer_id if job.order else "Unknown"
@@ -76,6 +91,27 @@ def update_job(job_id: str, update: JobUpdate, db: Session = Depends(get_db)):
         job.machine_id = update.machine_id
     if update.current_step:
         job.current_step = update.current_step
+    
+    # Handle Part Updates (Name, Process, Material)
+    if update.manufacturing_process or update.material or update.part_name:
+        if job.order and job.order.cad_file_path:
+            # Find part by current file name (best guess link)
+            current_name = job.order.cad_file_path.split('/')[-1]
+            part = db.query(models.Part).filter(models.Part.name == current_name).first()
+            
+            if part:
+                if update.manufacturing_process:
+                    part.manufacturing_process = update.manufacturing_process
+                if update.material:
+                    part.material = update.material
+                if update.part_name:
+                    part.name = update.part_name
+                    # Also update the Order reference path if name changes? 
+                    # For simplicity, we assume file_path might stay same or we just update the conceptual name.
+                    # But job.order.cad_file_path stores the name effectively.
+                    # Let's update the order's file path reference to keep the link alive
+                    job.order.cad_file_path = update.part_name 
+                    
         
     db.commit()
     db.refresh(job)
@@ -134,6 +170,38 @@ def generate_qc_report(job_id: str, db: Session = Depends(get_db)):
     pdf.cell(200, 10, txt="Inspector Signature: _______________________", ln=1)
     
     # Output
-    pdf_bytes = bytes(pdf.output(dest='S'))
+    pdf_bytes = bytes(pdf.output(dest='S').encode('latin-1'))
     
     return Response(content=pdf_bytes, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename=qc_report_{job_id}.pdf"})
+
+@router.post("/orders/create-from-part/{part_id}")
+def create_order_from_part(part_id: str, db: Session = Depends(get_db)):
+    part = db.query(models.Part).filter(models.Part.part_id == part_id).first()
+    if not part:
+        raise HTTPException(status_code=404, detail="Part not found")
+        
+    # Create Order
+    new_order = models.Order(
+        customer_id="INTERNAL_CATALOG",
+        cad_file_path=part.name,
+        technical_requirements={
+            "material": part.material, 
+            "process": part.manufacturing_process
+        },
+        priority_level=1,
+        status="PLANNED"
+    )
+    db.add(new_order)
+    db.commit()
+    db.refresh(new_order)
+    
+    # Create Dispatch Job
+    new_job = models.DispatchQueue(
+        order_id=new_order.order_id,
+        status="PLANNED",
+        current_step="PLANNING"
+    )
+    db.add(new_job)
+    db.commit()
+    
+    return {"message": "Job created", "job_id": new_job.job_id}

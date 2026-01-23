@@ -15,6 +15,8 @@ const PartCatalog = () => {
 
     const [selectedIds, setSelectedIds] = useState(new Set());
 
+    const [processFilter, setProcessFilter] = useState('All');
+
     useEffect(() => {
         fetchParts();
     }, []);
@@ -123,10 +125,17 @@ const PartCatalog = () => {
         }
     };
 
-    const filteredParts = parts.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.project_id && p.project_id.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredParts = parts.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (p.project_id && p.project_id.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        const matchesProcess = processFilter === 'All' ||
+            (processFilter === 'Others'
+                ? !["MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL"].includes(p.manufacturing_process)
+                : p.manufacturing_process === processFilter);
+
+        return matchesSearch && matchesProcess;
+    });
 
     return (
         <div className="p-6 h-full bg-gray-50 overflow-y-auto">
@@ -187,6 +196,23 @@ const PartCatalog = () => {
                 </div>
 
                 <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-gray-200">
+                    {/* Process Filter */}
+                    <select
+                        className="p-2 bg-transparent text-sm border-r border-gray-200 outline-none"
+                        value={processFilter}
+                        onChange={(e) => setProcessFilter(e.target.value)}
+                    >
+                        <option value="All">All Processes</option>
+                        <option value="MJF">MJF</option>
+                        <option value="FDM">FDM</option>
+                        <option value="3-AXIS">3-AXIS</option>
+                        <option value="5-AXIS">5-AXIS</option>
+                        <option value="SLA">SLA</option>
+                        <option value="SLS">SLS</option>
+                        <option value="SHEET METAL">Sheet Metal</option>
+                        <option value="Others">Others</option>
+                    </select>
+
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-gray-100 text-blue-600' : 'text-gray-500 hover:bg-gray-50'}`}
@@ -253,7 +279,27 @@ const PartCatalog = () => {
                                     >
                                         <Trash2 size={16} />
                                     </button>
-                                    <button className="bg-white p-2 rounded-full shadow-sm hover:bg-gray-50 text-blue-600">
+                                    <button
+                                        onClick={async (e) => {
+                                            e.stopPropagation();
+                                            if (!window.confirm("Add this part to Dispatch Planning?")) return;
+                                            try {
+                                                const res = await fetch(`${API_BASE_URL}/api/dispatch/orders/create-from-part/${part.part_id}`, {
+                                                    method: 'POST'
+                                                });
+                                                if (res.ok) {
+                                                    alert("Added to Dispatch Planning!");
+                                                } else {
+                                                    alert("Failed to add to dispatch.");
+                                                }
+                                            } catch (err) {
+                                                console.error(err);
+                                                alert("Error connecting to server.");
+                                            }
+                                        }}
+                                        className="bg-white p-2 rounded-full shadow-sm hover:bg-gray-50 text-blue-600"
+                                        title="Add to Dispatch"
+                                    >
                                         <Plus size={16} />
                                     </button>
                                 </div>
@@ -317,6 +363,7 @@ const PartCatalog = () => {
                                     <div>
                                         <span className="block text-xs text-gray-400">Material</span>
                                         <span className="text-sm font-medium text-gray-700">{part.material}</span>
+                                        <span className="text-[10px] text-gray-500 block">({part.manufacturing_process || 'N/A'})</span>
                                     </div>
                                     <div className="text-right">
                                         <span className="block text-xs text-gray-400">Cost</span>

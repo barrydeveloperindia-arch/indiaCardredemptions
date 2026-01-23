@@ -40,6 +40,7 @@ def get_all_parts(db: Session = Depends(get_db)):
                  "preview_url": p.preview_url,
                  "file_path": p.file_path,
                  "material": p.material,
+                 "manufacturing_process": p.manufacturing_process,
                  "estimated_cost": p.estimated_cost,
                  "measurements": p.measurements,
                  "technical_score": p.technical_score,
@@ -53,33 +54,19 @@ def get_all_parts(db: Session = Depends(get_db)):
         logger.error(f"[ERROR] {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/generate-drawing/{part_id}")
-def generate_drawing(part_id: str, db: Session = Depends(get_db)):
-    part = db.query(Part).filter(Part.part_id == part_id).first()
-    if not part:
-        raise HTTPException(status_code=404, detail="Part not found")
-        
-    fs_path = part.file_path
-    # Adjust for Docker path if needed
-    if not os.path.exists(fs_path):
-        if os.path.exists(f"/app/{fs_path}"):
-            fs_path = f"/app/{fs_path}"
-            
-    if not os.path.exists(fs_path):
-        raise HTTPException(status_code=404, detail=f"File not found on disk: {fs_path}")
+# ... (omitting lines for brevity)
 
-    try:
-        drawings = DrawingService.generate_technical_drawing(fs_path)
-        return drawings
-    except Exception as e:
-        logger.error(f"Drawing Gen Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+
+
+from fastapi import Form
 
 @router.post("/analyze")
 async def analyze_part(
     file: UploadFile = File(...), 
-    project_id: str = None, 
-    source_path: str = None,
+    project_id: str = Form(None), 
+    source_path: str = Form(None),
+    manufacturing_process: str = Form("MJF"),
+    material: str = Form("PLA"),
     db: Session = Depends(get_db)
 ):
     if not file.filename.lower().endswith(('.stl', '.step', '.stp', '.obj', '.sldprt')):
@@ -107,6 +94,8 @@ async def analyze_part(
             existing.technical_score = technical_score
             existing.economic_action = economic_action
             existing.measurements = measurements
+            existing.manufacturing_process = manufacturing_process
+            existing.material = material
             if project_id:
                 existing.project_id = project_id
             if source_path:
@@ -121,7 +110,8 @@ async def analyze_part(
             new_part = Part(
                 name=file.filename,
                 file_path=f"storage/parts/{file.filename}", 
-                material="PLA" if "Lighttrap" not in file.filename else "Resin", 
+                material=material, 
+                manufacturing_process=manufacturing_process,
                 estimated_cost=analysis_result.get("quote", {}).get("total_price", 0.0),
                 preview_url=f"/storage/{analysis_result['thumbnail_path'].replace('storage/', '', 1)}" if analysis_result.get("thumbnail_path") else "https://placehold.co/400x300?text=Part+Preview", 
                 technical_score=technical_score,
@@ -187,3 +177,20 @@ def delete_part(part_id: str, db: Session = Depends(get_db)):
     db.commit()
     
     return {"status": "DELETED", "part_id": part_id}
+
+@router.post("/generate-drawing/{part_id}")
+async def generate_drawing(part_id: str, db: Session = Depends(get_db)):
+    part = db.query(Part).filter(Part.part_id == part_id).first()
+    if not part:
+        raise HTTPException(status_code=404, detail="Part not found")
+        
+    try:
+        # Run drawing generation in threadpool to avoid blocking
+        result = await run_in_threadpool(
+            DrawingService.generate_technical_drawing, 
+            part.file_path
+        )
+        return result
+    except Exception as e:
+        logger.error(f"Drawing Gen Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

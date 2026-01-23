@@ -23,6 +23,8 @@ from src.shop_floor import router as shop_floor_router
 from src.shop_floor.hp_router import router as hp_router
 from src.shop_floor.dispatch_router import router as dispatch_router
 from src.ai.router import router as ai_router
+from src.system_router import router as system_router
+from fastapi.middleware.cors import CORSMiddleware
 
 import os
 import asyncio
@@ -45,7 +47,7 @@ app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -65,8 +67,10 @@ app.include_router(part_analysis_router.router)
 app.include_router(scheduling_router.router, prefix="/api/scheduling")
 app.include_router(shop_floor_router.router, prefix="/api/shop-floor", tags=["Digital Traveler"])
 app.include_router(hp_router, prefix="/api")
+
 app.include_router(dispatch_router, prefix="/api/dispatch", tags=["Dispatch Board"])
 app.include_router(ai_router, prefix="/api")
+app.include_router(system_router, prefix="/api")
 
 # Ensure Tables Exist
 models.Base.metadata.create_all(bind=engine)
