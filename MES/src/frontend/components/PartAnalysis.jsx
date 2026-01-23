@@ -16,10 +16,13 @@ const PartAnalysis = () => {
     const [fileUrl, setFileUrl] = useState(null);
     const [showFusionModal, setShowFusionModal] = useState(false);
 
-    const [manufacturingProcess, setManufacturingProcess] = useState('MJF');
+    const [manufacturingProcess, setManufacturingProcess] = useState('');
     const [customProcess, setCustomProcess] = useState('');
-    const [material, setMaterial] = useState('PLA');
+    const [material, setMaterial] = useState('');
     const [customMaterial, setCustomMaterial] = useState('');
+    const [errors, setErrors] = useState({});
+    const [shake, setShake] = useState(false);
+    const [fileName, setFileName] = useState('');
 
     const PROCESS_OPTIONS = [
         "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
@@ -30,9 +33,28 @@ const PartAnalysis = () => {
         "PLA", "TPU", "PET-G", "ALUMINIUM", "SS", "MS", "WOOD", "SILICONE", "Others"
     ];
 
+    const handleUploadClick = (e) => {
+        const newErrors = {};
+        if (!manufacturingProcess) newErrors.process = "Required";
+        if (!material) newErrors.material = "Required";
+
+        if (Object.keys(newErrors).length > 0) {
+            e.preventDefault(); // Stop file dialog from opening
+            setErrors(newErrors);
+            setShake(true);
+            setTimeout(() => setShake(false), 500);
+            return;
+        }
+    };
+
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
+        // Double check just in case, though click handler should catch it
+        if (!manufacturingProcess || !material) return;
+
+        setFileName(file.name);
 
         // Create local preview URL
         const url = URL.createObjectURL(file);
@@ -78,16 +100,21 @@ const PartAnalysis = () => {
                     {/* Manufacturing Process Selection */}
                     <div className="w-full mb-6 grid grid-cols-1 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Manufacturing Process</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Manufacturing Process <span className="text-red-500">*</span></label>
                             <select
                                 value={manufacturingProcess}
-                                onChange={(e) => setManufacturingProcess(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                onChange={(e) => {
+                                    setManufacturingProcess(e.target.value);
+                                    if (errors.process) setErrors(prev => ({ ...prev, process: null }));
+                                }}
+                                className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.process ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'}`}
                             >
+                                <option value="" disabled>Select the process</option>
                                 {PROCESS_OPTIONS.map(opt => (
                                     <option key={opt} value={opt}>{opt}</option>
                                 ))}
                             </select>
+                            {errors.process && <p className="text-xs text-red-500 mt-1">Please select a manufacturing process first.</p>}
 
                             {manufacturingProcess === 'Others' && (
                                 <input
@@ -101,16 +128,21 @@ const PartAnalysis = () => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Material</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Material <span className="text-red-500">*</span></label>
                             <select
                                 value={material}
-                                onChange={(e) => setMaterial(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                onChange={(e) => {
+                                    setMaterial(e.target.value);
+                                    if (errors.material) setErrors(prev => ({ ...prev, material: null }));
+                                }}
+                                className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.material ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'}`}
                             >
+                                <option value="" disabled>Select the material</option>
                                 {MATERIAL_OPTIONS.map(opt => (
                                     <option key={opt} value={opt}>{opt}</option>
                                 ))}
                             </select>
+                            {errors.material && <p className="text-xs text-red-500 mt-1">Please select a material first.</p>}
 
                             {material === 'Others' && (
                                 <input
@@ -138,10 +170,18 @@ const PartAnalysis = () => {
                     />
                     <label
                         htmlFor="file-upload"
-                        className="px-6 py-2 bg-englabs-blue text-white rounded font-medium hover:bg-blue-700 cursor-pointer transition-colors"
+                        onClick={handleUploadClick}
+                        className={`inline-block px-8 py-2.5 bg-englabs-blue text-white rounded-lg font-semibold hover:bg-blue-700 cursor-pointer transition-all shadow-md hover:shadow-lg z-10 select-none ${shake ? 'animate-shake border-2 border-red-500 bg-red-500 hover:bg-red-600' : ''}`}
                     >
                         Select File
                     </label>
+
+                    {fileName && (
+                        <div className="mt-4 flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
+                            <span className="font-semibold text-blue-600">Selected:</span>
+                            <span className="truncate max-w-[200px]" title={fileName}>{fileName}</span>
+                        </div>
+                    )}
 
                     {/* Extension Integrations */}
                     <div className="mt-8 pt-6 border-t border-englabs-grey-100 w-full flex flex-col items-center">
