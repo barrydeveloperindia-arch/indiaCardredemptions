@@ -24,6 +24,8 @@ class JobUpdate(BaseModel):
     manufacturing_process: Optional[str] = None
     material: Optional[str] = None
     part_name: Optional[str] = None
+    client_id: Optional[str] = None
+    project_id: Optional[str] = None
 
 # --- Endpoints ---
 
@@ -58,6 +60,7 @@ def get_dispatch_board(db: Session = Depends(get_db)):
             "id": job.job_id,
             "order_id": job.order_id,
             "part_name": part_name,
+            "client_id": part.client_id if part and part.client_id else (job.order.customer_id if job.order else "Unknown"),
             "machine": job.machine_id,
             "status": job.status,
             "eta": f"{job.estimated_runtime_seconds // 60}m" if job.estimated_runtime_seconds else "N/A",
@@ -67,6 +70,7 @@ def get_dispatch_board(db: Session = Depends(get_db)):
             "priority": "High" if str(job.job_id).startswith("1") else "Normal",
             "manufacturing_process": process,
             "material": part.material if part else "Unknown",
+            "project_id": part.project_id if part else "N/A",
             "order": {
                 "cad_file_path": cad_path,
                 "customer_id": job.order.customer_id if job.order else "Unknown"
@@ -91,9 +95,21 @@ def update_job(job_id: str, update: JobUpdate, db: Session = Depends(get_db)):
         job.machine_id = update.machine_id
     if update.current_step:
         job.current_step = update.current_step
-    
-    # Handle Part Updates (Name, Process, Material)
-    if update.manufacturing_process or update.material or update.part_name:
+
+    # Handle Client Update (on Order)
+    if update.client_id:
+        if job.order:
+            job.order.customer_id = update.client_id
+            
+            # Also try to update the Part's client_id for consistency if we can find it
+            if job.order.cad_file_path:
+                current_name = job.order.cad_file_path.split('/')[-1]
+                part = db.query(models.Part).filter(models.Part.name == current_name).first()
+                if part:
+                    part.client_id = update.client_id
+
+    # Handle Part Updates (Name, Process, Material, Project ID)
+    if update.manufacturing_process or update.material or update.part_name or update.project_id:
         if job.order and job.order.cad_file_path:
             # Find part by current file name (best guess link)
             current_name = job.order.cad_file_path.split('/')[-1]
@@ -104,6 +120,8 @@ def update_job(job_id: str, update: JobUpdate, db: Session = Depends(get_db)):
                     part.manufacturing_process = update.manufacturing_process
                 if update.material:
                     part.material = update.material
+                if update.project_id:
+                    part.project_id = update.project_id
                 if update.part_name:
                     part.name = update.part_name
                     # Also update the Order reference path if name changes? 
@@ -182,7 +200,7 @@ def create_order_from_part(part_id: str, db: Session = Depends(get_db)):
         
     # Create Order
     new_order = models.Order(
-        customer_id="INTERNAL_CATALOG",
+        customer_id=part.client_id or "INTERNAL_CATALOG",
         cad_file_path=part.name,
         technical_requirements={
             "material": part.material, 

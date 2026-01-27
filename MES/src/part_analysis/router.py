@@ -45,7 +45,10 @@ def get_all_parts(db: Session = Depends(get_db)):
                  "measurements": p.measurements,
                  "technical_score": p.technical_score,
                  "economic_action": p.economic_action,
-                 "project_id": p.project_id
+                 "technical_score": p.technical_score,
+                 "economic_action": p.economic_action,
+                 "project_id": p.project_id,
+                 "client_id": p.client_id
              })
         return results
     except Exception as e:
@@ -53,6 +56,37 @@ def get_all_parts(db: Session = Depends(get_db)):
         traceback.print_exc()
         logger.error(f"[ERROR] {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+from pydantic import BaseModel
+from typing import Optional
+
+class PartUpdate(BaseModel):
+    name: Optional[str] = None
+    client_id: Optional[str] = None
+    project_id: Optional[str] = None
+    manufacturing_process: Optional[str] = None
+    material: Optional[str] = None
+
+@router.patch("/parts/{part_id}")
+def update_part(part_id: str, update: PartUpdate, db: Session = Depends(get_db)):
+    part = db.query(Part).filter(Part.part_id == part_id).first()
+    if not part:
+        raise HTTPException(status_code=404, detail="Part not found")
+
+    if update.name:
+        part.name = update.name
+    if update.client_id:
+        part.client_id = update.client_id
+    if update.project_id:
+        part.project_id = update.project_id
+    if update.manufacturing_process:
+        part.manufacturing_process = update.manufacturing_process
+    if update.material:
+        part.material = update.material
+    
+    db.commit()
+    db.refresh(part)
+    return part
 
 # ... (omitting lines for brevity)
 
@@ -64,6 +98,7 @@ from fastapi import Form
 async def analyze_part(
     file: UploadFile = File(...), 
     project_id: str = Form(None), 
+    client_id: str = Form(None),
     source_path: str = Form(None),
     manufacturing_process: str = Form("MJF"),
     material: str = Form("PLA"),
@@ -98,6 +133,8 @@ async def analyze_part(
             existing.material = material
             if project_id:
                 existing.project_id = project_id
+            if client_id:
+                existing.client_id = client_id
             if source_path:
                 existing.source_path = source_path
                 
@@ -118,6 +155,7 @@ async def analyze_part(
                 economic_action=economic_action,
                 measurements=measurements,
                 project_id=project_id,
+                client_id=client_id,
                 source_path=source_path
             )
             db.add(new_part)

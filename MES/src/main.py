@@ -72,6 +72,9 @@ app.include_router(dispatch_router, prefix="/api/dispatch", tags=["Dispatch Boar
 app.include_router(ai_router, prefix="/api")
 app.include_router(system_router, prefix="/api")
 
+from src.metadata_router import router as metadata_router
+app.include_router(metadata_router)
+
 # Ensure Tables Exist
 models.Base.metadata.create_all(bind=engine)
 

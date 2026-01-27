@@ -20,23 +20,89 @@ const PartAnalysis = () => {
     const [customProcess, setCustomProcess] = useState('');
     const [material, setMaterial] = useState('');
     const [customMaterial, setCustomMaterial] = useState('');
+    const [projectId, setProjectId] = useState('');
+    const [clientId, setClientId] = useState('');
+    const [customClient, setCustomClient] = useState('');
     const [errors, setErrors] = useState({});
     const [shake, setShake] = useState(false);
     const [fileName, setFileName] = useState('');
 
-    const PROCESS_OPTIONS = [
+    // Dynamic Lists State
+    const [processList, setProcessList] = useState([
         "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
-    ];
-
-    const MATERIAL_OPTIONS = [
+    ]);
+    const [materialList, setMaterialList] = useState([
         "ABS", "NYLON PA-12", "NYLON PA-3200", "NYLON PA-2200", "NYLON PA-11",
         "PLA", "TPU", "PET-G", "ALUMINIUM", "SS", "MS", "WOOD", "SILICONE", "Others"
-    ];
+    ]);
+    const [clientList, setClientList] = useState([
+        "3BA Printing", "ADSL", "Aebocode", "Arpee Tech", "Arvind Kumar", "ASA Industries", "Ashwani Sihag",
+        "Atomberg", "Aveer Industries(DRDO)", "Baaz Bikes", "Bajaj", "BCH", "C&S Electric", "Compactec",
+        "Crompton", "Daikin", "Deepak (Model Artician)", "Designfying", "E3D PRO", "Eklawya Enterprises",
+        "Elin", "EndureAir", "ENERTICS", "Falcon", "Godrej", "Goel Enterprises", "Group SEB", "Havells",
+        "HC Robotics", "Hella", "Henkel", "Hybrid Customs", "INDRONES", "IZI VENTURE PRIVATE LTD", "Jal",
+        "Labat Asia", "LALTESH YADAV", "Marbles Health", "Marcopolo", "Marelli", "Menthosa", "MSAFE GROUP",
+        "MSL INDIA", "My Design Minds", "Nipa", "Orient", "P2P", "Parashar Industries", "Parikalpana",
+        "Prabha Electonics", "Remedio", "Renforced", "Rishabh Aggarwal", "Rukman Udyog", "San Foams",
+        "Scope Medical", "SG Engineering", "Signoraware", "SML Isuzu", "Sofly", "Somafusion/Dalmitra",
+        "Sonalika", "Spray Engineering", "Surjeet Paul", "V N G Medical", "Vigor Industry", "Yash Appliances",
+        "Others"
+    ]);
+
+    // Modal State
+    const [showNewDataModal, setShowNewDataModal] = useState(false);
+    const [newDataCategory, setNewDataCategory] = useState('CLIENT'); // CLIENT, PROCESS, MATERIAL
+    const [newDataValue, setNewDataValue] = useState('');
+
+    // Fetch Metadata on Mount
+    React.useEffect(() => {
+        fetch(`${API_BASE_URL}/api/metadata/`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.processes && data.processes.length > 0) {
+                    setProcessList(prev => [...new Set([...prev, ...data.processes])]);
+                }
+                if (data.materials && data.materials.length > 0) {
+                    setMaterialList(prev => [...new Set([...prev, ...data.materials])]);
+                }
+                if (data.clients && data.clients.length > 0) {
+                    setClientList(prev => [...new Set([...prev, ...data.clients])]);
+                }
+            })
+            .catch(err => console.error("Failed to fetch metadata", err));
+    }, []);
+
+    const handleSaveNewData = () => {
+        if (!newDataValue.trim()) return;
+
+        // Optimistic Update
+        if (newDataCategory === 'CLIENT') {
+            setClientList(prev => [...prev.filter(i => i !== 'Others'), newDataValue, 'Others']);
+        } else if (newDataCategory === 'PROCESS') {
+            setProcessList(prev => [...prev.filter(i => i !== 'Others'), newDataValue, 'Others']);
+        } else if (newDataCategory === 'MATERIAL') {
+            setMaterialList(prev => [...prev.filter(i => i !== 'Others'), newDataValue, 'Others']);
+        }
+
+        // Persist
+        fetch(`${API_BASE_URL}/api/metadata/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category: newDataCategory, value: newDataValue })
+        });
+
+        setShowNewDataModal(false);
+        setNewDataValue('');
+    };
+
+
 
     const handleUploadClick = (e) => {
         const newErrors = {};
         if (!manufacturingProcess) newErrors.process = "Required";
         if (!material) newErrors.material = "Required";
+        if (!projectId) newErrors.projectId = "Required";
+        if (!clientId) newErrors.clientId = "Required";
 
         if (Object.keys(newErrors).length > 0) {
             e.preventDefault(); // Stop file dialog from opening
@@ -52,7 +118,7 @@ const PartAnalysis = () => {
         if (!file) return;
 
         // Double check just in case, though click handler should catch it
-        if (!manufacturingProcess || !material) return;
+        if (!manufacturingProcess || !material || !projectId || !clientId) return;
 
         setFileName(file.name);
 
@@ -68,6 +134,8 @@ const PartAnalysis = () => {
         formData.append('file', file);
         formData.append('manufacturing_process', manufacturingProcess === 'Others' ? customProcess : manufacturingProcess);
         formData.append('material', material === 'Others' ? customMaterial : material);
+        formData.append('project_id', projectId);
+        formData.append('client_id', clientId === 'Others' ? customClient : clientId);
 
         fetch(`${API_BASE_URL}/api/part-analysis/analyze`, {
             method: 'POST',
@@ -110,7 +178,7 @@ const PartAnalysis = () => {
                                 className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.process ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'}`}
                             >
                                 <option value="" disabled>Select the process</option>
-                                {PROCESS_OPTIONS.map(opt => (
+                                {processList.map(opt => (
                                     <option key={opt} value={opt}>{opt}</option>
                                 ))}
                             </select>
@@ -138,7 +206,7 @@ const PartAnalysis = () => {
                                 className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.material ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'}`}
                             >
                                 <option value="" disabled>Select the material</option>
-                                {MATERIAL_OPTIONS.map(opt => (
+                                {materialList.map(opt => (
                                     <option key={opt} value={opt}>{opt}</option>
                                 ))}
                             </select>
@@ -154,6 +222,61 @@ const PartAnalysis = () => {
                                 />
                             )}
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Project ID <span className="text-red-500">*</span> <span className="text-gray-400 font-normal ml-1">(CXXX)</span>
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Enter Project ID (e.g. C123)"
+                                value={projectId}
+                                onChange={(e) => {
+                                    setProjectId(e.target.value);
+                                    if (errors.projectId) setErrors(prev => ({ ...prev, projectId: null }));
+                                }}
+                                className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.projectId ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'}`}
+                            />
+                            {errors.projectId && <p className="text-xs text-red-500 mt-1">Project ID is required.</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Client <span className="text-red-500">*</span></label>
+                            <select
+                                value={clientId}
+                                onChange={(e) => {
+                                    setClientId(e.target.value);
+                                    if (errors.clientId) setErrors(prev => ({ ...prev, clientId: null }));
+                                }}
+                                className={`w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${errors.clientId ? 'border-red-500 ring-1 ring-red-500' : 'border-gray-300'}`}
+                            >
+                                <option value="" disabled>Select the client</option>
+                                {clientList.map(opt => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                            {errors.clientId && <p className="text-xs text-red-500 mt-1">Please select a client.</p>}
+
+                            {clientId === 'Others' && (
+                                <input
+                                    type="text"
+                                    placeholder="Enter custom client..."
+                                    value={customClient}
+                                    onChange={(e) => setCustomClient(e.target.value)}
+                                    className="mt-2 w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            )}
+                        </div>
+                    </div>
+
+
+                    <div className="w-full mb-6 flex justify-end">
+                        <button
+                            onClick={() => setShowNewDataModal(true)}
+                            className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-200 transition-colors"
+                        >
+                            + NEW DATA
+                        </button>
                     </div>
 
                     <div className="bg-englabs-blue/10 p-4 rounded-full mb-4">
@@ -244,6 +367,54 @@ const PartAnalysis = () => {
                     </div>
                 )}
 
+                {/* New Data Modal */}
+                {showNewDataModal && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-lg shadow-xl p-6 w-96 animate-fade-in-up">
+                            <h3 className="text-lg font-bold mb-4">Add New Data</h3>
+
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                <select
+                                    className="w-full p-2 border rounded"
+                                    value={newDataCategory}
+                                    onChange={(e) => setNewDataCategory(e.target.value)}
+                                >
+                                    <option value="CLIENT">Client</option>
+                                    <option value="PROCESS">Manufacturing Process</option>
+                                    <option value="MATERIAL">Material</option>
+                                </select>
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Value</label>
+                                <input
+                                    type="text"
+                                    className="w-full p-2 border rounded"
+                                    placeholder="Enter name..."
+                                    value={newDataValue}
+                                    onChange={(e) => setNewDataValue(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={() => setShowNewDataModal(false)}
+                                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSaveNewData}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                >
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Results Analysis */}
                 <div className="bg-white rounded-lg shadow-englabs-card p-6 min-h-[400px] relative">
 
@@ -321,6 +492,12 @@ const PartAnalysis = () => {
                                     <div className="text-sm text-englabs-grey-500">Poly Count</div>
                                     <div className="text-lg font-semibold">{result.poly_count ? result.poly_count.toLocaleString() : 'N/A'}</div>
                                 </div>
+                                {result.project_id && (
+                                    <div className="p-4 bg-englabs-grey-50 rounded col-span-2">
+                                        <div className="text-sm text-englabs-grey-500">Project ID</div>
+                                        <div className="text-lg font-semibold text-indigo-600">{result.project_id}</div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="mb-6">
@@ -354,7 +531,7 @@ const PartAnalysis = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

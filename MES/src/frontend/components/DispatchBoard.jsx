@@ -12,9 +12,43 @@ export default function DispatchBoard() {
     const [loading, setLoading] = useState(true);
 
     const [selectedIds, setSelectedIds] = useState(new Set());
+    const [processOptions, setProcessOptions] = useState([
+        "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
+    ]);
+    const [clientOptions, setClientOptions] = useState([
+        "3BA Printing", "ADSL", "Aebocode", "Arpee Tech", "Arvind Kumar", "ASA Industries", "Ashwani Sihag",
+        "Atomberg", "Aveer Industries(DRDO)", "Baaz Bikes", "Bajaj", "BCH", "C&S Electric", "Compactec",
+        "Crompton", "Daikin", "Deepak (Model Artician)", "Designfying", "E3D PRO", "Eklawya Enterprises",
+        "Elin", "EndureAir", "ENERTICS", "Falcon", "Godrej", "Goel Enterprises", "Group SEB", "Havells",
+        "HC Robotics", "Hella", "Henkel", "Hybrid Customs", "INDRONES", "IZI VENTURE PRIVATE LTD", "Jal",
+        "Labat Asia", "LALTESH YADAV", "Marbles Health", "Marcopolo", "Marelli", "Menthosa", "MSAFE GROUP",
+        "MSL INDIA", "My Design Minds", "Nipa", "Orient", "P2P", "Parashar Industries", "Parikalpana",
+        "Prabha Electonics", "Remedio", "Renforced", "Rishabh Aggarwal", "Rukman Udyog", "San Foams",
+        "Scope Medical", "SG Engineering", "Signoraware", "SML Isuzu", "Sofly", "Somafusion/Dalmitra",
+        "Sonalika", "Spray Engineering", "Surjeet Paul", "V N G Medical", "Vigor Industry", "Yash Appliances",
+        "Others"
+    ]);
+    const [materialOptions, setMaterialOptions] = useState([
+        "ABS", "NYLON PA-12", "NYLON PA-3200", "NYLON PA-2200", "NYLON PA-11",
+        "PLA", "TPU", "PET-G", "ALUMINIUM", "SS", "MS", "WOOD", "SILICONE", "Others"
+    ]);
 
     useEffect(() => {
         fetchBoard();
+        fetch(`${API_BASE_URL}/api/metadata/`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.processes && data.processes.length > 0) {
+                    setProcessOptions(prev => [...new Set([...prev, ...data.processes])]);
+                }
+                if (data.clients && data.clients.length > 0) {
+                    setClientOptions(prev => [...new Set([...prev, ...data.clients])]);
+                }
+                if (data.materials && data.materials.length > 0) {
+                    setMaterialOptions(prev => [...new Set([...prev, ...data.materials])]);
+                }
+            })
+            .catch(err => console.error("Failed to fetch metadata", err));
     }, []);
 
     const fetchBoard = async () => {
@@ -158,7 +192,7 @@ export default function DispatchBoard() {
 
     // --- Edit Modal State ---
     const [editingJob, setEditingJob] = useState(null);
-    const [editForm, setEditForm] = useState({ machine: '', manufacturing_process: '', material: '', part_name: '' });
+    const [editForm, setEditForm] = useState({ machine: '', manufacturing_process: '', material: '', part_name: '', client_id: '', project_id: '' });
 
     const openEditModal = (job) => {
         setEditingJob(job);
@@ -166,7 +200,9 @@ export default function DispatchBoard() {
             machine: job.machine || '',
             manufacturing_process: job.manufacturing_process || '',
             material: job.material || '',
-            part_name: job.part_name || ''
+            part_name: job.part_name || '',
+            client_id: job.client_id || '',
+            project_id: job.project_id || ''
         });
     };
 
@@ -180,7 +216,9 @@ export default function DispatchBoard() {
                     machine_id: editForm.machine,
                     manufacturing_process: editForm.manufacturing_process,
                     material: editForm.material,
-                    part_name: editForm.part_name
+                    part_name: editForm.part_name,
+                    client_id: editForm.client_id,
+                    project_id: editForm.project_id
                 })
             });
             setEditingJob(null);
@@ -228,6 +266,16 @@ export default function DispatchBoard() {
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-100 font-medium">
                         {job.material || 'N/A'}
                     </span>
+                    {job.project_id && job.project_id !== 'N/A' && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100 font-medium">
+                            {job.project_id}
+                        </span>
+                    )}
+                    {job.client_id && job.client_id !== 'N/A' && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 font-medium">
+                            {job.client_id}
+                        </span>
+                    )}
                 </div>
             </div>
             <div className="flex justify-between items-center text-[10px] text-slate-400 pl-6 mt-1">
@@ -333,6 +381,32 @@ export default function DispatchBoard() {
                                 />
                             </div>
 
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Client</label>
+                                    <select
+                                        value={editForm.client_id}
+                                        onChange={e => setEditForm(prev => ({ ...prev, client_id: e.target.value }))}
+                                        className="w-full p-2 border rounded text-sm"
+                                    >
+                                        <option value="">Select Client</option>
+                                        {clientOptions.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">Project ID</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.project_id}
+                                        onChange={e => setEditForm(prev => ({ ...prev, project_id: e.target.value }))}
+                                        className="w-full p-2 border rounded text-sm"
+                                        placeholder="CXXX"
+                                    />
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="block text-xs font-medium text-gray-700 mb-1">Manufacturing Process</label>
                                 <select
@@ -340,7 +414,7 @@ export default function DispatchBoard() {
                                     onChange={e => setEditForm(prev => ({ ...prev, manufacturing_process: e.target.value }))}
                                     className="w-full p-2 border rounded text-sm"
                                 >
-                                    {["MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"].map(opt => (
+                                    {processOptions.map(opt => (
                                         <option key={opt} value={opt}>{opt}</option>
                                     ))}
                                 </select>
@@ -348,13 +422,15 @@ export default function DispatchBoard() {
 
                             <div>
                                 <label className="block text-xs font-medium text-gray-700 mb-1">Material</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={editForm.material}
                                     onChange={e => setEditForm(prev => ({ ...prev, material: e.target.value }))}
                                     className="w-full p-2 border rounded text-sm"
-                                    placeholder="Enter material..."
-                                />
+                                >
+                                    {materialOptions.map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div>

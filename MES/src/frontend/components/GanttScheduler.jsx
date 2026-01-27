@@ -8,8 +8,9 @@ const AgileScheduler = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [draggedJob, setDraggedJob] = useState(null);
-
-    const PROCESSES = ["MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"];
+    const [processRows, setProcessRows] = useState([
+        "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
+    ]);
 
     // Calculate window reference (Today 00:00)
     const getWindowStart = () => {
@@ -25,6 +26,16 @@ const AgileScheduler = () => {
         setLoading(true);
         setError(null);
         // Use Dispatch Board endpoint as requested
+        // Fetch Metadata first or in parallel
+        fetch(`${API_BASE_URL}/api/metadata/`)
+            .then(res => res.json())
+            .then(meta => {
+                if (meta.processes && meta.processes.length > 0) {
+                    setProcessRows(prev => [...new Set([...prev, ...meta.processes])]);
+                }
+            })
+            .catch(e => console.error(e));
+
         const url = `${API_BASE_URL}/api/dispatch/board`;
         console.log("Fetching from:", url);
 
@@ -53,12 +64,14 @@ const AgileScheduler = () => {
                         material: job.material || "N/A", // Ensure mapping
                         start_time: new Date(startMs).toISOString(),
                         end_time: new Date(startMs + durationMs).toISOString(),
-                        color: getStatusColor(job.status)
+                        color: getStatusColor(job.status),
+                        project_id: job.project_id || "N/A",
+                        client_id: job.client_id || ((job.order && job.order.customer_id) ? job.order.customer_id : "N/A")
                     };
                 });
 
                 setData({
-                    rows: PROCESSES.map(p => ({ id: p, name: p })), // Rows are processes now
+                    rows: processRows.map(p => ({ id: p, name: p })), // Rows are processes now
                     jobs: schedulerJobs
                 });
                 setLoading(false);
@@ -162,12 +175,20 @@ const AgileScheduler = () => {
                             <div className="w-48 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
                                 Manufacturing Processes
                             </div>
-                            {/* Second Column Header */}
-                            <div className="w-64 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
+                            {/* Second Column Header: Client */}
+                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
+                                Client
+                            </div>
+                            {/* Third Column Header: Project ID */}
+                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
+                                Project ID
+                            </div>
+                            {/* Fourth Column Header: Job Details */}
+                            <div className="w-48 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
                                 Job Details
                             </div>
 
-                            <div className="flex-1 relative min-w-[600px]">
+                            <div className="flex-1 relative min-w-[500px]">
                                 {[0, 6, 12, 18, 24, 30, 36].map(h => (
                                     <div key={h} className="absolute top-0 bottom-0 border-l border-englabs-grey-200 text-xs pl-1 pt-1 text-gray-400"
                                         style={{ left: `${(h / 36) * 100}%` }}>+{h}h</div>
@@ -182,7 +203,7 @@ const AgileScheduler = () => {
                                 // Filter jobs for this row
                                 const rowJobs = data.jobs.filter(j => {
                                     if (row.id === "Others") {
-                                        return !PROCESSES.slice(0, 7).includes(j.process) || j.process === "Others";
+                                        return !processRows.filter(pr => pr !== 'Others').includes(j.process) || j.process === "Others";
                                     }
                                     return j.process === row.id;
                                 });
@@ -196,8 +217,38 @@ const AgileScheduler = () => {
                                             <div className="mt-2 text-xs font-medium text-slate-600 bg-slate-200 px-2 py-0.5 rounded-full w-fit">{rowJobs.length} Jobs</div>
                                         </div>
 
-                                        {/* Column 2: Job Details List */}
-                                        <div className="w-64 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
+                                        {/* Column 2: Client */}
+                                        <div className="w-32 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
+                                            {rowJobs.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {Array.from(new Set(rowJobs.map(j => j.client_id))).map(cid => (
+                                                        <div key={cid} className="text-xs p-1.5 bg-blue-50 border border-blue-100 rounded text-center text-blue-700 font-semibold truncate" title={cid}>
+                                                            {cid}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-xs text-slate-300 italic text-center mt-4">-</div>
+                                            )}
+                                        </div>
+
+                                        {/* Column 3: Project IDs */}
+                                        <div className="w-32 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
+                                            {rowJobs.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {Array.from(new Set(rowJobs.map(j => j.project_id))).map(pid => (
+                                                        <div key={pid} className="text-xs p-1.5 bg-indigo-50 border border-indigo-100 rounded text-center text-indigo-700 font-semibold">
+                                                            {pid}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-xs text-slate-300 italic text-center mt-4">-</div>
+                                            )}
+                                        </div>
+
+                                        {/* Column 4: Job Details List */}
+                                        <div className="w-48 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
                                             {rowJobs.length > 0 ? (
                                                 <div className="space-y-2">
                                                     {rowJobs.map(job => (
@@ -212,11 +263,11 @@ const AgileScheduler = () => {
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <div className="text-xs text-slate-300 italic text-center mt-4">No active jobs</div>
+                                                <div className="text-xs text-slate-300 italic text-center mt-4">No jobs</div>
                                             )}
                                         </div>
 
-                                        {/* Column 3: Timeline */}
+                                        {/* Column 5: Timeline */}
                                         <div
                                             className="flex-1 relative bg-white transition-colors hover:bg-blue-50/10 min-w-[600px]"
                                             onDragOver={handleDragOver}

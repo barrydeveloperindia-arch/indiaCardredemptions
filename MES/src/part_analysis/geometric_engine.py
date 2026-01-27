@@ -12,7 +12,8 @@ class GeometricEngine:
     def analyze_stl(file_path: str):
         try:
             import trimesh
-            mesh = trimesh.load(file_path)
+            # OPTIMIZATION: process=False speeds up loading significantly (skip validation/fixing)
+            mesh = trimesh.load(file_path, process=False)
             
             # Ensure it's a mesh (trimesh can load scenes)
             if isinstance(mesh, trimesh.Scene):
@@ -22,17 +23,32 @@ class GeometricEngine:
                 else:
                     raise ValueError("Scene is empty")
             
+            # Minimal cleanup required for topology queries
+            mesh.merge_vertices()
+
             # Volume Calculation with Fallback
             vol = mesh.volume
-            if not mesh.is_watertight or vol < 0.001:
-                try:
-                    vol = mesh.convex_hull.volume
-                    print(f"[GeometricEngine] Mesh not watertight. Using Convex Hull volume: {vol}")
-                except Exception as e:
-                    print(f"[GeometricEngine] Convex Hull failed: {e}. Using Bounding Box.")
-                    vol = mesh.extents[0] * mesh.extents[1] * mesh.extents[2] * 0.5 # Approx 50% fill for bounding box
-
             
+            # Check watertightness - if calculation failed or mesh is open
+            # This triggers adjacency graph build which is cached
+            is_watertight = mesh.is_watertight
+            
+            if not is_watertight or vol < 0.001:
+                # OPTIMIZATION: For very large meshes (>100k faces), Convex Hull is O(N log N) but slow due to constant factors
+                # Fallback to AABB immediately if too complex
+                if len(mesh.faces) > 100000:
+                    print(f"[GeometricEngine] Mesh not watertight & complex ({len(mesh.faces)} faces). Skipping Convex Hull.")
+                    bbox = mesh.bounding_box
+                    vol = bbox.volume * 0.5 # Approx 50% fill
+                else:
+                    try:
+                        vol = mesh.convex_hull.volume
+                        print(f"[GeometricEngine] Mesh not watertight. Using Convex Hull volume: {vol}")
+                    except Exception as e:
+                        print(f"[GeometricEngine] Convex Hull failed: {e}. Using Bounding Box.")
+                        # Use AABB volume with fill factor
+                        vol = mesh.extents[0] * mesh.extents[1] * mesh.extents[2] * 0.5
+
             return {
                 "volume_cm3": float(round(vol / 1000.0, 2)), # mm3 to cm3
                 "surface_area_cm2": float(round(mesh.area / 100.0, 2)), # mm2 to cm2
@@ -42,7 +58,7 @@ class GeometricEngine:
                     "z": float(round(mesh.extents[2], 2))
                 },
                 "poly_count": int(len(mesh.faces)),
-                "is_watertight": bool(mesh.is_watertight)
+                "is_watertight": bool(is_watertight)
             }
         except Exception as e:
             print(f"[GeometricEngine] Error analyzing STL: {e}. Falling back to simulation.")

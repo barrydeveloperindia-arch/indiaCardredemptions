@@ -169,6 +169,7 @@ class Part(Base):
     
     # Metadata for Categorization
     project_id = Column(String, nullable=True, index=True) # e.g. "AEBOCODE"
+    client_id = Column(String, nullable=True) 
     source_path = Column(String, nullable=True) # Original path on user disk
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
