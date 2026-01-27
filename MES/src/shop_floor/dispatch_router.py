@@ -60,6 +60,7 @@ def get_dispatch_board(db: Session = Depends(get_db)):
             "id": job.job_id,
             "order_id": job.order_id,
             "part_name": part_name,
+            "preview_url": part.preview_url if part and part.preview_url else None,
             "client_id": part.client_id if part and part.client_id else (job.order.customer_id if job.order else "Unknown"),
             "machine": job.machine_id,
             "status": job.status,
