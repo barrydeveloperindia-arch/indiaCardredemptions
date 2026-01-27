@@ -1,18 +1,21 @@
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const NavItem = ({ to, icon, label }) => (
+const NavItem = ({ to, icon, label, collapsed }) => (
     <NavLink
         to={to}
         className={({ isActive }) =>
-            `flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive
+            `flex items-center ${collapsed ? 'justify-center px-2' : 'space-x-3 px-4'} py-3 rounded-lg transition-all duration-200 group ${isActive
                 ? 'glass-nav-active'
                 : 'text-englabs-text-secondary hover:bg-white/50 hover:text-englabs-text-primary'
             }`
         }
+        title={collapsed ? label : ""}
     >
         <span className="text-xl group-hover:scale-110 transition-transform duration-200">{icon}</span>
-        <span className="font-medium text-sm">{label}</span>
+        {!collapsed && <span className="font-medium text-sm transition-opacity duration-200">{label}</span>}
     </NavLink>
 );
 
@@ -20,48 +23,69 @@ import HinataAssistant from './HinataAssistant';
 
 export default function Layout({ children }) {
     const { user, logout } = useAuth();
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <div className="flex h-screen bg-englabs-bg overflow-hidden font-sans text-englabs-text-primary selection:bg-englabs-primary selection:text-white">
             {/* Clean White Background with subtle gradient handled by body */}
 
             {/* Glass Sidebar */}
-            <aside className="w-64 h-full flex flex-col z-10 glass-sidebar relative">
-                <div className="p-8">
-                    <h1 className="text-2xl font-light tracking-tight text-englabs-text-primary">
-                        Englabs<span className="font-bold text-englabs-primary">MES</span>
-                    </h1>
-                    <div className="mt-2 flex items-center space-x-2">
-                        <div className="w-2 h-2 rounded-full bg-englabs-success animate-pulse"></div>
-                        <span className="text-xs font-bold uppercase tracking-widest text-englabs-text-secondary">System Online</span>
-                    </div>
+            <aside
+                className={`${isCollapsed ? 'w-20' : 'w-64'} h-full flex flex-col z-10 glass-sidebar relative transition-all duration-300 ease-in-out`}
+            >
+                <div className={`p-8 ${isCollapsed ? 'px-4 items-center flex flex-col' : ''} relative`}>
+                    {!isCollapsed ? (
+                        <h1 className="text-2xl font-light tracking-tight text-englabs-text-primary whitespace-nowrap overflow-hidden">
+                            Englabs<span className="font-bold text-englabs-primary">MES</span>
+                        </h1>
+                    ) : (
+                        <h1 className="text-xl font-bold text-englabs-primary">E</h1>
+                    )}
+
+                    {!isCollapsed && (
+                        <div className="mt-2 flex items-center space-x-2">
+                            <div className="w-2 h-2 rounded-full bg-englabs-success animate-pulse"></div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-englabs-text-secondary whitespace-nowrap">System Online</span>
+                        </div>
+                    )}
+
+                    {/* Collapse Toggle Button */}
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className="absolute -right-3 top-9 bg-white border border-gray-200 rounded-full p-1 shadow-sm hover:bg-gray-50 text-gray-500 hover:text-englabs-primary"
+                    >
+                        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+                    </button>
                 </div>
 
                 <nav className="flex-1 px-4 space-y-2 mt-4">
-                    <NavItem to="/" icon="📋" label="Dispatch Command" />
-                    <NavItem to="/catalog" icon="🧊" label="Part Catalog" />
-                    <NavItem to="/scheduler" icon="📅" label="Agile Scheduler" />
-                    <NavItem to="/plm" icon="🔬" label="Part Analysis (PLM)" />
-                    <NavItem to="/shop-floor" icon="🏭" label="Shop Floor Live" />
-                    <NavItem to="/inventory" icon="📦" label="Inventory" />
-                    <NavItem to="/financials" icon="💰" label="Financial Ledger" />
+                    <NavItem to="/" icon="📋" label="Dispatch Command" collapsed={isCollapsed} />
+                    <NavItem to="/catalog" icon="🧊" label="Part Catalog" collapsed={isCollapsed} />
+                    <NavItem to="/scheduler" icon="📅" label="Agile Scheduler" collapsed={isCollapsed} />
+                    <NavItem to="/plm" icon="🔬" label="Part Analysis (PLM)" collapsed={isCollapsed} />
+                    <NavItem to="/shop-floor" icon="🏭" label="Shop Floor Live" collapsed={isCollapsed} />
+                    <NavItem to="/inventory" icon="📦" label="Inventory" collapsed={isCollapsed} />
+                    <NavItem to="/financials" icon="💰" label="Financial Ledger" collapsed={isCollapsed} />
                 </nav>
 
                 <div className="p-4 border-t border-white/20 bg-white/30 backdrop-blur-sm">
-                    <div className="flex items-center space-x-3 mb-4">
-                        <div className="w-9 h-9 rounded-lg bg-englabs-primary text-white flex items-center justify-center font-bold text-sm shadow-md shadow-englabs-primary/20">
+                    <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} mb-4`}>
+                        <div className="w-9 h-9 rounded-lg bg-englabs-primary text-white flex items-center justify-center font-bold text-sm shadow-md shadow-englabs-primary/20 shrink-0">
                             {user?.username?.substring(0, 2).toUpperCase() || 'OP'}
                         </div>
-                        <div className="flex-1">
-                            <p className="text-sm font-semibold text-englabs-text-primary">{user?.username || 'Operator'}</p>
-                            <p className="text-xs text-englabs-text-secondary capitalize">{user?.role || 'Access Level 1'}</p>
-                        </div>
+                        {!isCollapsed && (
+                            <div className="flex-1 overflow-hidden">
+                                <p className="text-sm font-semibold text-englabs-text-primary truncate">{user?.username || 'Operator'}</p>
+                                <p className="text-xs text-englabs-text-secondary capitalize truncate">{user?.role || 'Access Level 1'}</p>
+                            </div>
+                        )}
                     </div>
                     <button
                         onClick={logout}
-                        className="w-full text-xs font-medium text-englabs-text-secondary hover:text-englabs-danger hover:bg-red-50/50 py-2.5 rounded-lg transition-colors border border-transparent hover:border-red-100/50"
+                        className={`w-full text-xs font-medium text-englabs-text-secondary hover:text-englabs-danger hover:bg-red-50/50 py-2.5 rounded-lg transition-colors border border-transparent hover:border-red-100/50 ${isCollapsed ? 'text-center' : ''}`}
+                        title={isCollapsed ? "Sign Out" : ""}
                     >
-                        Sign Out
+                        {isCollapsed ? "Exit" : "Sign Out"}
                     </button>
                 </div>
             </aside>
