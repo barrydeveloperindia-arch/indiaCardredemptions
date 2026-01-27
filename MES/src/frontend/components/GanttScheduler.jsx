@@ -17,9 +17,12 @@ const AgileScheduler = () => {
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
     const [reqForm, setReqForm] = useState({ quantity: '', finish: '', colour: '', customFinish: '', customColour: '' });
-    const [reportForm, setReportForm] = useState({ selectedProjects: [], clientName: 'All' });
+    const [reportForm, setReportForm] = useState({ selectedProjects: [], clientName: 'All', jobQuantities: {}, selectedJobIds: [] });
     // Storage for saved requirements: { [projectId]: { quantity, finish, colour } }
     const [savedRequirements, setSavedRequirements] = useState({});
+
+    // Build Quantity State: { [jobId]: string }
+    const [buildQuantities, setBuildQuantities] = useState({});
 
     const finishOptions = ["Standard", "Matte", "Glossy", "Sandblasted", "Polished", "Anodized", "Plated", "Custom"];
     const colourOptions = ["Natural", "Black", "White", "Grey", "Red", "Blue", "Green", "Yellow", "Custom"];
@@ -189,10 +192,15 @@ const AgileScheduler = () => {
         // Validate Quantity
         const projectJobs = (data?.jobs || []).filter(j =>
             reportForm.selectedProjects.includes(j.project_id) &&
+            reportForm.selectedJobIds.includes(j.id) &&
             (reportForm.clientName === 'All' || j.client_id === reportForm.clientName)
         );
 
-        const missingQtyJobs = projectJobs.filter(j => !reportForm.jobQuantities?.[j.id]);
+        const missingQtyJobs = projectJobs.filter(j => {
+            const qty = buildQuantities[j.id];
+            return !qty; // Missing if no value in column
+        });
+
         if (missingQtyJobs.length > 0) {
             alert(`Please enter quantities for the following parts: ${missingQtyJobs.map(j => j.part_name).join(', ')}`);
             return;
@@ -237,18 +245,20 @@ const AgileScheduler = () => {
         doc.setTextColor(100);
         doc.text(`Client: ${reportForm.clientName} | Generated: ${new Date().toLocaleDateString()}`, 14, 28);
 
-        const tableColumn = ["Sr. No.", "Part Name", "Client", "Project", "Qty", "Finish", "Colour", "Process", "Visual"];
+        const tableColumn = ["Sr. No.", "Part Name", "Client", "Project", "Build Qty", "Success Qty", "Finish", "Colour", "Process", "Visual"];
         const tableRows = [];
 
         jobsWithImages.forEach((job, index) => {
             const reqs = savedRequirements[job.project_id] || { finish: 'Standard', colour: 'Natural' };
-            const qty = reportForm.jobQuantities?.[job.id] || 'N/A';
+            // Use buildQuantities from table
+            const qty = buildQuantities[job.id] || 'N/A';
             const rowData = [
                 index + 1,
                 job.part_name,
                 job.client_id || "N/A",
                 job.project_id || "N/A",
                 qty,
+                "", // Success Qty (Blank)
                 reqs.finish,
                 reqs.colour,
                 job.process,
@@ -266,11 +276,11 @@ const AgileScheduler = () => {
             styles: { valign: 'middle', fontSize: 10, cellPadding: 2 },
             columnStyles: {
                 0: { cellWidth: 15 },
-                1: { cellWidth: 40 },
-                8: { cellWidth: 40, minCellHeight: 30 } // Space for image
+                1: { cellWidth: 35 },
+                9: { cellWidth: 35, minCellHeight: 30 } // Space for image
             },
             didDrawCell: (data) => {
-                if (data.section === 'body' && data.column.index === 8) {
+                if (data.section === 'body' && data.column.index === 9) {
                     const job = jobsWithImages[data.row.index];
                     if (job && job.imgData) {
                         try {
@@ -458,15 +468,19 @@ const AgileScheduler = () => {
                             <div className="w-28 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
                                 Project ID
                             </div>
-                            {/* Fourth Column Header: Process Status */}
-                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
-                                Process Status
+                            {/* Fourth Column Header: Part Name */}
+                            <div className="w-40 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
+                                Part Name
                             </div>
-                            {/* Fifth Column Header: Post Process */}
+                            {/* Fifth Column Header: Build Quantity */}
+                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
+                                Build Quantity
+                            </div>
+                            {/* Sixth Column Header: Post Process */}
                             <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
                                 Post Process
                             </div>
-                            {/* Sixth Column Header: Overall Status */}
+                            {/* Seventh Column Header: Overall Status */}
                             <div className="flex-1 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
                                 Overall Status
                             </div>
@@ -497,7 +511,7 @@ const AgileScheduler = () => {
                                             {rowJobs.length > 0 ? (
                                                 <div className="space-y-2">
                                                     {rowJobs.map(job => (
-                                                        <div key={job.id} className="h-8 flex items-center justify-center">
+                                                        <div key={job.id} className="h-16 flex items-center justify-center">
                                                             <div className="text-xs p-1.5 bg-blue-50 border border-blue-100 rounded text-center text-blue-700 font-semibold truncate w-full" title={job.client_id}>
                                                                 {job.client_id}
                                                             </div>
@@ -514,7 +528,7 @@ const AgileScheduler = () => {
                                             {rowJobs.length > 0 ? (
                                                 <div className="space-y-2">
                                                     {rowJobs.map(job => (
-                                                        <div key={job.id} className="h-8 flex items-center justify-center">
+                                                        <div key={job.id} className="h-16 flex items-center justify-center">
                                                             <div
                                                                 onClick={(e) => handleProjectClick(e, job.project_id)}
                                                                 className="text-xs p-1.5 bg-indigo-50 border border-indigo-100 rounded text-center text-indigo-700 font-semibold w-full cursor-pointer hover:bg-indigo-100 hover:scale-105 transition-all"
@@ -529,27 +543,50 @@ const AgileScheduler = () => {
                                             )}
                                         </div>
 
-                                        {/* Column 4: Process Status */}
+                                        {/* Column 4: Part Name */}
+                                        <div className="w-40 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
+                                            {rowJobs.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {rowJobs.map(job => (
+                                                        <div key={job.id} className="h-16 flex items-center justify-center px-2">
+                                                            <div className="text-xs font-medium text-slate-700 truncate w-full" title={job.part_name || "N/A"}>
+                                                                {job.part_name || "-"}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-xs text-slate-300 italic text-center mt-4">-</div>
+                                            )}
+                                        </div>
+
+                                        {/* Column 5: Build Quantity */}
                                         <div className="w-32 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
                                             <div className="space-y-2">
                                                 {rowJobs.map(job => (
-                                                    <div key={job.id} className="h-8 flex items-center justify-center">
-                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${job.status === 'RUNNING' ? 'bg-blue-100 text-blue-700 animate-pulse' :
-                                                            job.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                                                                'bg-yellow-100 text-yellow-700'
-                                                            }`}>
-                                                            {job.status}
-                                                        </span>
+                                                    <div key={job.id} className="h-16 flex items-center justify-center px-1 border-b border-dashed border-gray-100 last:border-0">
+                                                        <div className="w-full">
+                                                            <input
+                                                                type="number"
+                                                                placeholder="Qty"
+                                                                className="w-full text-xs p-2 border border-blue-200 rounded bg-blue-50 focus:ring-2 focus:ring-blue-500 outline-none text-center font-medium"
+                                                                value={buildQuantities[job.id] || ''}
+                                                                onChange={(e) => setBuildQuantities(prev => ({
+                                                                    ...prev,
+                                                                    [job.id]: e.target.value
+                                                                }))}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
 
-                                        {/* Column 5: Post Process */}
+                                        {/* Column 6: Post Process */}
                                         <div className="w-32 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
                                             <div className="space-y-2">
                                                 {rowJobs.map(job => (
-                                                    <div key={job.id} className="h-8 flex items-center justify-center">
+                                                    <div key={job.id} className="h-16 flex items-center justify-center">
                                                         <span className="text-[10px] text-gray-600">
                                                             {job.status === 'COMPLETED' ? 'Painting' : 'Pending'}
                                                         </span>
@@ -558,13 +595,13 @@ const AgileScheduler = () => {
                                             </div>
                                         </div>
 
-                                        {/* Column 6: Overall Status */}
+                                        {/* Column 7: Overall Status */}
                                         <div className="flex-1 p-2 border-r border-englabs-grey-200 bg-white overflow-y-auto shrink-0 max-h-[200px]">
                                             <div className="space-y-2">
                                                 {rowJobs.map(job => {
                                                     const status = getOverallStatus(job);
                                                     return (
-                                                        <div key={job.id} className="h-8 flex items-center justify-center">
+                                                        <div key={job.id} className="h-16 flex items-center justify-center">
                                                             <span className={`text-[10px] font-medium px-2 py-0.5 rounded ${status.color}`}>
                                                                 {status.label}
                                                             </span>
@@ -692,6 +729,7 @@ const AgileScheduler = () => {
                                     {Array.from(new Set((data?.jobs || []).map(j => j.project_id).filter(id => id && id !== 'N/A'))).sort().map(pid => {
                                         const isSelected = reportForm.selectedProjects.includes(pid);
                                         const projectJobs = (data?.jobs || []).filter(j => j.project_id === pid);
+                                        // "Not Mfg" exclusion removed as column replaced
 
                                         return (
                                             <div key={pid} className="flex flex-col gap-1 py-1 hover:bg-white rounded px-1 transition-colors">
@@ -702,12 +740,20 @@ const AgileScheduler = () => {
                                                         checked={isSelected}
                                                         onChange={(e) => {
                                                             const checked = e.target.checked;
-                                                            setReportForm(prev => ({
-                                                                ...prev,
-                                                                selectedProjects: checked
-                                                                    ? [...prev.selectedProjects, pid]
-                                                                    : prev.selectedProjects.filter(p => p !== pid)
-                                                            }));
+                                                            setReportForm(prev => {
+                                                                const projectJobIds = projectJobs.map(j => j.id);
+                                                                const newSelectedJobIds = checked
+                                                                    ? [...new Set([...prev.selectedJobIds, ...projectJobIds])]
+                                                                    : prev.selectedJobIds.filter(id => !projectJobIds.includes(id));
+
+                                                                return {
+                                                                    ...prev,
+                                                                    selectedProjects: checked
+                                                                        ? [...prev.selectedProjects, pid]
+                                                                        : prev.selectedProjects.filter(p => p !== pid),
+                                                                    selectedJobIds: newSelectedJobIds
+                                                                };
+                                                            });
                                                         }}
                                                         className="w-4 h-4 text-green-600 rounded focus:ring-green-500 cursor-pointer"
                                                     />
@@ -718,16 +764,31 @@ const AgileScheduler = () => {
                                                     <div className="ml-6 border-l-2 border-gray-200 pl-2 space-y-2 mt-1 animate-fade-in">
                                                         {projectJobs.map(job => (
                                                             <div key={job.id} className="flex items-center justify-between text-xs bg-gray-50 p-1.5 rounded">
-                                                                <span className="text-gray-700 font-medium truncate max-w-[140px]" title={job.part_name}>{job.part_name}</span>
+                                                                <div className="flex items-center gap-2 flex-1">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={reportForm.selectedJobIds.includes(job.id)}
+                                                                        onChange={(e) => {
+                                                                            const checked = e.target.checked;
+                                                                            setReportForm(prev => ({
+                                                                                ...prev,
+                                                                                selectedJobIds: checked
+                                                                                    ? [...prev.selectedJobIds, job.id]
+                                                                                    : prev.selectedJobIds.filter(id => id !== job.id)
+                                                                            }));
+                                                                        }}
+                                                                        className="w-3.5 h-3.5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+                                                                    />
+                                                                    <span className="text-gray-700 font-medium truncate max-w-[140px]" title={job.part_name}>{job.part_name}</span>
+                                                                </div>
                                                                 <input
                                                                     type="number"
                                                                     placeholder="Qty"
-                                                                    className="w-16 p-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-green-500 outline-none text-center"
-                                                                    value={reportForm.jobQuantities?.[job.id] || ''}
-                                                                    onChange={(e) => setReportForm(prev => ({
-                                                                        ...prev,
-                                                                        jobQuantities: { ...prev.jobQuantities, [job.id]: e.target.value }
-                                                                    }))}
+                                                                    className="w-16 p-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-green-500 outline-none text-center bg-gray-100 cursor-not-allowed text-gray-500"
+                                                                    // Read-only from buildQuantities
+                                                                    value={buildQuantities[job.id] || ''}
+                                                                    readOnly={true}
+                                                                    title="Edit in 'Build Quantity' column"
                                                                     onClick={(e) => e.stopPropagation()}
                                                                 />
                                                             </div>
@@ -743,19 +804,7 @@ const AgileScheduler = () => {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Filter by Client (Optional)</label>
-                                <select
-                                    value={reportForm.clientName}
-                                    onChange={e => setReportForm(p => ({ ...p, clientName: e.target.value }))}
-                                    className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
-                                >
-                                    <option value="All">All Clients</option>
-                                    {Array.from(new Set((data?.jobs || []).map(j => j.client_id).filter(id => id && id !== 'N/A'))).sort().map(c => (
-                                        <option key={c} value={c}>{c}</option>
-                                    ))}
-                                </select>
-                            </div>
+
 
                             <div className="pt-4 flex gap-3">
                                 <button
