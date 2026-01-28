@@ -36,7 +36,8 @@ class PartAnalysisService:
             thumb_path = ConversionWorker.generate_thumbnail(stored_path)
         else:
             geo_data = GeometricEngine.analyze_stl(stl_path)
-            thumb_path = None
+            # GENERATE STL THUMBNAIL
+            thumb_path = ConversionWorker.generate_thumbnail_stl(stl_path)
             
         printability = ConversionWorker.check_printability(stl_path)
         

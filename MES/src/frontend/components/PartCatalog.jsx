@@ -69,7 +69,7 @@ const PartCatalog = () => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-        fetch(`${API_BASE_URL}/api/part-analysis/parts`, { signal: controller.signal })
+        fetch(`${API_BASE_URL}/api/analysis/parts`, { signal: controller.signal })
             .then(async res => {
                 clearTimeout(timeoutId);
                 if (!res.ok) throw new Error(res.statusText);
@@ -118,7 +118,7 @@ const PartCatalog = () => {
 
         const ids = Array.from(selectedIds);
         const promises = ids.map(id =>
-            fetch(`${API_BASE_URL}/api/part-analysis/parts/${id}`, { method: 'DELETE' })
+            fetch(`${API_BASE_URL}/api/analysis/parts/${id}`, { method: 'DELETE' })
         );
 
         try {
@@ -135,7 +135,7 @@ const PartCatalog = () => {
         if (!window.confirm("Are you sure you want to delete this part?")) return;
 
         try {
-            await fetch(`${API_BASE_URL}/api/part-analysis/parts/${partId}`, { method: 'DELETE' });
+            await fetch(`${API_BASE_URL}/api/analysis/parts/${partId}`, { method: 'DELETE' });
             setParts(prev => prev.filter(p => p.part_id !== partId));
             if (selectedIds.has(partId)) {
                 const newSet = new Set(selectedIds);
@@ -154,7 +154,7 @@ const PartCatalog = () => {
         setDrawingModalOpen(true);
 
         try {
-            const res = await fetch(`${API_BASE_URL}/api/part-analysis/generate-drawing/${partId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/analysis/generate-drawing/${partId}`, {
                 method: 'POST'
             });
             if (!res.ok) throw new Error("Failed to generate drawing");
@@ -184,7 +184,7 @@ const PartCatalog = () => {
     const handleSaveEdit = async () => {
         if (!editingPart) return;
         try {
-            const res = await fetch(`${API_BASE_URL}/api/part-analysis/parts/${editingPart.part_id}`, {
+            const res = await fetch(`${API_BASE_URL}/api/analysis/parts/${editingPart.part_id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm)

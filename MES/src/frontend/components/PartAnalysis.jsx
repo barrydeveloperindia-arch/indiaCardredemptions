@@ -137,7 +137,7 @@ const PartAnalysis = () => {
         formData.append('project_id', projectId);
         formData.append('client_id', clientId === 'Others' ? customClient : clientId);
 
-        fetch(`${API_BASE_URL}/api/part-analysis/analyze`, {
+        fetch(`${API_BASE_URL}/api/analysis/analyze`, {
             method: 'POST',
             body: formData,
         })
@@ -476,6 +476,12 @@ const PartAnalysis = () => {
                                 <div className="p-4 bg-englabs-grey-50 rounded">
                                     <div className="text-sm text-englabs-grey-500">Material</div>
                                     <div className="text-lg font-semibold">{result.material_suggestion}</div>
+                                </div>
+                                <div className="p-4 bg-green-50 rounded col-span-2 border border-green-100">
+                                    <div className="text-sm text-green-700">Estimated Cost</div>
+                                    <div className="text-2xl font-bold text-green-800">
+                                        ${result.quote?.total_price?.toFixed(2) || result.estimated_cost?.toFixed(2) || 'N/A'}
+                                    </div>
                                 </div>
                             </div>
 

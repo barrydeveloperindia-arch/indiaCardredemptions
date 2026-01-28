@@ -1,0 +1,2 @@
+FROM mes-api:latest
+RUN pip install qrcode

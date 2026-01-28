@@ -1,5 +1,6 @@
 
 @echo off
+set HOME=%USERPROFILE%
 echo Starting Englabs MES Environment...
 
 :: Start Docker Containers

@@ -24,7 +24,7 @@ const DigitalDrawingViewer = () => {
     const fetchDrawing = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${API_BASE_URL}/api/part-analysis/generate-drawing/${partId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/analysis/generate-drawing/${partId}`, {
                 method: 'POST'
             });
             if (!res.ok) throw new Error("Failed to generate or retrieve drawing.");

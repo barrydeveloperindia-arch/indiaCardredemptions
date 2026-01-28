@@ -19,14 +19,18 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         // Call FastAPI Access Token Endpoint
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
+        // Use URLSearchParams to send as application/x-www-form-urlencoded
+        const formBody = new URLSearchParams();
+        formBody.append('username', username);
+        formBody.append('password', password);
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/auth/token`, {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formBody,
             });
 
             if (!response.ok) {

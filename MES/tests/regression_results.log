@@ -1,0 +1,508 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\pc\Documents\Antigravity\MES
+plugins: anyio-4.12.1, base-url-2.1.0, playwright-0.7.2
+collected 7 items
+
+tests\frontend_regression\test_catalog_ui.py EEEEEEE                     [100%]
+
+=================================== ERRORS ====================================
+__________________ ERROR at setup of test_catalog_rendering ___________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\pc\AppData\Local\ms-playwright\chromium-1200\chrome-win64\chrome.exe> version=143.0.7499.4>
+
+    @pytest.fixture(scope="function")
+    def page(browser):
+        page = browser.new_page()
+        # Perform Login
+        page.goto(BASE_URL)
+    
+        # Check if we are on Login page
+        if page.locator("text=Secure Operator Access").is_visible(timeout=3000):
+            print("Logging in...")
+            # Fill Credentials
+            page.fill("input[type='text']", "admin")
+            page.fill("input[type='password']", "admin")
+            page.click("button[type='submit']")
+    
+            # Wait for meaningful Dashboard content to ensure login success
+            # "Dispatch Command" is reliable based on manual verification
+            try:
+                page.wait_for_selector("text=Dispatch Command", timeout=30000)
+            except Exception as e:
+                print(f"Login timeout! Current URL: {page.url}")
+                page.screenshot(path="login_failed.png")
+>               raise e
+
+tests\frontend_regression\test_catalog_ui.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\frontend_regression\test_catalog_ui.py:32: in page
+    page.wait_for_selector("text=Dispatch Command", timeout=30000)
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\sync_api\_generated.py:8213: in wait_for_selector
+    self._sync(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py:419: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py:369: in wait_for_selector
+    await self._channel.send(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000022E24684690>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000022E248DB4C0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("text=Dispatch Command") to be visible
+
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Logging in...
+Login timeout! Current URL: http://localhost:5173/
+_______________ ERROR at setup of test_catalog_2d_drawing_link ________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\pc\AppData\Local\ms-playwright\chromium-1200\chrome-win64\chrome.exe> version=143.0.7499.4>
+
+    @pytest.fixture(scope="function")
+    def page(browser):
+        page = browser.new_page()
+        # Perform Login
+        page.goto(BASE_URL)
+    
+        # Check if we are on Login page
+        if page.locator("text=Secure Operator Access").is_visible(timeout=3000):
+            print("Logging in...")
+            # Fill Credentials
+            page.fill("input[type='text']", "admin")
+            page.fill("input[type='password']", "admin")
+            page.click("button[type='submit']")
+    
+            # Wait for meaningful Dashboard content to ensure login success
+            # "Dispatch Command" is reliable based on manual verification
+            try:
+                page.wait_for_selector("text=Dispatch Command", timeout=30000)
+            except Exception as e:
+                print(f"Login timeout! Current URL: {page.url}")
+                page.screenshot(path="login_failed.png")
+>               raise e
+
+tests\frontend_regression\test_catalog_ui.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\frontend_regression\test_catalog_ui.py:32: in page
+    page.wait_for_selector("text=Dispatch Command", timeout=30000)
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\sync_api\_generated.py:8213: in wait_for_selector
+    self._sync(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py:419: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py:369: in wait_for_selector
+    await self._channel.send(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000022E24684690>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000022E2499D080>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("text=Dispatch Command") to be visible
+
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Logging in...
+Login timeout! Current URL: http://localhost:5173/
+___________________ ERROR at setup of test_catalog_view_3d ____________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\pc\AppData\Local\ms-playwright\chromium-1200\chrome-win64\chrome.exe> version=143.0.7499.4>
+
+    @pytest.fixture(scope="function")
+    def page(browser):
+        page = browser.new_page()
+        # Perform Login
+        page.goto(BASE_URL)
+    
+        # Check if we are on Login page
+        if page.locator("text=Secure Operator Access").is_visible(timeout=3000):
+            print("Logging in...")
+            # Fill Credentials
+            page.fill("input[type='text']", "admin")
+            page.fill("input[type='password']", "admin")
+            page.click("button[type='submit']")
+    
+            # Wait for meaningful Dashboard content to ensure login success
+            # "Dispatch Command" is reliable based on manual verification
+            try:
+                page.wait_for_selector("text=Dispatch Command", timeout=30000)
+            except Exception as e:
+                print(f"Login timeout! Current URL: {page.url}")
+                page.screenshot(path="login_failed.png")
+>               raise e
+
+tests\frontend_regression\test_catalog_ui.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\frontend_regression\test_catalog_ui.py:32: in page
+    page.wait_for_selector("text=Dispatch Command", timeout=30000)
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\sync_api\_generated.py:8213: in wait_for_selector
+    self._sync(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py:419: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py:369: in wait_for_selector
+    await self._channel.send(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000022E24684690>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000022E24A20900>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("text=Dispatch Command") to be visible
+
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Logging in...
+Login timeout! Current URL: http://localhost:5173/
+________________ ERROR at setup of test_catalog_2d_generation _________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\pc\AppData\Local\ms-playwright\chromium-1200\chrome-win64\chrome.exe> version=143.0.7499.4>
+
+    @pytest.fixture(scope="function")
+    def page(browser):
+        page = browser.new_page()
+        # Perform Login
+        page.goto(BASE_URL)
+    
+        # Check if we are on Login page
+        if page.locator("text=Secure Operator Access").is_visible(timeout=3000):
+            print("Logging in...")
+            # Fill Credentials
+            page.fill("input[type='text']", "admin")
+            page.fill("input[type='password']", "admin")
+            page.click("button[type='submit']")
+    
+            # Wait for meaningful Dashboard content to ensure login success
+            # "Dispatch Command" is reliable based on manual verification
+            try:
+                page.wait_for_selector("text=Dispatch Command", timeout=30000)
+            except Exception as e:
+                print(f"Login timeout! Current URL: {page.url}")
+                page.screenshot(path="login_failed.png")
+>               raise e
+
+tests\frontend_regression\test_catalog_ui.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\frontend_regression\test_catalog_ui.py:32: in page
+    page.wait_for_selector("text=Dispatch Command", timeout=30000)
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\sync_api\_generated.py:8213: in wait_for_selector
+    self._sync(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py:419: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py:369: in wait_for_selector
+    await self._channel.send(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000022E24684690>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000022E24AD4C20>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("text=Dispatch Command") to be visible
+
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Logging in...
+Login timeout! Current URL: http://localhost:5173/
+____________________ ERROR at setup of test_catalog_search ____________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\pc\AppData\Local\ms-playwright\chromium-1200\chrome-win64\chrome.exe> version=143.0.7499.4>
+
+    @pytest.fixture(scope="function")
+    def page(browser):
+        page = browser.new_page()
+        # Perform Login
+        page.goto(BASE_URL)
+    
+        # Check if we are on Login page
+        if page.locator("text=Secure Operator Access").is_visible(timeout=3000):
+            print("Logging in...")
+            # Fill Credentials
+            page.fill("input[type='text']", "admin")
+            page.fill("input[type='password']", "admin")
+            page.click("button[type='submit']")
+    
+            # Wait for meaningful Dashboard content to ensure login success
+            # "Dispatch Command" is reliable based on manual verification
+            try:
+                page.wait_for_selector("text=Dispatch Command", timeout=30000)
+            except Exception as e:
+                print(f"Login timeout! Current URL: {page.url}")
+                page.screenshot(path="login_failed.png")
+>               raise e
+
+tests\frontend_regression\test_catalog_ui.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\frontend_regression\test_catalog_ui.py:32: in page
+    page.wait_for_selector("text=Dispatch Command", timeout=30000)
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\sync_api\_generated.py:8213: in wait_for_selector
+    self._sync(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py:419: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py:369: in wait_for_selector
+    await self._channel.send(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000022E24684690>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000022E24A5B380>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("text=Dispatch Command") to be visible
+
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Logging in...
+Login timeout! Current URL: http://localhost:5173/
+________________ ERROR at setup of test_catalog_filter_process ________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\pc\AppData\Local\ms-playwright\chromium-1200\chrome-win64\chrome.exe> version=143.0.7499.4>
+
+    @pytest.fixture(scope="function")
+    def page(browser):
+        page = browser.new_page()
+        # Perform Login
+        page.goto(BASE_URL)
+    
+        # Check if we are on Login page
+        if page.locator("text=Secure Operator Access").is_visible(timeout=3000):
+            print("Logging in...")
+            # Fill Credentials
+            page.fill("input[type='text']", "admin")
+            page.fill("input[type='password']", "admin")
+            page.click("button[type='submit']")
+    
+            # Wait for meaningful Dashboard content to ensure login success
+            # "Dispatch Command" is reliable based on manual verification
+            try:
+                page.wait_for_selector("text=Dispatch Command", timeout=30000)
+            except Exception as e:
+                print(f"Login timeout! Current URL: {page.url}")
+                page.screenshot(path="login_failed.png")
+>               raise e
+
+tests\frontend_regression\test_catalog_ui.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\frontend_regression\test_catalog_ui.py:32: in page
+    page.wait_for_selector("text=Dispatch Command", timeout=30000)
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\sync_api\_generated.py:8213: in wait_for_selector
+    self._sync(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py:419: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py:369: in wait_for_selector
+    await self._channel.send(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000022E24684690>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000022E24A56F20>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("text=Dispatch Command") to be visible
+
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Logging in...
+Login timeout! Current URL: http://localhost:5173/
+__________________ ERROR at setup of test_catalog_select_all __________________
+
+browser = <Browser type=<BrowserType name=chromium executable_path=C:\Users\pc\AppData\Local\ms-playwright\chromium-1200\chrome-win64\chrome.exe> version=143.0.7499.4>
+
+    @pytest.fixture(scope="function")
+    def page(browser):
+        page = browser.new_page()
+        # Perform Login
+        page.goto(BASE_URL)
+    
+        # Check if we are on Login page
+        if page.locator("text=Secure Operator Access").is_visible(timeout=3000):
+            print("Logging in...")
+            # Fill Credentials
+            page.fill("input[type='text']", "admin")
+            page.fill("input[type='password']", "admin")
+            page.click("button[type='submit']")
+    
+            # Wait for meaningful Dashboard content to ensure login success
+            # "Dispatch Command" is reliable based on manual verification
+            try:
+                page.wait_for_selector("text=Dispatch Command", timeout=30000)
+            except Exception as e:
+                print(f"Login timeout! Current URL: {page.url}")
+                page.screenshot(path="login_failed.png")
+>               raise e
+
+tests\frontend_regression\test_catalog_ui.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\frontend_regression\test_catalog_ui.py:32: in page
+    page.wait_for_selector("text=Dispatch Command", timeout=30000)
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\sync_api\_generated.py:8213: in wait_for_selector
+    self._sync(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_page.py:419: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_frame.py:369: in wait_for_selector
+    await self._channel.send(
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <playwright._impl._connection.Connection object at 0x0000022E24684690>
+cb = <function Channel.send.<locals>.<lambda> at 0x0000022E24A8ADE0>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 30000ms exceeded.
+E           Call log:
+E             - waiting for locator("text=Dispatch Command") to be visible
+
+..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\playwright\_impl\_connection.py:559: TimeoutError
+---------------------------- Captured stdout setup ----------------------------
+Logging in...
+Login timeout! Current URL: http://localhost:5173/
+=========================== short test summary info ===========================
+ERROR tests/frontend_regression/test_catalog_ui.py::test_catalog_rendering - ...
+ERROR tests/frontend_regression/test_catalog_ui.py::test_catalog_2d_drawing_link
+ERROR tests/frontend_regression/test_catalog_ui.py::test_catalog_view_3d - pl...
+ERROR tests/frontend_regression/test_catalog_ui.py::test_catalog_2d_generation
+ERROR tests/frontend_regression/test_catalog_ui.py::test_catalog_search - pla...
+ERROR tests/frontend_regression/test_catalog_ui.py::test_catalog_filter_process
+ERROR tests/frontend_regression/test_catalog_ui.py::test_catalog_select_all
+======================== 7 errors in 218.05s (0:03:38) ========================

@@ -13,7 +13,7 @@ from fastapi.concurrency import run_in_threadpool
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("uvicorn")
 
-router = APIRouter(prefix="/api/part-analysis", tags=["Part Analysis (PLM)"])
+router = APIRouter()
 
 @router.get("/ping")
 def ping_pong():
@@ -56,6 +56,27 @@ def get_all_parts(db: Session = Depends(get_db)):
         traceback.print_exc()
         logger.error(f"[ERROR] {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/parts/{part_id}")
+def get_part(part_id: str, db: Session = Depends(get_db)):
+    part = db.query(Part).filter(Part.part_id == part_id).first()
+    if not part:
+        raise HTTPException(status_code=404, detail="Part not found")
+        
+    return {
+         "part_id": part.part_id,
+         "name": part.name,
+         "preview_url": part.preview_url,
+         "file_path": part.file_path,
+         "material": part.material,
+         "manufacturing_process": part.manufacturing_process,
+         "estimated_cost": part.estimated_cost,
+         "measurements": part.measurements,
+         "technical_score": part.technical_score,
+         "economic_action": part.economic_action,
+         "project_id": part.project_id,
+         "client_id": part.client_id
+    }
 
 from pydantic import BaseModel
 from typing import Optional

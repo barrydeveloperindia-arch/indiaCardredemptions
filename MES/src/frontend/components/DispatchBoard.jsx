@@ -233,6 +233,10 @@ export default function DispatchBoard() {
         window.open(`${API_BASE_URL}/api/dispatch/jobs/${id}/qc-report`, '_blank');
     };
 
+    const handlePrintTraveler = (id) => {
+        window.open(`${API_BASE_URL}/api/reporting/jobs/${id}/traveler`, '_blank');
+    };
+
     const renderCard = (job, colName) => (
         <div
             key={job.id}
@@ -283,14 +287,26 @@ export default function DispatchBoard() {
                 <span className="bg-slate-100 px-1 py-0.5 rounded text-slate-600">{job.eta}</span>
             </div>
 
-            {colName === 'qc' && (
+            <div className="flex flex-col gap-2 mt-3 pl-6">
                 <button
-                    onClick={() => handlePrintQC(job.id)}
-                    className="mt-3 w-full py-1 text-xs bg-emerald-50 text-emerald-600 rounded border border-emerald-100 font-medium hover:bg-emerald-100 ml-0"
+                    onClick={() => handlePrintTraveler(job.id)}
+                    className="w-full py-1 text-xs bg-indigo-50 text-indigo-600 rounded border border-indigo-100 font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-1"
                 >
-                    Export QC Report (PDF)
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Traveler
                 </button>
-            )}
+
+                {colName === 'qc' && (
+                    <button
+                        onClick={() => handlePrintQC(job.id)}
+                        className="w-full py-1 text-xs bg-emerald-50 text-emerald-600 rounded border border-emerald-100 font-medium hover:bg-emerald-100 transition-colors"
+                    >
+                        Export QC Report (PDF)
+                    </button>
+                )}
+            </div>
         </div>
     );
 

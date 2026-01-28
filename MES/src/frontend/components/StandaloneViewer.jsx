@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { API_BASE_URL } from '../config';
 import CADViewer from './CADViewer';
 
 const StandaloneViewer = () => {
@@ -18,8 +19,10 @@ const StandaloneViewer = () => {
 
     useEffect(() => {
         if (partId) {
-            console.log("Fetching data for part:", partId);
-            fetch(`http://localhost:8008/api/part-analysis/parts/${partId}`)
+            console.log("Fetching data for part:", partId, "Base URL:", API_BASE_URL);
+            const fetchUrl = `${API_BASE_URL}/api/analysis/parts/${partId}`;
+            console.log("Full Fetch URL:", fetchUrl);
+            fetch(fetchUrl)
                 .then(res => {
                     if (!res.ok) throw new Error("Failed to fetch part data");
                     return res.json();

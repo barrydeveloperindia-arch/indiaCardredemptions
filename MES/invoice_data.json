@@ -1,0 +1,40 @@
+
+{
+  "company_details": {
+    "name": "Englabs India Pvt Ltd",
+    "address": "2ND FLOOR UNIT NO.1021-1022 DISHA ARCADE SECTOR 4 MDC, PANCHKULA 134114, Haryana - 134114, India",
+    "gstin": "06AAFCE5136K1ZL",
+    "bank_details": {
+      "bank_name": "IDFC First Bank",
+      "account_number": "10080234962",
+      "ifsc": "IDFB0021218"
+    }
+  },
+  "customer_details": {
+    "name": "Aebocode Technologies",
+    "billing_address": "Level 1, plot no 6, IT Park, Sector 22, Panchkula Haryana - 134109, India",
+    "shipping_address": "Level 1, plot no 6, IT Park, Sector 22, Panchkula Haryana - 134109, India"
+  },
+  "invoice_meta": {
+    "invoice_number": "INV-17361",
+    "date": "2026-01-01",
+    "po_reference": "C4805",
+    "payment_terms": "30 Days"
+  },
+  "line_items": [
+    {
+      "description": "C54 (V-4) (BLACK DYE)-C4805",
+      "hsn_sac": "39269099",
+      "quantity": 2.00,
+      "unit_rate": 5680.00,
+      "tax_rate": 18.00,
+      "total_amount": 11360.00,
+      "part_name_guess": "C54 (V-4) (BLACK DYE)"
+    }
+  ],
+  "totals": {
+    "subtotal": 11360.00,
+    "tax_total": 2044.80,
+    "grand_total": 13405.00
+  }
+}

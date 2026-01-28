@@ -173,3 +173,76 @@ class ConversionWorker:
         except Exception as e:
             print(f"Thumbnail generation failed: {e}")
             return None
+
+    @staticmethod
+    def generate_thumbnail_stl(source_path: str) -> str:
+        """
+        Generates an SVG thumbnail for STL files using Matplotlib in 'Technical Drawing' style.
+        Returns the relative path to the thumbnail or None.
+        """
+        # Switch to SVG as requested by user ("clean white technical drawings svg")
+        thumb_path = source_path + ".svg"
+        
+        try:
+            import trimesh
+            import matplotlib.pyplot as plt
+            from mpl_toolkits.mplot3d import art3d
+            import numpy as np
+
+            # Load mesh
+            mesh = trimesh.load(source_path)
+            
+            # Handle Scene
+            if isinstance(mesh, trimesh.Scene):
+                if len(mesh.geometry) == 0:
+                     return None
+                geoms = list(mesh.geometry.values())
+                mesh = trimesh.util.concatenate(geoms)
+
+            # Reduce face count if huge (for Matplotlib performance & aesthetics)
+            if len(mesh.faces) > 4000:
+                stride = len(mesh.faces) // 4000
+                faces = mesh.faces[::stride]
+            else:
+                faces = mesh.faces
+
+            vertices = mesh.vertices
+            tris = vertices[faces] # (N, 3, 3)
+
+            # Setup Figure (Headless)
+            fig = plt.figure(figsize=(4, 3))
+            ax = fig.add_subplot(111, projection='3d')
+            
+            # Create Poly3DCollection (Technical Style)
+            # White Face, Dark Grey Edges, Thin lines
+            pc = art3d.Poly3DCollection(tris, alpha=1.0, linewidths=0.1, edgecolors=(0.2, 0.2, 0.2, 1.0))
+            pc.set_facecolor('white')
+            ax.add_collection3d(pc)
+            
+            # Limit View to BBox
+            min_vals = np.min(vertices, axis=0)
+            max_vals = np.max(vertices, axis=0)
+            max_range = np.max(max_vals - min_vals)
+            mid_vals = (max_vals + min_vals) / 2
+            
+            ax.set_xlim(mid_vals[0] - max_range/2, mid_vals[0] + max_range/2)
+            ax.set_ylim(mid_vals[1] - max_range/2, mid_vals[1] + max_range/2)
+            ax.set_zlim(mid_vals[2] - max_range/2, mid_vals[2] + max_range/2)
+            
+            # Clean up
+            ax.set_axis_off()
+            ax.view_init(elev=30, azim=45)
+            
+            # Save as SVG
+            plt.savefig(thumb_path, bbox_inches='tight', pad_inches=0, transparent=True, format='svg')
+            plt.close(fig)
+            
+            print(f"STL Thumbnail generated (SVG Technical): {thumb_path}")
+            return thumb_path
+
+        except Exception as e:
+            print(f"STL Thumbnail generation failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+

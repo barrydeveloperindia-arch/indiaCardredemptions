@@ -6,6 +6,37 @@ import { Suspense, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 
+const CameraController = ({ bounds }) => {
+    const { camera, controls } = useThree();
+
+    useEffect(() => {
+        if (bounds) {
+            fitCamera(bounds, camera, controls);
+        }
+    }, [bounds, camera, controls]);
+
+    return null;
+};
+
+const fitCamera = (bounds, camera, controls) => {
+    const size = new THREE.Vector3();
+    // Since we use <Center>, the object is at 0,0,0
+    bounds.getSize(size);
+
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = camera.fov * (Math.PI / 180);
+    const distance = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.5;
+
+    camera.position.set(0, 0, distance);
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix();
+
+    if (controls) {
+        controls.target.set(0, 0, 0);
+        controls.update();
+    }
+};
+
 const Model = ({ url, color, scale, setBounds }) => {
     const geom = useLoader(STLLoader, url);
 
@@ -127,6 +158,11 @@ const STLViewer = ({ url, onClose, isStandalone = false, partData }) => {
     const [volume, setVolume] = useState(partData?.measurements?.volume_cm3 || 0);
     const [toolbarOpen, setToolbarOpen] = useState(true);
     const [exporting, setExporting] = useState(false);
+    const [resetKey, setResetKey] = useState(0);
+
+    const handleResetView = () => {
+        setResetKey(key => key + 1);
+    };
 
     useEffect(() => {
         if (bounds) {
@@ -177,12 +213,15 @@ const STLViewer = ({ url, onClose, isStandalone = false, partData }) => {
 
                 {/* Main 3D Canvas */}
                 <div className="flex-1 bg-gradient-to-br from-gray-100 to-gray-200 relative">
-                    <Canvas shadows camera={{ position: [0, 0, 150], fov: 50 }} gl={{ preserveDrawingBuffer: true }}>
+                    <Canvas shadows key={resetKey} camera={{ position: [0, 0, 150], fov: 50 }} gl={{ preserveDrawingBuffer: true }}>
                         <Suspense fallback={<Html center>Loading...</Html>}>
-                            {/* Stage replaced with manual lights for offline reliability */}
                             <ambientLight intensity={0.5} />
                             <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
-                            <Model url={url} color={color} scale={scale} setBounds={setBounds} />
+                            <Center>
+                                <Model url={url} color={color} scale={scale} setBounds={setBounds} />
+                            </Center>
+                            {/* Auto Fit Logic */}
+                            <CameraController bounds={bounds} />
                             <PdfExporter triggerExport={exporting} onComplete={() => setExporting(false)} bounds={bounds} />
                         </Suspense>
                         {/* Middle Click Pan: mouseButtons={{ LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN }} */}
@@ -311,6 +350,19 @@ const STLViewer = ({ url, onClose, isStandalone = false, partData }) => {
                                         </div>
                                     </div>
                                 )}
+                            </div>
+
+                            {/* Reset View */}
+                            <div>
+                                <label className="text-xs font-bold text-gray-400 uppercase mb-2 block flex items-center gap-2">
+                                    <Maximize2 size={12} /> Camera
+                                </label>
+                                <button
+                                    onClick={handleResetView}
+                                    className="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded text-xs font-medium flex items-center justify-center gap-2 transition-colors"
+                                >
+                                    <Maximize2 size={14} /> Reset View
+                                </button>
                             </div>
 
                             {/* Actions */}

@@ -63,7 +63,9 @@ inventory_service = InventoryService()
 # Include Routers with standardized prefix
 app.include_router(auth_router, prefix="/api")
 app.include_router(inventory_router, prefix="/api")
-app.include_router(part_analysis_router.router)
+app.include_router(part_analysis_router.router, prefix="/api/analysis")
+# Legacy Fallback (for cached frontends)
+app.include_router(part_analysis_router.router, prefix="/api/part-analysis")
 app.include_router(scheduling_router.router, prefix="/api/scheduling")
 app.include_router(shop_floor_router.router, prefix="/api/shop-floor", tags=["Digital Traveler"])
 app.include_router(hp_router, prefix="/api")
@@ -73,7 +75,10 @@ app.include_router(ai_router, prefix="/api")
 app.include_router(system_router, prefix="/api")
 
 from src.metadata_router import router as metadata_router
+from src.reporting.router import router as reporting_router
+
 app.include_router(metadata_router)
+app.include_router(reporting_router, prefix="/api")
 
 # Ensure Tables Exist
 models.Base.metadata.create_all(bind=engine)
@@ -179,7 +184,7 @@ async def control_machine(
     cmd: MachineCommand, 
     current_user: models.User = Depends(get_current_user)
 ):
-    if current_user.role not in ["admin", "operator"]:
+    if current_user.role not in ["admin", "operator", "operations", "engineer"]:
         raise HTTPException(status_code=403, detail="Unauthorized")
         
     print(f"User {current_user.username} sent {cmd.command} to {machine_id}")
