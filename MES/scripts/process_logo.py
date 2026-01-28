@@ -1,72 +1,50 @@
-from PIL import Image
-import numpy as np
+from PIL import Image, ImageOps
+import os
 
 def extract_logo():
     input_path = "/app/src/assets/logo.png"
-    output_path = "/app/src/assets/logo_clean.png" # Non-destructive output
+    output_path = "/app/src/assets/logo_clean.png"
     
     try:
         img = Image.open(input_path).convert("RGBA")
-        datas = img.getdata()
         
-        # 2. Smart Auto-Crop
-        # Instead of fixed heuristics, we find the content bounding box.
-        bg_color = img.getpixel((0, 0))
-        
-        # Create a binary mask of "content" vs "background"
-        # We can use a simple difference threshold
-        diff = Image.new("L", img.size, 0)
-        
-        # Iterate (slow in pure python, but fine for 1 image)
-        # Faster: Use difference from bg
-        from PIL import ImageChops
-        bg_img = Image.new("RGBA", img.size, bg_color)
-        diff_img = ImageChops.difference(img, bg_img)
-        bbox = diff_img.getbbox()
+        # 1. Smart Crop (Threshold Inverted)
+        # Convert to RGB, Invert. White(255)->0. Content->High.
+        inverted = ImageOps.invert(img.convert("RGB"))
+        # Threshold to remove noise (any inverted val < 30 becomes 0)
+        # 30 threshold means original pixel > 225 is treated as White.
+        mask = inverted.point(lambda p: 255 if p > 30 else 0)
+        bbox = mask.getbbox()
         
         if bbox:
+            print(f"Cropped to {bbox}")
             logo_region = img.crop(bbox)
-            print(f"Auto-cropped to: {bbox}")
         else:
+            print("No content found to crop")
             logo_region = img
-            print("No content found to crop, using full image")
-             
-        # 3. Smart Coloring & BG Removal
+            
+        # 2. Styling & BG Removal
         new_data = []
-        region_datas = logo_region.getdata()
+        # White BG Reference
+        bg_ref = (255, 255, 255)
         
-        # Sample BG color from top-left of the region
-        bg_sample = region_datas[0]
-        
-        for item in region_datas:
-            # Distance from BG
-            dist = sum(abs(item[i] - bg_sample[i]) for i in range(3))
+        for item in logo_region.getdata():
+            # Dist from White
+            dist = sum(abs(item[i] - bg_ref[i]) for i in range(3))
             
             if dist < 40:
                 # Background -> Transparent
                 new_data.append((255, 255, 255, 0))
-            elif item[0] > 200 and item[1] > 200 and item[2] > 200:
-                # White Text ("Eng") -> Dark Grey (50, 50, 50) for contrast on White Paper
-                new_data.append((50, 50, 50, 255))
             else:
-                # Green Text/Swirl ("labs") -> Brand Green (76, 200, 100)
-                new_data.append((76, 200, 100, 255))
-                
+                 # Content -> Keep Original Color, Force Full Opacity
+                 new_data.append((item[0], item[1], item[2], 255))
+                 
         logo_region.putdata(new_data)
-        
-        # 4. Auto-Crop (Trim transparent borders)
-        bbox = logo_region.getbbox()
-        if bbox:
-            final_logo = logo_region.crop(bbox)
-        else:
-            final_logo = logo_region
-            
-        final_logo.save(output_path, "PNG")
-        print(f"Extracted logo saved to {output_path}")
-        print(f"Original Size: {w}x{h}. New Size: {final_logo.size}")
+        logo_region.save(output_path, "PNG")
+        print("Success")
         
     except Exception as e:
         print(f"Error: {e}")
-
+        
 if __name__ == "__main__":
     extract_logo()

@@ -27,7 +27,7 @@ class Order(Base):
     __tablename__ = "orders"
     
     order_id = Column(String, primary_key=True, default=generate_uuid)
-    customer_id = Column(String, nullable=False)
+    customer_id = Column(String, ForeignKey("contacts.contact_id"), nullable=True) # Linked to Contact
     priority_level = Column(Integer, default=1)
     cad_file_path = Column(String, nullable=False)
     technical_requirements = Column(JSON, nullable=False)
@@ -37,6 +37,7 @@ class Order(Base):
     
     jobs = relationship("DispatchQueue", back_populates="order")
     invoices = relationship("Invoice", back_populates="order")
+    customer = relationship("Contact", back_populates="orders")
 
 class DispatchQueue(Base):
     __tablename__ = "dispatch_queue"
@@ -71,8 +72,10 @@ class Invoice(Base):
     __tablename__ = "invoices"
     
     invoice_id = Column(String, primary_key=True, default=generate_uuid)
-    job_id = Column(String, ForeignKey("dispatch_queue.job_id"))
-    order_id = Column(String, ForeignKey("orders.order_id"))
+    job_id = Column(String, ForeignKey("dispatch_queue.job_id"), nullable=True)
+    order_id = Column(String, ForeignKey("orders.order_id"), nullable=True)
+    contact_id = Column(String, ForeignKey("contacts.contact_id"), nullable=True)
+    project_id = Column(String, ForeignKey("projects.project_id"), nullable=True)
     
     machine_runtime_cost = Column(DECIMAL(10, 2), nullable=False)
     material_cost = Column(DECIMAL(10, 2), nullable=False)
@@ -82,6 +85,8 @@ class Invoice(Base):
     
     job = relationship("DispatchQueue", back_populates="invoice")
     order = relationship("Order", back_populates="invoices")
+    contact = relationship("Contact", back_populates="invoices_rel")
+    project = relationship("Project", back_populates="invoices_rel")
 
 class User(Base):
     __tablename__ = "users"
@@ -168,8 +173,142 @@ class Part(Base):
     measurements = Column(JSON, default={}) # Volume, BBox, Area
     
     # Metadata for Categorization
-    project_id = Column(String, nullable=True, index=True) # e.g. "AEBOCODE"
-    client_id = Column(String, nullable=True) 
+    project_id = Column(String, ForeignKey("projects.project_id"), nullable=True, index=True) # e.g. "AEBOCODE"
+    client_id = Column(String, ForeignKey("contacts.contact_id"), nullable=True) 
     source_path = Column(String, nullable=True) # Original path on user disk
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    project = relationship("Project", back_populates="parts")
+    client = relationship("Contact")
+
+# --- ZOHO BOOKS PARITY MODELS ---
+
+class Contact(Base):
+    """
+    Represents a Customer or Vendor (Zoho 'Contacts').
+    Replaces the simple 'client_id' string in many places.
+    """
+    __tablename__ = "contacts"
+    
+    contact_id = Column(String, primary_key=True, default=generate_uuid)
+    name = Column(String, nullable=False, index=True) # e.g. "Aebocode Technologies"
+    contact_type = Column(String, default="CUSTOMER") # CUSTOMER, VENDOR
+    email = Column(String)
+    phone = Column(String)
+    
+    # Address
+    billing_address = Column(JSON)
+    shipping_address = Column(JSON)
+    
+    # Financials
+    currency_code = Column(String, default="INR")
+    gstin = Column(String)
+    pan = Column(String)
+    
+    # Portal
+    portal_enabled = Column(Boolean, default=False)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    orders = relationship("Order", back_populates="customer")
+    estimates = relationship("Estimate", back_populates="contact")
+    invoices_rel = relationship("Invoice", back_populates="contact")
+
+
+class Project(Base):
+    """
+    Dedicated Project entity to store metadata (ingested from Folders).
+    """
+    __tablename__ = "projects"
+    
+    project_id = Column(String, primary_key=True) # Manual ID like "C4805", "P-101"
+    name = Column(String)
+    description = Column(String)
+    status = Column(String, default="ACTIVE") # ACTIVE, ARCHIVED, COMPLETED
+    
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    
+    # Linkage
+    customer_id = Column(String, ForeignKey("contacts.contact_id"), nullable=True)
+    
+    parts = relationship("Part", back_populates="project")
+    estimates = relationship("Estimate", back_populates="project")
+    invoices_rel = relationship("Invoice", back_populates="project")
+
+
+class Estimate(Base):
+    """
+    Represents a Quote/Proposal (Zoho 'Estimates').
+    """
+    __tablename__ = "estimates"
+    
+    estimate_id = Column(String, primary_key=True, default=generate_uuid)
+    estimate_number = Column(String, unique=True) # e.g. "EST-001"
+    contact_id = Column(String, ForeignKey("contacts.contact_id"))
+    project_id = Column(String, ForeignKey("projects.project_id"), nullable=True)
+    
+    status = Column(String, default="DRAFT") # DRAFT, SENT, ACCEPTED, INVOICED, DECLINED
+    total_amount = Column(DECIMAL(15, 2), default=0.00)
+    
+    estimate_date = Column(DateTime, default=datetime.utcnow)
+    expiry_date = Column(DateTime)
+    
+    items = Column(JSON) # Snapshot of line items
+    terms_conditions = Column(String)
+    
+    contact = relationship("Contact", back_populates="estimates")
+    project = relationship("Project", back_populates="estimates")
+
+
+class Expense(Base):
+    """
+    Represents a Purchase/Expense (Zoho 'Expenses').
+    """
+    __tablename__ = "expenses"
+    
+    expense_id = Column(String, primary_key=True, default=generate_uuid)
+    date = Column(DateTime, default=datetime.utcnow)
+    category = Column(String) # Travel, Material, Meals
+    amount = Column(DECIMAL(15, 2), nullable=False)
+    description = Column(String)
+    
+    vendor_id = Column(String, ForeignKey("contacts.contact_id"), nullable=True)
+    reference_number = Column(String) # Receipt #
+    receipt_path = Column(String) # Path to uploaded receipt
+    
+    is_billable = Column(Boolean, default=False)
+    project_id = Column(String, ForeignKey("projects.project_id"), nullable=True)
+
+
+class BankAccount(Base):
+    """
+    Represents a physical bank account for Reconciliation.
+    """
+    __tablename__ = "bank_accounts"
+    
+    account_id = Column(String, primary_key=True, default=generate_uuid)
+    name = Column(String) # "HDFC Primary"
+    account_number = Column(String)
+    bank_name = Column(String)
+    currency = Column(String, default="INR")
+    current_balance = Column(DECIMAL(15, 2), default=0.00)
+
+
+class BankTransaction(Base):
+    """
+    Raw transactions imported from Bank Statements (CSV/OFX).
+    """
+    __tablename__ = "bank_transactions"
+    
+    txn_id = Column(String, primary_key=True, default=generate_uuid)
+    account_id = Column(String, ForeignKey("bank_accounts.account_id"))
+    
+    date = Column(DateTime)
+    description = Column(String)
+    amount = Column(DECIMAL(15, 2)) # +Deposit, -Withdrawal
+    status = Column(String, default="UNCATEGORIZED") # UNCATEGORIZED, MATCHED
+    
+    # Matched against internal entity
+    matched_entry_id = Column(String, nullable=True) # ID of Payment/Expense matches

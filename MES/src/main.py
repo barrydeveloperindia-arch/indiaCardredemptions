@@ -76,9 +76,11 @@ app.include_router(system_router, prefix="/api")
 
 from src.metadata_router import router as metadata_router
 from src.reporting.router import router as reporting_router
+from src.sales_router import router as sales_router
 
 app.include_router(metadata_router)
 app.include_router(reporting_router, prefix="/api")
+app.include_router(sales_router)
 
 # Ensure Tables Exist
 models.Base.metadata.create_all(bind=engine)

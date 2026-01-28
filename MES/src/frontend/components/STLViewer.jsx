@@ -1,4 +1,4 @@
-import { Html, OrbitControls } from '@react-three/drei';
+import { Center, Html, OrbitControls } from '@react-three/drei';
 import { Canvas, useLoader, useThree } from '@react-three/fiber';
 import { jsPDF } from 'jspdf';
 import { Box, Download, FileText, Maximize2, Minimize2, Palette, Ruler, Settings } from 'lucide-react';

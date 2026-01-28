@@ -65,6 +65,7 @@ export default function Layout({ children }) {
                     <NavItem to="/plm" icon="🔬" label="Part Analysis (PLM)" collapsed={isCollapsed} />
                     <NavItem to="/shop-floor" icon="🏭" label="Shop Floor Live" collapsed={isCollapsed} />
                     <NavItem to="/inventory" icon="📦" label="Inventory" collapsed={isCollapsed} />
+                    <NavItem to="/projects" icon="📁" label="Projects" collapsed={isCollapsed} />
                     <NavItem to="/financials" icon="💰" label="Financial Ledger" collapsed={isCollapsed} />
                 </nav>
 

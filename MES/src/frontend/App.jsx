@@ -10,6 +10,7 @@ import Layout from './components/Layout';
 import Login from './components/Login';
 import PartAnalysis from './components/PartAnalysis';
 import PartCatalog from './components/PartCatalog';
+import Projects from './components/Projects';
 import ShopFloor from './components/ShopFloor';
 import StandaloneViewer from './components/StandaloneViewer';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -60,6 +61,7 @@ function AppRoutes() {
                             <Route path="/plm" element={<PartAnalysis />} />
                             <Route path="/shop-floor" element={<ShopFloor />} />
                             <Route path="/inventory" element={<Inventory />} />
+                            <Route path="/projects" element={<Projects />} />
                             <Route path="/financials" element={<Invoices />} />
                             {/* Fallback */}
                             <Route path="*" element={<Navigate to="/" />} />

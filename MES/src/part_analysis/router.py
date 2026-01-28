@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, BackgroundTasks
 from sqlalchemy.orm import Session
 from src.database.connection import get_db
 from src.database.models import Part, Order, DispatchQueue
@@ -31,20 +31,30 @@ def get_all_parts(db: Session = Depends(get_db)):
         parts = db.query(Part).all()
         logger.info(f"[DEBUG] Fetched {len(parts)} parts")
         
-        # Manual serialization for safety
         results = []
         for p in parts:
+             # Logic to prefer STL for viewing if original is complex CAD
+             # Normalize separators for Linux (Docker) compatibility
+             if p.file_path:
+                 p.file_path = p.file_path.replace("\\", "/")
+                 
+             viewable_path = p.file_path
+             if p.file_path and not p.file_path.lower().endswith('.stl'):
+                 # Check if converted STL exists
+                 potential_stl = os.path.splitext(p.file_path)[0] + ".stl"
+                 if os.path.exists(potential_stl):
+                     viewable_path = potential_stl
+                     
              results.append({
                  "part_id": p.part_id,
                  "name": p.name,
                  "preview_url": p.preview_url,
-                 "file_path": p.file_path,
+                 "file_path": viewable_path, # Return STL if available
+                 "original_file_path": p.file_path, # Keep original for reference
                  "material": p.material,
                  "manufacturing_process": p.manufacturing_process,
                  "estimated_cost": p.estimated_cost,
                  "measurements": p.measurements,
-                 "technical_score": p.technical_score,
-                 "economic_action": p.economic_action,
                  "technical_score": p.technical_score,
                  "economic_action": p.economic_action,
                  "project_id": p.project_id,
@@ -63,11 +73,21 @@ def get_part(part_id: str, db: Session = Depends(get_db)):
     if not part:
         raise HTTPException(status_code=404, detail="Part not found")
         
+    # Logic to prefer STL for viewing if original is complex CAD
+    viewable_path = part.file_path
+    if part.file_path and not part.file_path.lower().endswith('.stl'):
+         # Check if converted STL exists
+         potential_stl = os.path.splitext(part.file_path)[0] + ".stl"
+         exists = os.path.exists(potential_stl)
+         if exists:
+             viewable_path = potential_stl
+
     return {
          "part_id": part.part_id,
          "name": part.name,
          "preview_url": part.preview_url,
-         "file_path": part.file_path,
+         "file_path": viewable_path, # Return STL if available
+         "original_file_path": part.file_path,
          "material": part.material,
          "manufacturing_process": part.manufacturing_process,
          "estimated_cost": part.estimated_cost,
@@ -123,8 +143,12 @@ async def analyze_part(
     source_path: str = Form(None),
     manufacturing_process: str = Form("MJF"),
     material: str = Form("PLA"),
+    background_tasks: BackgroundTasks = None,
     db: Session = Depends(get_db)
 ):
+    if not background_tasks:
+        # Fallback if not injected (shouldn't happen with FastAPI)
+        pass
     if not file.filename.lower().endswith(('.stl', '.step', '.stp', '.obj', '.sldprt')):
         raise HTTPException(status_code=400, detail="Invalid file type. Allowed: STL, STEP, OBJ, SLDPRT.")
     
@@ -212,6 +236,11 @@ async def analyze_part(
             db.add(new_job)
             db.commit()
         
+        if final_part and background_tasks:
+            # Auto-generate 2D Drawing in Background
+            logger.info(f"Triggering auto-drawing generation for {final_part.name}")
+            background_tasks.add_task(DrawingService.generate_technical_drawing, final_part.file_path)
+
         return analysis_result
 
     except Exception as e:

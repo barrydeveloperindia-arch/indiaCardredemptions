@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useEffect, useMemo, useState } from 'react';
 import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 
 export default function Inventory() {
     const [items, setItems] = useState([]);
@@ -131,7 +131,7 @@ export default function Inventory() {
             <div className="grid grid-cols-3 gap-6 mb-8">
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Total Value</h3>
-                    <p className="text-2xl font-bold text-gray-800">${stats.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                    <p className="text-2xl font-bold text-gray-800">₹{stats.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Low Stock Alerts</h3>
@@ -168,7 +168,7 @@ export default function Inventory() {
                                 <div className="text-xs text-englabs-grey-500 uppercase">{item.unit} On Hand</div>
                             </div>
                             <div className="text-right">
-                                <div className="text-lg font-semibold text-englabs-grey-700">${item.unit_cost}</div>
+                                <div className="text-lg font-semibold text-englabs-grey-700">₹{item.unit_cost}</div>
                                 <div className="text-xs text-englabs-grey-500 uppercase">Per Unit</div>
                             </div>
                         </div>
@@ -199,13 +199,17 @@ export default function Inventory() {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Item</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Item Code</label>
                                 <select
-                                    className="w-full border p-2 rounded"
+                                    className="w-full border p-2 rounded bg-white"
                                     onChange={(e) => setSelectedItem(items.find(i => i.item_id === e.target.value))}
                                 >
-                                    <option value="">Select Item...</option>
-                                    {items.map(i => <option key={i.item_id} value={i.item_id}>{i.name}</option>)}
+                                    <option value="">Select Item Code...</option>
+                                    {items.map(i => (
+                                        <option key={i.item_id} value={i.item_id}>
+                                            {i.item_id} - {i.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
@@ -215,6 +219,7 @@ export default function Inventory() {
                                     className="w-full border p-2 rounded"
                                     value={qtyInput}
                                     onChange={(e) => setQtyInput(e.target.value)}
+                                    placeholder="0.00"
                                 />
                             </div>
                         </div>
@@ -232,18 +237,62 @@ export default function Inventory() {
                 <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-white p-8 rounded-2xl shadow-2xl w-96">
                         <h2 className="text-xl font-bold mb-4">New Material</h2>
-                        <div className="space-y-3">
-                            <input placeholder="ID (e.g. PLA-001)" className="w-full border p-2 rounded" value={newItemData.item_id} onChange={e => setNewItemData({ ...newItemData, item_id: e.target.value })} />
-                            <input placeholder="Name" className="w-full border p-2 rounded" value={newItemData.name} onChange={e => setNewItemData({ ...newItemData, name: e.target.value })} />
-                            <select className="w-full border p-2 rounded" value={newItemData.material_type} onChange={e => setNewItemData({ ...newItemData, material_type: e.target.value })}>
-                                <option value="PLA">PLA</option>
-                                <option value="STEEL">Steel</option>
-                                <option value="COOLANT">Coolant</option>
-                                <option value="RESIN">Resin</option>
-                            </select>
-                            <div className="flex space-x-2">
-                                <input type="number" placeholder="Cost" className="w-1/2 border p-2 rounded" value={newItemData.unit_cost} onChange={e => setNewItemData({ ...newItemData, unit_cost: parseFloat(e.target.value) })} />
-                                <input placeholder="Unit" className="w-1/2 border p-2 rounded" value={newItemData.unit} onChange={e => setNewItemData({ ...newItemData, unit: e.target.value })} />
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Item Code</label>
+                                <input
+                                    placeholder="e.g. PLA-001"
+                                    className="w-full border p-2 rounded"
+                                    value={newItemData.item_id}
+                                    onChange={e => setNewItemData({ ...newItemData, item_id: e.target.value })}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Name</label>
+                                <input
+                                    placeholder="Material Name"
+                                    className="w-full border p-2 rounded"
+                                    value={newItemData.name}
+                                    onChange={e => setNewItemData({ ...newItemData, name: e.target.value })}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Unit of 1 Quantity</label>
+                                <input
+                                    placeholder="e.g. kg, liter, piece"
+                                    className="w-full border p-2 rounded"
+                                    value={newItemData.unit}
+                                    onChange={e => setNewItemData({ ...newItemData, unit: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Type</label>
+                                    <select
+                                        className="w-full border p-2 rounded bg-white"
+                                        value={newItemData.material_type}
+                                        onChange={e => setNewItemData({ ...newItemData, material_type: e.target.value })}
+                                    >
+                                        <option value="PLA">PLA</option>
+                                        <option value="STEEL">Steel</option>
+                                        <option value="COOLANT">Coolant</option>
+                                        <option value="RESIN">Resin</option>
+                                        <option value="OTHER">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Unit Cost (₹)</label>
+                                    <input
+                                        type="number"
+                                        placeholder="0.00"
+                                        className="w-full border p-2 rounded"
+                                        value={newItemData.unit_cost}
+                                        onChange={e => setNewItemData({ ...newItemData, unit_cost: parseFloat(e.target.value) })}
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div className="mt-6 flex justify-end space-x-2">
