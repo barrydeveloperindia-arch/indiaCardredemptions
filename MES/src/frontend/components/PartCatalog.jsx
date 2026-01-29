@@ -1,6 +1,9 @@
-import { AlertTriangle, Grid, List, Plus, Search, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { AlertTriangle, Grid, List, Plus, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
+import { useSearch } from '../context/SearchContext';
 
 const PartCatalog = () => {
     const [parts, setParts] = useState([]);
@@ -8,6 +11,15 @@ const PartCatalog = () => {
     const [viewMode, setViewMode] = useState('grid');
     const [processFilter, setProcessFilter] = useState('All');
     const [clientFilter, setClientFilter] = useState('All');
+
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+
+    const { token, logout } = useAuth();
+    const { searchTerm } = useSearch(); // Global Search
+    const navigate = useNavigate();
+
+    // ... [Options State] ...
     const [processOptions, setProcessOptions] = useState([
         "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
     ]);
@@ -28,7 +40,9 @@ const PartCatalog = () => {
         "ABS", "NYLON PA-12", "NYLON PA-3200", "NYLON PA-2200", "NYLON PA-11",
         "PLA", "TPU", "PET-G", "ALUMINIUM", "SS", "MS", "WOOD", "SILICONE", "Others"
     ]);
-    const [searchTerm, setSearchTerm] = useState('');
+    // const [searchTerm, setSearchTerm] = useState(''); // Removed Local State
+
+    // ... [Rest of State] ...
     const [selectedPartFor3D, setSelectedPartFor3D] = useState(null);
     const [drawingModalOpen, setDrawingModalOpen] = useState(false);
     const [drawingData, setDrawingData] = useState(null);
@@ -43,43 +57,95 @@ const PartCatalog = () => {
         name: '', client_id: '', project_id: '', manufacturing_process: '', material: ''
     });
 
-
+    const handleAuthError = () => {
+        alert("Session expired. Please log in again.");
+        logout();
+        navigate('/login');
+    };
 
     useEffect(() => {
-        fetchParts();
-
-        // Fetch Metadata
-        fetch(`${API_BASE_URL}/api/metadata/`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.processes && data.processes.length > 0) {
-                    setProcessOptions(prev => [...new Set([...prev, ...data.processes])]);
-                }
-                if (data.clients && data.clients.length > 0) {
-                    setClientOptions(prev => [...new Set([...prev, ...data.clients])]);
-                }
-                if (data.materials && data.materials.length > 0) {
-                    setMaterialOptions(prev => [...new Set([...prev, ...data.materials])]);
-                }
+        if (token) {
+            // Fetch Metadata
+            fetch(`${API_BASE_URL}/api/metadata/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             })
-            .catch(err => console.error("Failed to fetch metadata", err));
-    }, []);
+                .then(res => {
+                    if (res.status === 401) return handleAuthError();
+                    return res.json();
+                })
+                .then(data => {
+                    if (data?.processes && data.processes.length > 0) {
+                        setProcessOptions(prev => [...new Set([...prev, ...data.processes])]);
+                    }
+                    if (data?.clients && data.clients.length > 0) {
+                        setClientOptions(prev => [...new Set([...prev, ...data.clients])]);
+                    }
+                    if (data?.materials && data.materials.length > 0) {
+                        setMaterialOptions(prev => [...new Set([...prev, ...data.materials])]);
+                    }
+                })
+                .catch(err => console.error("Failed to fetch metadata", err));
+        }
+    }, [token]);
 
-    const fetchParts = () => {
+    // Filter & Search Effect (Debounced)
+    useEffect(() => {
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            setPage(0);
+            setHasMore(true);
+            fetchParts(0, true);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [processFilter, clientFilter, searchTerm, token]);
+
+    const fetchParts = (pageIndex, isReset = false) => {
+        if (!token) return;
+        setLoading(true);
+        if (isReset) setParts([]);
+
+        const limit = 50;
+        const skip = pageIndex * limit;
+
+        // Build URL matching the backend params
+        let url = `${API_BASE_URL}/api/analysis/parts?skip=${skip}&limit=${limit}`;
+        if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+        if (processFilter !== 'All') url += `&process=${encodeURIComponent(processFilter)}`;
+        if (clientFilter !== 'All') url += `&client=${encodeURIComponent(clientFilter)}`;
+
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-        fetch(`${API_BASE_URL}/api/analysis/parts`, { signal: controller.signal })
+        fetch(url, {
+            signal: controller.signal,
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
             .then(async res => {
                 clearTimeout(timeoutId);
+                if (res.status === 401) {
+                    handleAuthError();
+                    throw new Error("Unauthorized");
+                }
                 if (!res.ok) throw new Error(res.statusText);
                 return res.json();
             })
             .then(data => {
-                setParts(Array.isArray(data) ? data : []);
+                const newParts = Array.isArray(data) ? data : [];
+                if (newParts.length < limit) setHasMore(false);
+
+                if (isReset) {
+                    setParts(newParts);
+                } else {
+                    setParts(prev => [...prev, ...newParts]);
+                }
                 setLoading(false);
             })
             .catch(err => {
+                if (err.message === "Unauthorized") return;
                 console.error("Fetch Error:", err);
                 if (err.name === 'AbortError') {
                     setError("Request timed out. Server might be busy.");
@@ -89,6 +155,39 @@ const PartCatalog = () => {
                 setLoading(false);
             });
     };
+
+    // ... [Handlers remain same] ...
+
+    const loadMore = useCallback(() => {
+        if (!hasMore || loading) return;
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchParts(nextPage, false);
+    }, [page, hasMore, loading]);
+
+    // Infinite Scroll Observer
+    const observerTarget = useRef(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            entries => {
+                if (entries[0].isIntersecting && hasMore && !loading) {
+                    loadMore();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => {
+            if (observerTarget.current) {
+                observer.unobserve(observerTarget.current);
+            }
+        };
+    }, [observerTarget, hasMore, loading, loadMore]);
 
     const handleSelect = (id) => {
         const newSet = new Set(selectedIds);
@@ -203,22 +302,7 @@ const PartCatalog = () => {
         }
     };
 
-    const filteredParts = parts.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (p.project_id && p.project_id.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        const matchesProcess = processFilter === 'All' ||
-            (processFilter === 'Others'
-                ? !processOptions.filter(opt => opt !== 'Others').includes(p.manufacturing_process)
-                : p.manufacturing_process === processFilter);
-
-        const matchesClient = clientFilter === 'All' ||
-            (clientFilter === 'Others'
-                ? !clientOptions.filter(c => c !== 'Others').includes(p.client_id)
-                : p.client_id === clientFilter);
-
-        return matchesSearch && matchesProcess && matchesClient;
-    });
+    const filteredParts = parts;
 
     return (
         <div className="p-6 h-full bg-gray-50 overflow-y-auto">
@@ -268,14 +352,7 @@ const PartCatalog = () => {
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-6">
                 <div className="relative w-full sm:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                        type="text"
-                        placeholder="Search parts..."
-                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    {/* Search Input Removed - Using Global */}
                 </div>
 
                 <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-gray-200">
@@ -488,10 +565,6 @@ const PartCatalog = () => {
                                                     // Backend converts STEP/SLDPRT to STL, so we point viewer to the STL version
                                                     let viewerUrl = part.file_path;
                                                     console.log("Original File Path:", viewerUrl);
-                                                    const lowerUrl = viewerUrl.toLowerCase();
-                                                    if (lowerUrl.endsWith('.step') || lowerUrl.endsWith('.stp') || lowerUrl.endsWith('.sldprt') || lowerUrl.endsWith('.x_t')) {
-                                                        viewerUrl = viewerUrl.substring(0, viewerUrl.lastIndexOf('.')) + '.stl';
-                                                    }
 
                                                     // Ensure viewerUrl has no backslashes
                                                     viewerUrl = viewerUrl.replace(/\\/g, '/');
@@ -580,11 +653,18 @@ const PartCatalog = () => {
                         </div>
                     ))}
 
-                    {filteredParts.length === 0 && (
+                    {filteredParts.length === 0 && !loading && (
                         <div className="col-span-full text-center py-12 text-gray-400">
                             No parts found matching your search.
                         </div>
                     )}
+
+                    {/* Infinite Scroll Sentinel */}
+                    <div ref={observerTarget} className="col-span-full h-10 flex justify-center items-center">
+                        {loading && (
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        )}
+                    </div>
                 </div>
             )}
 

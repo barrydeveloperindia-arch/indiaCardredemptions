@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
+import CustomerDashboard from './components/CustomerDashboard';
 import DigitalDrawingViewer from './components/DigitalDrawingViewer';
 import DigitalTraveler from './components/DigitalTraveler';
 import DispatchBoard from './components/DispatchBoard';
@@ -10,10 +11,12 @@ import Layout from './components/Layout';
 import Login from './components/Login';
 import PartAnalysis from './components/PartAnalysis';
 import PartCatalog from './components/PartCatalog';
+import ProjectDetail from './components/ProjectDetail';
 import Projects from './components/Projects';
 import ShopFloor from './components/ShopFloor';
 import StandaloneViewer from './components/StandaloneViewer';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import Communications from './pages/Communications';
 
 function SessionRestorer() {
     const location = useLocation();
@@ -61,8 +64,13 @@ function AppRoutes() {
                             <Route path="/plm" element={<PartAnalysis />} />
                             <Route path="/shop-floor" element={<ShopFloor />} />
                             <Route path="/inventory" element={<Inventory />} />
+
                             <Route path="/projects" element={<Projects />} />
+                            <Route path="/projects/:id" element={<ProjectDetail />} />
+                            <Route path="/customers" element={<CustomerDashboard />} />
+                            <Route path="/communications" element={<Communications />} />
                             <Route path="/financials" element={<Invoices />} />
+
                             {/* Fallback */}
                             <Route path="*" element={<Navigate to="/" />} />
                         </Routes>
@@ -73,10 +81,14 @@ function AppRoutes() {
     );
 }
 
+import { SearchProvider } from './context/SearchContext';
+
 function App() {
     return (
         <AuthProvider>
-            <AppRoutes />
+            <SearchProvider>
+                <AppRoutes />
+            </SearchProvider>
         </AuthProvider>
     );
 }

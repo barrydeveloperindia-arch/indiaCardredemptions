@@ -1,7 +1,7 @@
 import { Calendar, FileText, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
 import { API_BASE_URL } from '../config';
+import { useSearch } from '../context/SearchContext';
 
 const AgileScheduler = () => {
     const [data, setData] = useState(null);
@@ -11,6 +11,8 @@ const AgileScheduler = () => {
     const [processRows, setProcessRows] = useState([
         "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
     ]);
+
+    const { searchTerm } = useSearch();
 
     // Client Requirements Modal State
     const [reqModalOpen, setReqModalOpen] = useState(false);
@@ -80,7 +82,6 @@ const AgileScheduler = () => {
                         start_time: new Date(startMs).toISOString(),
                         end_time: new Date(startMs + durationMs).toISOString(),
                         color: getStatusColor(job.status),
-                        color: getStatusColor(job.status),
                         project_id: job.project_id || "N/A",
                         client_id: job.client_id || ((job.order && job.order.customer_id) ? job.order.customer_id : "N/A"),
                         preview_url: job.preview_url
@@ -135,7 +136,7 @@ const AgileScheduler = () => {
     // Percent position for "Now" line
     const nowPos = ((new Date().getTime() - windowStart) / WINDOW_MS) * 100;
 
-    // --- Drag and Drop Handlers (Visual only for now, logic would require updating Dispatch Job params) ---
+    // --- Drag and Drop Handlers ---
     const handleDragStart = (e, job) => {
         setDraggedJob(job);
         e.dataTransfer.effectAllowed = "move";
@@ -148,8 +149,6 @@ const AgileScheduler = () => {
 
     const handleLaneDrop = (e, processName) => {
         e.preventDefault();
-        // Here we would presumably update the manufacturing_process of the part?
-        // For now, this is a visualized scheduler as requested.
         console.log(`Dropped ${draggedJob?.part_name} on ${processName}`);
         setDraggedJob(null);
     };
@@ -210,9 +209,6 @@ const AgileScheduler = () => {
             alert("PDF Library loading... Please try again in a moment.");
             return;
         }
-
-        // Already filtered above for validation
-        // const projectJobs = ...
 
         if (projectJobs.length === 0) {
             alert("No jobs found for the selected Project/Client.");
@@ -456,34 +452,14 @@ const AgileScheduler = () => {
                     <>
                         {/* Timeline Header */}
                         <div className="h-10 border-b border-englabs-grey-200 bg-englabs-grey-50 relative flex overflow-x-auto">
-                            {/* First Column Header: Process */}
-                            <div className="w-40 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0 sticky left-0">
-                                Process
-                            </div>
-                            {/* Second Column Header: Client */}
-                            <div className="w-28 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
-                                Client
-                            </div>
-                            {/* Third Column Header: Project ID */}
-                            <div className="w-28 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
-                                Project ID
-                            </div>
-                            {/* Fourth Column Header: Part Name */}
-                            <div className="w-40 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
-                                Part Name
-                            </div>
-                            {/* Fifth Column Header: Build Quantity */}
-                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
-                                Build Quantity
-                            </div>
-                            {/* Sixth Column Header: Post Process */}
-                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
-                                Post Process
-                            </div>
-                            {/* Seventh Column Header: Overall Status */}
-                            <div className="flex-1 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">
-                                Overall Status
-                            </div>
+                            {/* Headers */}
+                            <div className="w-40 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0 sticky left-0">Process</div>
+                            <div className="w-28 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">Client</div>
+                            <div className="w-28 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">Project ID</div>
+                            <div className="w-40 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">Part Name</div>
+                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">Build Quantity</div>
+                            <div className="w-32 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">Post Process</div>
+                            <div className="flex-1 border-r border-englabs-grey-200 p-2 font-bold text-xs text-slate-700 uppercase tracking-wide flex items-center bg-gray-50 z-20 shrink-0">Overall Status</div>
                         </div>
 
                         {/* Rows */}
@@ -491,10 +467,24 @@ const AgileScheduler = () => {
                             {data.rows.map(row => {
                                 // Filter jobs for this row
                                 const rowJobs = data.jobs.filter(j => {
-                                    if (row.id === "Others") {
-                                        return !processRows.filter(pr => pr !== 'Others').includes(j.process) || j.process === "Others";
+                                    // 1. Process Filter
+                                    const matchProcess = (row.id === "Others")
+                                        ? (!processRows.filter(pr => pr !== 'Others').includes(j.process) || j.process === "Others")
+                                        : (j.process === row.id);
+
+                                    if (!matchProcess) return false;
+
+                                    // 2. Global Search Filter
+                                    if (searchTerm) {
+                                        const s = searchTerm.toLowerCase();
+                                        return (
+                                            (j.part_name && j.part_name.toLowerCase().includes(s)) ||
+                                            (j.project_id && j.project_id.toLowerCase().includes(s)) ||
+                                            (j.client_id && j.client_id.toLowerCase().includes(s))
+                                        );
                                     }
-                                    return j.process === row.id;
+
+                                    return true;
                                 });
 
                                 return (
@@ -617,6 +607,7 @@ const AgileScheduler = () => {
                     </>
                 )}
             </div>
+
             {/* Client Requirements Overlay Modal */}
             {reqModalOpen && (
                 <div className="fixed inset-0 bg-black/60 flex items-start justify-center pt-20 z-50 animate-fade-in">
@@ -709,6 +700,7 @@ const AgileScheduler = () => {
                     </div>
                 </div>
             )}
+
             {/* Report Generation Modal */}
             {reportModalOpen && (
                 <div className="fixed inset-0 bg-black/60 flex items-start justify-center pt-20 z-50 animate-fade-in">
@@ -729,7 +721,6 @@ const AgileScheduler = () => {
                                     {Array.from(new Set((data?.jobs || []).map(j => j.project_id).filter(id => id && id !== 'N/A'))).sort().map(pid => {
                                         const isSelected = reportForm.selectedProjects.includes(pid);
                                         const projectJobs = (data?.jobs || []).filter(j => j.project_id === pid);
-                                        // "Not Mfg" exclusion removed as column replaced
 
                                         return (
                                             <div key={pid} className="flex flex-col gap-1 py-1 hover:bg-white rounded px-1 transition-colors">
@@ -785,7 +776,6 @@ const AgileScheduler = () => {
                                                                     type="number"
                                                                     placeholder="Qty"
                                                                     className="w-16 p-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-green-500 outline-none text-center bg-gray-100 cursor-not-allowed text-gray-500"
-                                                                    // Read-only from buildQuantities
                                                                     value={buildQuantities[job.id] || ''}
                                                                     readOnly={true}
                                                                     title="Edit in 'Build Quantity' column"
@@ -803,8 +793,6 @@ const AgileScheduler = () => {
                                     {reportForm.selectedProjects.length} selected
                                 </div>
                             </div>
-
-
 
                             <div className="pt-4 flex gap-3">
                                 <button

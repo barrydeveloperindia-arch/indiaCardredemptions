@@ -25,11 +25,95 @@ def db_ping(db: Session = Depends(get_db)):
     logger.info("DB PING HIT")
     return {"status": "db-ok"}
 
+from typing import Optional
+from sqlalchemy import or_
+
+@router.get("/admin/thumbnail-status")
+def get_thumbnail_status(db: Session = Depends(get_db)):
+    """Returns the progress of thumbnail generation."""
+    total = db.query(Part).count() or 1
+    done = db.query(Part).filter(Part.preview_url != None).count()
+    return {"total": total, "done": done, "progress": round((done / total) * 100, 1)}
+
+@router.get("/admin/fix-paths")
+def fix_paths_endpoint(db: Session = Depends(get_db)):
+    """Admin endpoint to bulk fix file paths and preview URLs."""
+    logger.info("Starting Path Fix...")
+    parts = db.query(Part).all()
+    updates = 0
+    storage_prefix = "storage/parts/"
+    
+    # Index files
+    file_map = {}
+    scan_dir = "storage/parts"
+    if os.path.exists(scan_dir):
+        for f in os.listdir(scan_dir):
+            file_map[f.lower()] = f"{storage_prefix}{f}"
+    
+    logger.info(f"Indexed {len(file_map)} files from {scan_dir}")
+    
+    for p in parts:
+        if not p.file_path: continue
+        
+        fname = os.path.basename(p.file_path.replace("\\", "/"))
+        fname_lower = fname.lower()
+        
+        # 1. Fix Path
+        if fname_lower in file_map:
+             real_path = file_map[fname_lower]
+             if p.file_path != real_path and not p.file_path.replace("\\", "/").startswith("storage/"):
+                 p.file_path = real_path
+                 updates += 1
+
+        # 2. Fix Preview
+        candidates = [
+            fname + ".svg", fname + ".stl.svg", fname + ".step.svg", 
+            fname + ".stp.svg", os.path.splitext(fname)[0] + ".svg",
+             os.path.splitext(fname)[0] + ".stl.svg"
+        ]
+        
+        found_url = None
+        for c in candidates:
+            if c.lower() in file_map:
+                found_url = "/" + file_map[c.lower()]
+                break
+                
+        if found_url and p.preview_url != found_url:
+            p.preview_url = found_url
+            updates += 1
+            
+    db.commit()
+    logger.info(f"Path Fix Complete: {updates} updates")
+    return {"status": "success", "updates": updates, "total_parts": len(parts)}
+
 @router.get("/parts")
-def get_all_parts(db: Session = Depends(get_db)):
+def get_all_parts(
+    skip: int = 0, 
+    limit: int = 50, 
+    search: Optional[str] = None,
+    process: Optional[str] = None,
+    client: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
     try:
-        parts = db.query(Part).all()
-        logger.info(f"[DEBUG] Fetched {len(parts)} parts")
+        query = db.query(Part)
+        
+        if search:
+            search_fmt = f"%{search}%"
+            query = query.filter(or_(Part.name.ilike(search_fmt), Part.project_id.ilike(search_fmt)))
+            
+        if process and process != "All":
+             query = query.filter(Part.manufacturing_process == process)
+
+        if client and client != "All":
+             query = query.filter(Part.client_id == client)
+
+        # Apply default sort (Newest first)
+        if hasattr(Part, 'created_at'):
+             query = query.order_by(Part.created_at.desc(), Part.part_id.asc())
+             
+        parts = query.offset(skip).limit(limit).all()
+        logger.info(f"[DEBUG] Fetched {len(parts)} parts (skip={skip}, limit={limit})")
         
         results = []
         for p in parts:
@@ -37,13 +121,13 @@ def get_all_parts(db: Session = Depends(get_db)):
              # Normalize separators for Linux (Docker) compatibility
              if p.file_path:
                  p.file_path = p.file_path.replace("\\", "/")
-                 
+             
+             # Optimistically assume STL exists if it's a known CAD format to avoid I/O bottlenecks in loop
              viewable_path = p.file_path
-             if p.file_path and not p.file_path.lower().endswith('.stl'):
-                 # Check if converted STL exists
-                 potential_stl = os.path.splitext(p.file_path)[0] + ".stl"
-                 if os.path.exists(potential_stl):
-                     viewable_path = potential_stl
+             if p.file_path and p.file_path.lower().endswith(('.step', '.stp', '.sldprt')):
+                 # In production, we assume conversion happened. 
+                 # Checking os.path.exists for every item in list is too slow on Docker volumes.
+                 viewable_path = os.path.splitext(p.file_path)[0] + ".stl"
                      
              results.append({
                  "part_id": p.part_id,

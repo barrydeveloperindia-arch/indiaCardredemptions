@@ -8,4 +8,6 @@ venv/
 .DS_Store
 node_modules
 dist
-storage/temp_*
+storage/
+src/frontend/node_modules
+coverage

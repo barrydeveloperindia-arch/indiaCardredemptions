@@ -16,3 +16,5 @@ fpdf2
 openai
 google-generativeai
 qrcode
+pandas
+openpyxl

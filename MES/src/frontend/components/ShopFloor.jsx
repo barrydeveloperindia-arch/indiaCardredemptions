@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
+import { useSearch } from '../context/SearchContext';
 
 export default function ShopFloor() {
     const { token } = useAuth();
+    const { searchTerm } = useSearch(); // Global Search
     const [machines, setMachines] = useState([]);
 
     useEffect(() => {
@@ -47,6 +49,17 @@ export default function ShopFloor() {
         }
     };
 
+    // Filter by Global Search
+    const filteredMachines = machines.filter(m => {
+        if (!searchTerm) return true;
+        const s = searchTerm.toLowerCase();
+        const mId = m.machine_id || m.id || '';
+        return (
+            mId.toLowerCase().includes(s) ||
+            (m.type && m.type.toLowerCase().includes(s))
+        );
+    });
+
     return (
         <div>
             <header className="mb-8 flex justify-between items-center border-b border-white/20 pb-6">
@@ -61,7 +74,7 @@ export default function ShopFloor() {
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {machines.map(m => {
+                {filteredMachines.map(m => {
                     const isHP = m.type === 'HP';
                     const machineId = m.machine_id || m.id; // Support both for robustness
 

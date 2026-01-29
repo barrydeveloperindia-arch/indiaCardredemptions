@@ -2,6 +2,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSearch } from '../context/SearchContext';
+import HinataAssistant from './HinataAssistant';
 
 const NavItem = ({ to, icon, label, collapsed }) => (
     <NavLink
@@ -19,11 +21,10 @@ const NavItem = ({ to, icon, label, collapsed }) => (
     </NavLink>
 );
 
-import HinataAssistant from './HinataAssistant';
-
 export default function Layout({ children }) {
     const { user, logout } = useAuth();
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { searchTerm, setSearchTerm } = useSearch();
 
     return (
         <div className="flex h-screen bg-englabs-bg overflow-hidden font-sans text-englabs-text-primary selection:bg-englabs-primary selection:text-white">
@@ -66,6 +67,8 @@ export default function Layout({ children }) {
                     <NavItem to="/shop-floor" icon="🏭" label="Shop Floor Live" collapsed={isCollapsed} />
                     <NavItem to="/inventory" icon="📦" label="Inventory" collapsed={isCollapsed} />
                     <NavItem to="/projects" icon="📁" label="Projects" collapsed={isCollapsed} />
+                    <NavItem to="/customers" icon="👥" label="Customers" collapsed={isCollapsed} />
+                    <NavItem to="/communications" icon="📨" label="Communications" collapsed={isCollapsed} />
                     <NavItem to="/financials" icon="💰" label="Financial Ledger" collapsed={isCollapsed} />
                 </nav>
 
@@ -109,7 +112,9 @@ export default function Layout({ children }) {
                             </div>
                             <input
                                 type="text"
-                                placeholder="Search orders, machines..."
+                                placeholder="Search..."
+                                value={searchTerm || ''}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 w-64 focus:w-80 transition-all focus:outline-none focus:ring-2 focus:ring-englabs-primary/20 focus:border-englabs-primary"
                             />
                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

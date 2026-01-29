@@ -59,6 +59,12 @@ def ensure_contact(db, name):
         db.commit()
     return contact
 
+def long_path(path):
+    """Handle Windows long paths."""
+    if os.name == 'nt':
+        return "\\\\?\\" + os.path.abspath(path)
+    return path
+
 def scan_technical_projects(dry_run=True, db=None):
     """Pass 1: Scan ENQUIRIES 2025 for Projects and Parts."""
     report.log(f"Scanning Technical Projects in: {ENQUIRIES_ROOT}")
@@ -82,7 +88,10 @@ def scan_technical_projects(dry_run=True, db=None):
                 match = PROJECT_FOLDER_PATTERN.match(dir_name)
                 if match:
                     date_str, project_code = match.groups()
-                    project_date = datetime.strptime(date_str, "%d-%m-%Y")
+                    try:
+                        project_date = datetime.strptime(date_str, "%d-%m-%Y")
+                    except ValueError:
+                        continue # Skip invalid dates
                     
                     report.projects_found += 1
                     
@@ -105,9 +114,8 @@ def scan_technical_projects(dry_run=True, db=None):
                             db.flush()
                         
                         # 3. Create Parts for Files
-                        # Recursively scan files inside this project folder
                         project_path = os.path.join(root, dir_name)
-                        for p_root, _, p_files in os.walk(project_path):
+                        for p_root, _, p_files in os.walk(long_path(project_path)):
                             for file in p_files:
                                 if file.lower().endswith(('.step', '.stp', '.stl', '.sldprt')):
                                     report.parts_found += 1
@@ -115,25 +123,38 @@ def scan_technical_projects(dry_run=True, db=None):
                                     # Copy to Storage
                                     safe_filename = f"{project_code}_{file}"
                                     dest_path = os.path.join(MES_STORAGE_PARTS, safe_filename)
-                                    if not os.path.exists(dest_path):
-                                        shutil.copy2(os.path.join(p_root, file), dest_path)
+                                    source_full_path = os.path.join(p_root, file)
                                     
-                                    # Create DB Record
-                                    part = Part(
-                                        name=file,
-                                        project_id=project.project_id,
-                                        client_id=contact.contact_id,
-                                        file_path=f"storage/parts/{safe_filename}",
-                                        source_path=os.path.join(p_root, file)
-                                    )
-                                    db.add(part)
+                                    try:
+                                        if not os.path.exists(dest_path):
+                                            shutil.copy2(source_full_path, dest_path)
+                                        
+                                        # Create DB Record
+                                        part = db.query(Part).filter(Part.name == file, Part.project_id == project.project_id).first()
+                                        if not part:
+                                            part = Part(
+                                                name=file,
+                                                project_id=project.project_id,
+                                                client_id=contact.contact_id,
+                                                file_path=f"storage/parts/{safe_filename}",
+                                                source_path=source_full_path.replace("\\\\?\\", "") # Remove prefix for DB readability
+                                            )
+                                            db.add(part)
+                                    except Exception as e:
+                                        report.warn(f"Failed to process file {file}: {e}")
+                                        continue
+                        
+                        # Commit every 5 projects so user sees progress
+                        if report.projects_found % 5 == 0:
+                            db.commit()
+                            print(f"[PROGRESS] Committed {report.projects_found} projects...")
                     else:
                         # Dry Run counting
                         # Count potential parts lookup recursively
                         project_path = os.path.join(root, dir_name)
                         try:
                             count = 0
-                            for p_root, _, p_files in os.walk(project_path):
+                            for p_root, _, p_files in os.walk(long_path(project_path)):
                                 count += len([f for f in p_files if f.lower().endswith(('.step', '.stp', '.stl', '.sldprt'))])
                             report.parts_found += count
                         except:

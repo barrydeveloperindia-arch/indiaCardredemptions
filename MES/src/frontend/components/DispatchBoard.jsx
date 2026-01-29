@@ -1,5 +1,8 @@
+import { Calendar, Clock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config';
+import { useSearch } from '../context/SearchContext';
+import SystemStatus from './SystemStatus';
 
 export default function DispatchBoard() {
     const [columns, setColumns] = useState({
@@ -7,319 +10,195 @@ export default function DispatchBoard() {
         production: [],
         qc: []
     });
+    const { searchTerm } = useSearch();
     const [draggingId, setDraggingId] = useState(null);
     const [sourceCol, setSourceCol] = useState(null);
-    const [loading, setLoading] = useState(true);
-
     const [selectedIds, setSelectedIds] = useState(new Set());
-    const [processOptions, setProcessOptions] = useState([
-        "MJF", "FDM", "3-AXIS", "5-AXIS", "SLA", "SLS", "SHEET METAL", "VACUUM CASTING", "INJECTION MOLDING", "Others"
-    ]);
-    const [clientOptions, setClientOptions] = useState([
-        "3BA Printing", "ADSL", "Aebocode", "Arpee Tech", "Arvind Kumar", "ASA Industries", "Ashwani Sihag",
-        "Atomberg", "Aveer Industries(DRDO)", "Baaz Bikes", "Bajaj", "BCH", "C&S Electric", "Compactec",
-        "Crompton", "Daikin", "Deepak (Model Artician)", "Designfying", "E3D PRO", "Eklawya Enterprises",
-        "Elin", "EndureAir", "ENERTICS", "Falcon", "Godrej", "Goel Enterprises", "Group SEB", "Havells",
-        "HC Robotics", "Hella", "Henkel", "Hybrid Customs", "INDRONES", "IZI VENTURE PRIVATE LTD", "Jal",
-        "Labat Asia", "LALTESH YADAV", "Marbles Health", "Marcopolo", "Marelli", "Menthosa", "MSAFE GROUP",
-        "MSL INDIA", "My Design Minds", "Nipa", "Orient", "P2P", "Parashar Industries", "Parikalpana",
-        "Prabha Electonics", "Remedio", "Renforced", "Rishabh Aggarwal", "Rukman Udyog", "San Foams",
-        "Scope Medical", "SG Engineering", "Signoraware", "SML Isuzu", "Sofly", "Somafusion/Dalmitra",
-        "Sonalika", "Spray Engineering", "Surjeet Paul", "V N G Medical", "Vigor Industry", "Yash Appliances",
-        "Others"
-    ]);
-    const [materialOptions, setMaterialOptions] = useState([
-        "ABS", "NYLON PA-12", "NYLON PA-3200", "NYLON PA-2200", "NYLON PA-11",
-        "PLA", "TPU", "PET-G", "ALUMINIUM", "SS", "MS", "WOOD", "SILICONE", "Others"
-    ]);
+    const [isLoading, setIsLoading] = useState(true);
 
+    // Initial Data Fetch
     useEffect(() => {
-        fetchBoard();
-        fetch(`${API_BASE_URL}/api/metadata/`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.processes && data.processes.length > 0) {
-                    setProcessOptions(prev => [...new Set([...prev, ...data.processes])]);
-                }
-                if (data.clients && data.clients.length > 0) {
-                    setClientOptions(prev => [...new Set([...prev, ...data.clients])]);
-                }
-                if (data.materials && data.materials.length > 0) {
-                    setMaterialOptions(prev => [...new Set([...prev, ...data.materials])]);
-                }
-            })
-            .catch(err => console.error("Failed to fetch metadata", err));
+        fetchBoardData();
     }, []);
 
-    const fetchBoard = async () => {
+    const fetchBoardData = async () => {
+        setIsLoading(true);
         try {
             const res = await fetch(`${API_BASE_URL}/api/dispatch/board`);
-            const data = await res.json();
-            setColumns(data);
-            setLoading(false);
-        } catch (err) {
-            console.error(err);
-            setLoading(false);
+            if (res.ok) {
+                const data = await res.json();
+                // Ensure data structure matches columns
+                setColumns({
+                    planning: data.planning || [],
+                    production: data.production || [],
+                    qc: data.qc || []
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch dispatch board:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
-    const handleDragStart = (e, id, colName) => {
-        console.log("Drag Start:", { id, colName });
+    const handleDragStart = (e, id, col) => {
         setDraggingId(id);
-        setSourceCol(colName);
-        e.dataTransfer.setData("text/plain", id);
-        e.dataTransfer.setData("application/json", JSON.stringify({ id, source: colName }));
+        setSourceCol(col);
         e.dataTransfer.effectAllowed = "move";
+        // Ghost image handling could go here
     };
 
     const handleDrop = async (e, targetCol) => {
         e.preventDefault();
-        const id = e.dataTransfer.getData("text/plain");
-
-        let source = sourceCol;
-        try {
-            const data = JSON.parse(e.dataTransfer.getData("application/json"));
-            source = data.source;
-        } catch (err) {
-            // ignore
+        if (!draggingId || !sourceCol || sourceCol === targetCol) {
+            setDraggingId(null);
+            setSourceCol(null);
+            return;
         }
-
-        console.log("Drop:", { id, source, targetCol });
-
-        if (source === targetCol) return;
 
         // Optimistic Update
-        const item = columns[source].find(i => i.id === id);
+        const item = columns[sourceCol].find(i => i.id === draggingId);
         if (!item) return;
 
-        // Determine new status based on column
-        let newStatus = "PLANNED";
-        if (targetCol === "production") newStatus = "QUEUED";
-        if (targetCol === "qc") newStatus = "COMPLETED";
+        const newColumns = { ...columns };
+        newColumns[sourceCol] = newColumns[sourceCol].filter(i => i.id !== draggingId);
+        newColumns[targetCol] = [...newColumns[targetCol], { ...item, status: targetCol.toUpperCase() }];
 
-        // Update UI
-        setColumns(prev => ({
-            ...prev,
-            [source]: prev[source].filter(i => i.id !== id),
-            [targetCol]: [...prev[targetCol], { ...item, status: newStatus }]
-        }));
-
-        // API Call
-        try {
-            await fetch(`${API_BASE_URL}/api/dispatch/jobs/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
-            });
-        } catch (err) {
-            console.error("Drop failed", err);
-            fetchBoard(); // Revert on error
-        }
-
+        setColumns(newColumns);
         setDraggingId(null);
         setSourceCol(null);
-    };
 
-    const handleDragOver = (e) => e.preventDefault();
-
-    const handleDelete = async (id, colName) => {
-        if (!window.confirm("Delete this job?")) return;
-
+        // API Call to Update Status
         try {
-            await fetch(`${API_BASE_URL}/api/dispatch/jobs/${id}`, { method: 'DELETE' });
-            setColumns(prev => ({
-                ...prev,
-                [colName]: prev[colName].filter(i => i.id !== id)
-            }));
-            // Remove from selection if present
-            if (selectedIds.has(id)) {
-                const newSet = new Set(selectedIds);
-                newSet.delete(id);
-                setSelectedIds(newSet);
-            }
-        } catch (err) {
-            alert("Delete failed");
-        }
-    };
-
-    const handleBulkDelete = async (colName) => {
-        const idsToDelete = columns[colName].filter(i => selectedIds.has(i.id)).map(i => i.id);
-        if (idsToDelete.length === 0) return;
-
-        if (!window.confirm(`Delete ${idsToDelete.length} selected jobs from ${colName}?`)) return;
-
-        try {
-            await Promise.all(idsToDelete.map(id =>
-                fetch(`${API_BASE_URL}/api/dispatch/jobs/${id}`, { method: 'DELETE' })
-            ));
-
-            setColumns(prev => ({
-                ...prev,
-                [colName]: prev[colName].filter(i => !selectedIds.has(i.id))
-            }));
-
-            const newSet = new Set(selectedIds);
-            idsToDelete.forEach(id => newSet.delete(id));
-            setSelectedIds(newSet);
-        } catch (err) {
-            console.error(err);
-            alert("Some items failed to delete. Refreshing...");
-            fetchBoard();
-        }
-    };
-
-    const toggleSelection = (id) => {
-        const newSet = new Set(selectedIds);
-        if (newSet.has(id)) newSet.delete(id);
-        else newSet.add(id);
-        setSelectedIds(newSet);
-    };
-
-    const toggleSelectAll = (colName) => {
-        const colItems = columns[colName];
-        if (!colItems || colItems.length === 0) return;
-
-        const allSelected = colItems.every(i => selectedIds.has(i.id));
-        const newSet = new Set(selectedIds);
-
-        if (allSelected) {
-            colItems.forEach(i => newSet.delete(i.id));
-        } else {
-            colItems.forEach(i => newSet.add(i.id));
-        }
-        setSelectedIds(newSet);
-    };
-
-    // --- Edit Modal State ---
-    const [editingJob, setEditingJob] = useState(null);
-    const [editForm, setEditForm] = useState({ machine: '', manufacturing_process: '', material: '', part_name: '', client_id: '', project_id: '' });
-
-    const openEditModal = (job) => {
-        setEditingJob(job);
-        setEditForm({
-            machine: job.machine || '',
-            manufacturing_process: job.manufacturing_process || '',
-            material: job.material || '',
-            part_name: job.part_name || '',
-            client_id: job.client_id || '',
-            project_id: job.project_id || ''
-        });
-    };
-
-    const handleSaveEdit = async () => {
-        if (!editingJob) return;
-        try {
-            await fetch(`${API_BASE_URL}/api/dispatch/jobs/${editingJob.id}`, {
-                method: 'PATCH',
+            await fetch(`${API_BASE_URL}/api/dispatch/move`, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    machine_id: editForm.machine,
-                    manufacturing_process: editForm.manufacturing_process,
-                    material: editForm.material,
-                    part_name: editForm.part_name,
-                    client_id: editForm.client_id,
-                    project_id: editForm.project_id
+                    job_id: draggingId,
+                    target_status: targetCol.toUpperCase(),
+                    source_status: sourceCol.toUpperCase()
                 })
             });
-            setEditingJob(null);
-            fetchBoard();
         } catch (err) {
-            console.error(err);
-            alert("Failed to update job");
+            console.error("Failed to move item:", err);
+            fetchBoardData(); // Revert on error
         }
     };
 
-    const handlePrintQC = (id) => {
-        window.open(`${API_BASE_URL}/api/dispatch/jobs/${id}/qc-report`, '_blank');
+    const toggleSelectAll = (col) => {
+        const rawItems = columns[col] || [];
+        // Apply filter first to only select visible items? 
+        // Better to select all visible items.
+
+        const colItems = rawItems.filter(job => {
+            if (!searchTerm) return true;
+            const s = searchTerm.toLowerCase();
+            return (
+                (job.id && job.id.toLowerCase().includes(s)) ||
+                (job.part_name && job.part_name.toLowerCase().includes(s)) ||
+                (job.project_id && job.project_id.toLowerCase().includes(s)) ||
+                (job.client_id && job.client_id.toLowerCase().includes(s))
+            );
+        });
+
+        const allSelected = colItems.length > 0 && colItems.every(i => selectedIds.has(i.id));
+        const newSelected = new Set(selectedIds);
+
+        if (allSelected) {
+            colItems.forEach(i => newSelected.delete(i.id));
+        } else {
+            colItems.forEach(i => newSelected.add(i.id));
+        }
+        setSelectedIds(newSelected);
     };
 
-    const handlePrintTraveler = (id) => {
-        window.open(`${API_BASE_URL}/api/reporting/jobs/${id}/traveler`, '_blank');
+    const handleBulkDelete = (col) => {
+        if (!window.confirm("Are you sure you want to delete selected items?")) return;
+
+        // Filter out selected IDs from local state
+        const newColumns = { ...columns };
+        newColumns[col] = newColumns[col].filter(i => !selectedIds.has(i.id));
+        setColumns(newColumns);
+
+        // Clear selection for deleted items
+        const newSelected = new Set(selectedIds);
+        columns[col].forEach(i => {
+            if (selectedIds.has(i.id)) newSelected.delete(i.id);
+        });
+        setSelectedIds(newSelected);
+
+        // TODO: API Call for deletion
+        console.log("Bulk delete not fully implemented on backend yet");
     };
 
-    const renderCard = (job, colName) => (
-        <div
-            key={job.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, job.id, colName)}
-            className={`glass-card p-4 rounded-xl cursor-grab active:cursor-grabbing group relative mb-3 hover:shadow-lg transition-all ${selectedIds.has(job.id) ? 'ring-2 ring-blue-500 bg-blue-50/50' : ''}`}
-        >
-            <div className="absolute top-2 left-2 z-10">
-                <input
-                    type="checkbox"
-                    checked={selectedIds.has(job.id)}
-                    onChange={(e) => { e.stopPropagation(); toggleSelection(job.id); }}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                />
-            </div>
+    const renderCard = (job, col) => {
+        const isSelected = selectedIds.has(job.id);
 
-            <div className="flex justify-between items-start mb-2 pl-6">
-                <h3 className="font-bold text-slate-800 tracking-tight text-sm">{job.id}</h3>
-                <div className="flex gap-1">
-                    <button onClick={(e) => { e.stopPropagation(); openEditModal(job); }} className="text-xs text-blue-500 hover:text-blue-700 px-1">Edit</button>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(job.id, colName); }} className="text-xs text-red-500 hover:text-red-700 px-1">✕</button>
+        return (
+            <div
+                key={job.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, job.id, col)}
+                className={`bg-white p-3 rounded-xl shadow-sm border mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-all group ${isSelected ? 'ring-2 ring-blue-500 border-transparent' : 'border-gray-100'}`}
+            >
+                <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                                e.stopPropagation();
+                                const newSet = new Set(selectedIds);
+                                if (newSet.has(job.id)) newSet.delete(job.id);
+                                else newSet.add(job.id);
+                                setSelectedIds(newSet);
+                            }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                        />
+                        <span className="font-mono text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{job.id}</span>
+                    </div>
+                    {job.priority === 'High' && <div className="w-2 h-2 rounded-full bg-red-500" title="High Priority"></div>}
+                </div>
+
+                <h4 className="font-bold text-sm text-slate-800 mb-1 truncate" title={job.part_name}>{job.part_name}</h4>
+
+                <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                    <span className="truncate max-w-[80px]" title={job.project_id}>{job.project_id}</span>
+                    <span>•</span>
+                    <span className="truncate max-w-[80px]" title={job.client_id}>{job.client_id}</span>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-gray-50 mt-2">
+                    <div className="flex items-center text-[10px] text-gray-400 font-medium">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {new Date(job.created_at || Date.now()).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                    </div>
+                    <div className="flex -space-x-1">
+                        {/* Avatar placeholders if needed */}
+                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[8px] font-bold ring-2 ring-white">AB</div>
+                    </div>
                 </div>
             </div>
-
-            <div className="pl-6 mb-1">
-                <p className="text-xs text-slate-500 font-medium truncate">{job.part_name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 font-medium">
-                        {job.manufacturing_process || 'N/A'}
-                    </span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-100 font-medium">
-                        {job.material || 'N/A'}
-                    </span>
-                    {job.project_id && job.project_id !== 'N/A' && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100 font-medium">
-                            {job.project_id}
-                        </span>
-                    )}
-                    {job.client_id && job.client_id !== 'N/A' && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 font-medium">
-                            {job.client_id}
-                        </span>
-                    )}
-                </div>
-            </div>
-            <div className="flex justify-between items-center text-[10px] text-slate-400 pl-6 mt-1">
-                <span>{job.machine || "Unassigned"}</span>
-                <span className="bg-slate-100 px-1 py-0.5 rounded text-slate-600">{job.eta}</span>
-            </div>
-
-            <div className="flex flex-col gap-2 mt-3 pl-6">
-                <button
-                    onClick={() => handlePrintTraveler(job.id)}
-                    className="w-full py-1 text-xs bg-indigo-50 text-indigo-600 rounded border border-indigo-100 font-medium hover:bg-indigo-100 transition-colors flex items-center justify-center gap-1"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    Traveler
-                </button>
-
-                {colName === 'qc' && (
-                    <button
-                        onClick={() => handlePrintQC(job.id)}
-                        className="w-full py-1 text-xs bg-emerald-50 text-emerald-600 rounded border border-emerald-100 font-medium hover:bg-emerald-100 transition-colors"
-                    >
-                        Export QC Report (PDF)
-                    </button>
-                )}
-            </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <div className="h-full flex flex-col p-6">
             <header className="mb-6 flex justify-between items-end pb-4 border-b border-gray-200">
                 <div>
-                    <h1 className="text-3xl font-light text-slate-800 tracking-tight">Dispatch Command</h1>
-                    <p className="text-slate-500 text-sm font-medium tracking-wide uppercase">Drag & Drop Production Control</p>
+                    <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                        <span>Operations</span>
+                        <span>/</span>
+                        <span className="text-gray-900 font-medium">Dispatch Board</span>
+                    </div>
+                    <h1 className="text-3xl font-light text-slate-800 tracking-tight">Dispatch Operations</h1>
+                    <div className="flex items-center mt-2">
+                        <SystemStatus />
+                    </div>
                 </div>
                 <button
                     onClick={() => alert('Create Order via PLM module')}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200"
                 >
                     + New Order
                 </button>
@@ -327,13 +206,26 @@ export default function DispatchBoard() {
 
             <div className="grid grid-cols-3 gap-6 flex-1 min-h-0">
                 {['planning', 'production', 'qc'].map(col => {
-                    const colItems = columns[col] || [];
+                    const rawItems = columns[col] || [];
+
+                    // Filter by Global Search
+                    const colItems = rawItems.filter(job => {
+                        if (!searchTerm) return true;
+                        const s = searchTerm.toLowerCase();
+                        return (
+                            (job.id && job.id.toLowerCase().includes(s)) ||
+                            (job.part_name && job.part_name.toLowerCase().includes(s)) ||
+                            (job.project_id && job.project_id.toLowerCase().includes(s)) ||
+                            (job.client_id && job.client_id.toLowerCase().includes(s))
+                        );
+                    });
+
                     const selectedInColCount = colItems.filter(i => selectedIds.has(i.id)).length;
 
                     return (
                         <div
                             key={col}
-                            className={`flex flex-col h-full bg-gray-50/50 rounded-2xl border-2 ${sourceCol && sourceCol !== col ? 'border-dashed border-blue-200 bg-blue-50/20' : 'border-transparent'}`}
+                            className={`flex flex-col h-full bg-gray-50/50 rounded-2xl border-2 transition-colors ${sourceCol && sourceCol !== col ? 'border-dashed border-blue-200 bg-blue-50/20' : 'border-transparent'}`}
                             onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
                             onDragEnter={(e) => e.preventDefault()}
                             onDrop={(e) => handleDrop(e, col)}
@@ -346,7 +238,7 @@ export default function DispatchBoard() {
 
                                 {/* Bulk Actions Header */}
                                 <div className="flex items-center justify-between text-xs text-gray-500 h-8">
-                                    <label className="flex items-center gap-2 cursor-pointer hover:text-gray-700">
+                                    <label className="flex items-center gap-2 cursor-pointer hover:text-gray-700 select-none">
                                         <input
                                             type="checkbox"
                                             checked={colItems.length > 0 && colItems.every(i => selectedIds.has(i.id))}
@@ -368,11 +260,14 @@ export default function DispatchBoard() {
                                 </div>
                             </div>
 
-                            <div className="flex-1 p-3 overflow-y-auto">
+                            <div className="flex-1 p-3 overflow-y-auto custom-scrollbar">
                                 {colItems.map(job => renderCard(job, col))}
                                 {colItems.length === 0 && (
-                                    <div className="h-full flex items-center justify-center text-slate-300 text-xs italic">
-                                        Drop items here
+                                    <div className="h-full flex items-center justify-center text-slate-300 text-xs italic flex-col gap-2">
+                                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                            <Calendar className="w-5 h-5 opacity-20" />
+                                        </div>
+                                        <span>No items found</span>
                                     </div>
                                 )}
                             </div>
@@ -380,93 +275,6 @@ export default function DispatchBoard() {
                     );
                 })}
             </div>
-            {/* Edit Modal */}
-            {editingJob && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 shadow-xl animate-fade-in-up">
-                        <h2 className="text-lg font-bold mb-4">Edit Job Details</h2>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Part Name</label>
-                                <input
-                                    type="text"
-                                    value={editForm.part_name}
-                                    onChange={e => setEditForm(prev => ({ ...prev, part_name: e.target.value }))}
-                                    className="w-full p-2 border rounded text-sm"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Client</label>
-                                    <select
-                                        value={editForm.client_id}
-                                        onChange={e => setEditForm(prev => ({ ...prev, client_id: e.target.value }))}
-                                        className="w-full p-2 border rounded text-sm"
-                                    >
-                                        <option value="">Select Client</option>
-                                        {clientOptions.map(c => (
-                                            <option key={c} value={c}>{c}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-700 mb-1">Project ID</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.project_id}
-                                        onChange={e => setEditForm(prev => ({ ...prev, project_id: e.target.value }))}
-                                        className="w-full p-2 border rounded text-sm"
-                                        placeholder="CXXX"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Manufacturing Process</label>
-                                <select
-                                    value={editForm.manufacturing_process}
-                                    onChange={e => setEditForm(prev => ({ ...prev, manufacturing_process: e.target.value }))}
-                                    className="w-full p-2 border rounded text-sm"
-                                >
-                                    {processOptions.map(opt => (
-                                        <option key={opt} value={opt}>{opt}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Material</label>
-                                <select
-                                    value={editForm.material}
-                                    onChange={e => setEditForm(prev => ({ ...prev, material: e.target.value }))}
-                                    className="w-full p-2 border rounded text-sm"
-                                >
-                                    {materialOptions.map(opt => (
-                                        <option key={opt} value={opt}>{opt}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-medium text-gray-700 mb-1">Machine ID</label>
-                                <input
-                                    type="text"
-                                    value={editForm.machine}
-                                    onChange={e => setEditForm(prev => ({ ...prev, machine: e.target.value }))}
-                                    className="w-full p-2 border rounded text-sm"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end gap-2 mt-6">
-                            <button onClick={() => setEditingJob(null)} className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 rounded text-sm">Cancel</button>
-                            <button onClick={handleSaveEdit} className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Save Changes</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

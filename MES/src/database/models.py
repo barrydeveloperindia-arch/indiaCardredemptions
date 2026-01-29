@@ -230,6 +230,11 @@ class Project(Base):
     start_date = Column(DateTime)
     end_date = Column(DateTime)
     
+    # Financials (New 2026)
+    quote_value = Column(Float, default=0.0)
+    po_value = Column(Float, default=0.0)
+    po_number = Column(String, nullable=True)
+    
     # Linkage
     customer_id = Column(String, ForeignKey("contacts.contact_id"), nullable=True)
     
@@ -312,3 +317,25 @@ class BankTransaction(Base):
     
     # Matched against internal entity
     matched_entry_id = Column(String, nullable=True) # ID of Payment/Expense matches
+
+class EmailMessage(Base):
+    """
+    Log of scanned emails from Outlook Intelligence.
+    """
+    __tablename__ = "email_messages"
+    
+    id = Column(String, primary_key=True) # Microsoft Graph ID
+    subject = Column(String)
+    sender_name = Column(String)
+    sender_email = Column(String)
+    received_at = Column(DateTime)
+    body_preview = Column(String)
+    has_attachments = Column(Boolean, default=False)
+    
+    # AI Analysis
+    intent = Column(String) # Enquiry, PO, Payment, Other
+    
+    # Linkage
+    project_id = Column(String, ForeignKey("projects.project_id"), nullable=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)

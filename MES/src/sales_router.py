@@ -59,16 +59,36 @@ class ProjectRead(BaseModel):
     status: str
     start_date: Optional[datetime]
     customer_id: Optional[str]
+    quote_value: float = 0.0
+    po_value: float = 0.0
+    po_number: Optional[str] = None
     
     class Config:
         orm_mode = True
+
+class PartRead(BaseModel):
+    part_id: str
+    name: str
+    file_path: Optional[str]
+    material: Optional[str]
+    manufacturing_process: Optional[str]
+    estimated_cost: float
+    measurements: Optional[dict]
+    technical_score: Optional[float]
+    economic_action: Optional[str]
+    
+    class Config:
+        orm_mode = True
+
+class ProjectDetail(ProjectRead):
+    parts: List[PartRead] = []
 
 # --- Project Endpoints (Metadata) ---
 
 @router.get("/projects", response_model=List[ProjectRead])
 def list_projects(
     skip: int = 0, 
-    limit: int = 100, 
+    limit: int = 5000, 
     status: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
@@ -77,6 +97,13 @@ def list_projects(
         query = query.filter(models.Project.status == status)
     
     return query.order_by(models.Project.start_date.desc()).offset(skip).limit(limit).all()
+
+@router.get("/projects/{project_id}", response_model=ProjectDetail)
+def get_project(project_id: str, db: Session = Depends(get_db)):
+    project = db.query(models.Project).filter(models.Project.project_id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
 
 # --- Contact Endpoints ---
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
@@ -45,6 +45,42 @@ def create_item(item: InventoryItemCreate, db: Session = Depends(get_db), curren
     
     return inventory_service.create_item(db, item.dict())
 
+class ItemUpdate(BaseModel):
+    name: Optional[str]
+    material_type: Optional[str]
+    unit_cost: Optional[float]
+    unit: Optional[str]
+
+@router.put("/{item_id}", response_model=InventoryItemResponse)
+def update_item_details(
+    item_id: str, 
+    update: ItemUpdate, 
+    db: Session = Depends(get_db), 
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role not in ["admin", "accountant", "operations"]:
+         raise HTTPException(status_code=403, detail="Unauthorized")
+         
+    updated = inventory_service.update_item(db, item_id, update.dict(exclude_unset=True))
+    if not updated:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return updated
+
+class BulkDeleteRequest(BaseModel):
+    item_ids: List[str]
+
+@router.post("/bulk-delete")
+def delete_bulk_items(
+    payload: BulkDeleteRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role not in ["admin"]:
+         raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    inventory_service.delete_items(db, payload.item_ids)
+    return {"status": "success", "count": len(payload.item_ids)}
+
 @router.post("/{item_id}/transaction", response_model=InventoryItemResponse)
 def update_stock(
     item_id: str, 
@@ -57,3 +93,20 @@ def update_stock(
         return updated_item
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/import")
+async def import_inventory(
+    file: UploadFile = File(...), 
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role not in ["admin", "accountant"]:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+        
+    contents = await file.read()
+    result = inventory_service.import_from_excel(db, contents)
+    
+    if result["status"] == "error":
+         raise HTTPException(status_code=400, detail=result["message"])
+         
+    return result

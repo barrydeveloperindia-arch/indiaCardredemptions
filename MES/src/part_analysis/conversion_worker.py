@@ -140,6 +140,12 @@ class ConversionWorker:
         if not source_path.lower().endswith(('.step', '.stp', '.sldprt', '.x_t')):
             return None # Skip STLs for now (harder to SVG)
 
+        # Ensure STL exists for 3D Viewer (Fix for 404s)
+        try:
+            ConversionWorker.convert_to_stl(source_path)
+        except Exception as e:
+            print(f"STL pre-generation failed: {e}")
+
         thumb_path = source_path + ".svg"
         
         try:
@@ -151,6 +157,17 @@ class ConversionWorker:
             # Load
             model = cq.importers.importStep(step_path)
             
+            # Auto-Center the model (Fixes "Top-Left" alignment issues)
+            try:
+                # Handle both single solids and compounds
+                shape = model.val() # Get underlying TopoDS_Shape
+                if shape:
+                    center = shape.Center()
+                    # Translate model to Origin (0,0,0)
+                    model = model.translate((-center.x, -center.y, -center.z))
+            except Exception as e:
+                print(f"Auto-centering failed: {e}")
+
             # Export SVG
             cq.exporters.export(
                 model,
@@ -162,7 +179,7 @@ class ConversionWorker:
                     "marginTop": 10,
                     "showAxes": False,
                     "projectionDir": (1.5, 1, 1.5),
-                    "strokeColor": (100, 100, 100),
+                    "strokeColor": (80, 80, 80), # Darker for better visibility
                     "hiddenColor": (220, 220, 220),
                     "showHidden": False
                 }

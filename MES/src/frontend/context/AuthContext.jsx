@@ -3,23 +3,47 @@ import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext(null);
 
+const isTokenExpired = (token) => {
+    if (!token) return true;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.exp * 1000 < Date.now();
+    } catch (e) {
+        return true;
+    }
+};
+
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [token, setToken] = useState(() => {
+        const storedToken = localStorage.getItem('token');
+        return isTokenExpired(storedToken) ? null : storedToken;
+    });
+
+    const [user, setUser] = useState(() => {
+        const storedToken = localStorage.getItem('token');
+        if (!isTokenExpired(storedToken)) {
+            try {
+                const payload = JSON.parse(atob(storedToken.split('.')[1]));
+                return { username: payload.sub, role: payload.role };
+            } catch (e) {
+                return null;
+            }
+        }
+        return null;
+    });
 
     useEffect(() => {
         if (token) {
-            // In real app, validate token with backend or decode JWT
-            // Here we just persist it
             localStorage.setItem('token', token);
+            // When token updates (e.g. login), update user state if not already set (optional but good for consistency)
+            // Actually login() sets user explicitely. This UseEffect is key for persistence.
         } else {
             localStorage.removeItem('token');
+            setUser(null); // Ensure user is cleared if token is cleared
         }
     }, [token]);
 
     const login = async (username, password) => {
-        // Call FastAPI Access Token Endpoint
-        // Use URLSearchParams to send as application/x-www-form-urlencoded
         const formBody = new URLSearchParams();
         formBody.append('username', username);
         formBody.append('password', password);
@@ -48,8 +72,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        setUser(null);
         setToken(null);
+        setUser(null);
     };
 
     return (

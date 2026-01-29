@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Camera, CheckSquare, ChevronRight, AlertOctagon, Box, Play, RotateCcw } from 'lucide-react';
+import { AlertOctagon, Box, Camera, CheckSquare, ChevronRight, Play, RotateCcw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../config';
 
 const DigitalTraveler = () => {
     // Hardcoded for demo - effectively "logged in" as Operator for CNC-01
@@ -11,7 +12,7 @@ const DigitalTraveler = () => {
 
     const fetchActiveJob = () => {
         setLoading(true);
-        fetch(`http://localhost:8000/api/shop-floor/operator/${MACHINE_ID}/active-job`)
+        fetch(`${API_BASE_URL}/api/shop-floor/operator/${MACHINE_ID}/active-job`)
             .then(res => res.json())
             .then(data => {
                 setActiveJob(data);
@@ -33,7 +34,7 @@ const DigitalTraveler = () => {
     const handleStatusUpdate = (newStatus) => {
         if (!activeJob || !activeJob.job_id) return;
 
-        fetch(`http://localhost:8000/api/shop-floor/jobs/${activeJob.job_id}/status`, {
+        fetch(`${API_BASE_URL}/api/shop-floor/jobs/${activeJob.job_id}/status`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: newStatus })

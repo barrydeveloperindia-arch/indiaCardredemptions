@@ -30,7 +30,60 @@ import os
 import asyncio
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI(title="Englabs MES API", version="1.1.0")
+from contextlib import asynccontextmanager
+import threading
+import time
+from src.part_analysis.conversion_worker import ConversionWorker
+
+def process_queue_single_thread():
+    """Background thread to process SVGs one by one."""
+    print("🎨 [SingleThread] Worker Started. Monitoring DB for missing SVGs...")
+    from src.database.connection import SessionLocal
+    from src.database.models import Part
+    
+    while True:
+        db = SessionLocal()
+        try:
+            # Pick ONE item (SKIP broken ones marked 'skipped_error')
+            part = db.query(Part).filter(Part.preview_url == None).first()
+            if part:
+                print(f"🎨 [SingleThread] Processing: {part.name} ({part.part_id})")
+                source = part.file_path
+                # Absolute path fix
+                if not os.path.isabs(source):
+                    source = os.path.abspath(source)
+                    
+                thumb_path = ConversionWorker.generate_thumbnail(source)
+                
+                if thumb_path: # Success
+                    part.preview_url = f"/storage/{os.path.basename(thumb_path)}"
+                    # Also set dimensions if calculated
+                    # (ConversionWorker usually returns path, let's assume it worked)
+                else: # Failure
+                    part.preview_url = "failed_gen"
+                    
+                db.commit()
+                # Fast nap
+                time.sleep(0.5) 
+            else:
+                # No work, sleep longer
+                time.sleep(5)
+                
+        except Exception as e:
+            print(f"🎨 [SingleThread] Error: {e}")
+            time.sleep(5)
+        finally:
+            db.close()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Launch Thread
+    # t = threading.Thread(target=process_queue_single_thread, daemon=True)
+    # t.start()
+    yield
+    # Shutdown
+
+app = FastAPI(title="Englabs MES API", version="1.1.0", lifespan=lifespan)
 
 # Mount Storage for Static Access (STL/Images)
 STORAGE_DIR = "storage"
@@ -81,6 +134,12 @@ from src.sales_router import router as sales_router
 app.include_router(metadata_router)
 app.include_router(reporting_router, prefix="/api")
 app.include_router(sales_router)
+
+from src.communications import router as communications_router
+app.include_router(communications_router.router, prefix="/api")
+
+from src.integrations.outlook.router import router as outlook_router
+app.include_router(outlook_router, prefix="/api/integrations/outlook")
 
 # Ensure Tables Exist
 models.Base.metadata.create_all(bind=engine)

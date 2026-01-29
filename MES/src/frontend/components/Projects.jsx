@@ -1,13 +1,20 @@
-import { Calendar, ChevronRight, Folder, LayoutGrid, List, Search, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Calendar, ChevronRight, Folder, LayoutGrid, List, Users } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
+import { useSearch } from '../context/SearchContext';
 
 const Projects = () => {
+    const navigate = useNavigate();
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState('list');
-    const [searchTerm, setSearchTerm] = useState('');
+
+    const { searchTerm } = useSearch(); // Global Search
     const [filterStatus, setFilterStatus] = useState('All');
+    const [expandedYears, setExpandedYears] = useState({});
+
+    // Keep rest ...
 
     useEffect(() => {
         fetchProjects();
@@ -19,6 +26,12 @@ const Projects = () => {
             if (!res.ok) throw new Error('Failed to fetch projects');
             const data = await res.json();
             setProjects(data);
+
+            // Auto-expand the most recent year
+            if (data.length > 0) {
+                const recentYear = new Date(data[0].start_date).getFullYear();
+                setExpandedYears({ [recentYear]: true });
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -40,16 +53,49 @@ const Projects = () => {
         );
     };
 
-    const filteredProjects = projects.filter(p => {
-        const matchesSearch =
-            (p.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (p.project_id?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (p.client?.name?.toLowerCase().includes(searchTerm.toLowerCase()));
+    // Grouping Logic
+    const groupedProjects = useMemo(() => {
+        const filtered = projects.filter(p => {
+            const matchesSearch =
+                (p.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (p.project_id?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (p.client?.name?.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        const matchesStatus = filterStatus === 'All' || p.status === filterStatus;
+            const matchesStatus = filterStatus === 'All' || p.status === filterStatus;
+            return matchesSearch && matchesStatus;
+        });
 
-        return matchesSearch && matchesStatus;
+        // ... [Rest of Grouping] ...
+        const groups = {};
+
+        filtered.forEach(p => {
+            const date = p.start_date ? new Date(p.start_date) : null;
+            const year = date ? date.getFullYear() : 'Undated';
+            const month = date ? date.toLocaleString('default', { month: 'long' }) : 'General';
+            const monthIndex = date ? date.getMonth() : 99; // For sorting
+
+            if (!groups[year]) groups[year] = { _count: 0, months: {} };
+            if (!groups[year].months[month]) groups[year].months[month] = { _index: monthIndex, items: [] };
+
+            groups[year]._count++;
+            groups[year].months[month].items.push(p);
+        });
+
+        return groups;
+    }, [projects, searchTerm, filterStatus]);
+
+    // ... [Rest of Logic] ...
+
+    // Sorted Years (Descending)
+    const sortedYears = Object.keys(groupedProjects).sort((a, b) => {
+        if (a === 'Undated') return 1;
+        if (b === 'Undated') return -1;
+        return b - a;
     });
+
+    const toggleYear = (year) => {
+        setExpandedYears(prev => ({ ...prev, [year]: !prev[year] }));
+    };
 
     return (
         <div className="space-y-6">
@@ -57,7 +103,7 @@ const Projects = () => {
             <div className="flex justify-between items-end">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-                    <p className="text-gray-500 mt-1">Manage client projects and view their status</p>
+                    <p className="text-gray-500 mt-1">Manage client projects categorized by timeline</p>
                 </div>
                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
                     <Folder size={18} />
@@ -79,31 +125,16 @@ const Projects = () => {
                     <div className="text-gray-500 text-xs font-medium uppercase tracking-wider mb-1">Completed</div>
                     <div className="text-2xl font-bold text-blue-600">{projects.filter(p => p.status === 'COMPLETED').length}</div>
                 </div>
-                {/* Placeholder for Revenue or other metric */}
                 <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                    <div className="text-gray-500 text-xs font-medium uppercase tracking-wider mb-1">This Month</div>
-                    <div className="text-2xl font-bold text-indigo-600">{projects.filter(p => {
-                        if (!p.start_date) return false;
-                        const d = new Date(p.start_date);
-                        const now = new Date();
-                        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                    }).length}</div>
+                    <div className="text-gray-500 text-xs font-medium uppercase tracking-wider mb-1">2025 Projects</div>
+                    <div className="text-2xl font-bold text-indigo-600">{projects.filter(p => p.start_date && p.start_date.substring(0, 4) === '2025').length}</div>
                 </div>
             </div>
 
             {/* Toolbar */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center">
+            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex justify-between items-center sticky top-0 z-10">
                 <div className="flex items-center gap-4 flex-1">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search projects..."
-                            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-100 outline-none w-80 transition-all"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+                    {/* Search Input Removed - Using Global */}
                     <select
                         className="p-2 border border-gray-200 rounded-lg text-sm bg-gray-50 focus:bg-white outline-none"
                         value={filterStatus}
@@ -132,103 +163,122 @@ const Projects = () => {
                 </div>
             </div>
 
-            {/* List View */}
-            {viewMode === 'list' && (
-                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-medium tracking-wider">
-                                <th className="p-4">Project</th>
-                                <th className="p-4">Client</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4">Start Date</th>
-                                <th className="p-4">Parts</th>
-                                <th className="p-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {filteredProjects.map(project => (
-                                <tr key={project.project_id} className="hover:bg-gray-50/50 transition-colors group">
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
-                                                {project.project_id.substring(0, 2)}
-                                            </div>
-                                            <div>
-                                                <div className="font-semibold text-gray-900">{project.name || project.project_id}</div>
-                                                <div className="text-xs text-gray-500">{project.project_id}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="p-4">
-                                        {project.client ? (
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-bold">
-                                                    {project.client.name.charAt(0)}
-                                                </div>
-                                                <span className="text-sm text-gray-700">{project.client.name}</span>
-                                            </div>
-                                        ) : (
-                                            <span className="text-sm text-gray-400 italic">No Client</span>
-                                        )}
-                                    </td>
-                                    <td className="p-4">
-                                        <StatusBadge status={project.status} />
-                                    </td>
-                                    <td className="p-4 text-sm text-gray-600">
-                                        {project.start_date ? new Date(project.start_date).toLocaleDateString() : '-'}
-                                    </td>
-                                    <td className="p-4 text-sm text-gray-600">
-                                        {project.parts_count || 0}
-                                    </td>
-                                    <td className="p-4 text-right">
-                                        <button className="text-gray-400 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 transition-colors">
-                                            <ChevronRight size={18} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {filteredProjects.length === 0 && (
-                        <div className="p-8 text-center text-gray-500">
-                            {loading ? "Loading projects..." : "No projects found."}
-                        </div>
-                    )}
-                </div>
-            )}
+            {/* Grouped Content */}
+            {loading ? (
+                <div className="p-12 text-center text-gray-500">Loading projects timeline...</div>
+            ) : sortedYears.length === 0 ? (
+                <div className="p-12 text-center text-gray-500">No projects found for current filter.</div>
+            ) : (
+                <div className="space-y-8">
+                    {sortedYears.map(year => {
+                        const yearGroup = groupedProjects[year];
+                        const isExpanded = expandedYears[year];
 
-            {/* Grid View */}
-            {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredProjects.map(project => (
-                        <div key={project.project_id} className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow cursor-pointer group">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs ring-1 ring-blue-100">
-                                    {project.project_id.substring(0, 2)}
+                        return (
+                            <div key={year} className="animate-fade-in-up">
+                                {/* Year Header */}
+                                <div
+                                    className="flex items-center gap-3 cursor-pointer py-2 hover:bg-gray-50 rounded-lg select-none mb-3"
+                                    onClick={() => toggleYear(year)}
+                                >
+                                    <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+                                        <ChevronRight size={20} className="text-gray-400" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-gray-800">{year}</h2>
+                                    <span className="text-sm font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                                        {yearGroup._count} Projects
+                                    </span>
+                                    <div className="flex-1 border-b border-gray-200 ml-4"></div>
                                 </div>
-                                <StatusBadge status={project.status} />
-                            </div>
 
-                            <h3 className="font-bold text-gray-900 mb-1 truncate" title={project.name}>{project.name || project.project_id}</h3>
-                            <p className="text-xs text-gray-500 font-mono mb-4">{project.project_id}</p>
+                                {/* Month Groups */}
+                                <div className={`space-y-6 pl-4 border-l-2 border-gray-100 ml-2.5 transition-all duration-300 ${isExpanded ? 'opacity-100 max-h-[5000px]' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                                    {Object.entries(yearGroup.months)
+                                        .sort(([, a], [, b]) => b._index - a._index) // Sort Months Descending
+                                        .map(([month, monthGroup]) => (
+                                            <div key={month}>
+                                                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                                    <Calendar size={14} />
+                                                    {month}
+                                                </h3>
 
-                            <div className="space-y-2 border-t border-gray-100 pt-4">
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Users size={14} className="text-gray-400" />
-                                    <span className="truncate">{project.client?.name || 'No Client'}</span>
+                                                {/* Projects Grid/List for this Month */}
+                                                {viewMode === 'list' ? (
+                                                    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                                                        <table className="w-full text-left border-collapse">
+                                                            <tbody className="divide-y divide-gray-100">
+                                                                {monthGroup.items.map(project => (
+                                                                    <tr key={project.project_id}
+                                                                        onClick={() => navigate(`/projects/${project.project_id}`)}
+                                                                        className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
+                                                                    >
+                                                                        <td className="p-4 w-1/3">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">
+                                                                                    {project.project_id.substring(0, 2)}
+                                                                                </div>
+                                                                                <div>
+                                                                                    <div className="font-semibold text-gray-900">{project.name || project.project_id}</div>
+                                                                                    <div className="text-xs text-gray-500">{project.project_id}</div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="p-4 w-1/4">
+                                                                            {project.client ? (
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-[10px] font-bold">
+                                                                                        {project.client.name.charAt(0)}
+                                                                                    </div>
+                                                                                    <span className="text-sm text-gray-700">{project.client.name}</span>
+                                                                                </div>
+                                                                            ) : <span className="text-sm text-gray-400 italic">No Client</span>}
+                                                                        </td>
+                                                                        <td className="p-4 w-1/6">
+                                                                            <StatusBadge status={project.status} />
+                                                                        </td>
+                                                                        <td className="p-4 text-sm text-gray-600">
+                                                                            {project.start_date ? new Date(project.start_date).toLocaleDateString() : '-'}
+                                                                        </td>
+                                                                        <td className="p-4 text-right">
+                                                                            <button className="text-gray-400 hover:text-blue-600 p-2 rounded-full hover:bg-blue-50 transition-colors">
+                                                                                <ChevronRight size={18} />
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                                        {monthGroup.items.map(project => (
+                                                            <div
+                                                                key={project.project_id}
+                                                                onClick={() => navigate(`/projects/${project.project_id}`)}
+                                                                className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                                                            >
+                                                                <div className="flex justify-between items-start mb-3">
+                                                                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs ring-1 ring-blue-100">
+                                                                        {project.project_id.substring(0, 2)}
+                                                                    </div>
+                                                                    <StatusBadge status={project.status} />
+                                                                </div>
+                                                                <h3 className="font-bold text-sm text-gray-900 mb-1 truncate">{project.name}</h3>
+                                                                <p className="text-xs text-gray-500 mb-3">{project.project_id}</p>
+                                                                <div className="flex items-center gap-2 text-xs text-gray-600 pt-3 border-t border-gray-50">
+                                                                    <Users size={12} />
+                                                                    <span className="truncate">{project.client?.name || 'No Client'}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Calendar size={14} className="text-gray-400" />
-                                    <span>{project.start_date ? new Date(project.start_date).toLocaleDateString() : 'No Date'}</span>
-                                </div>
                             </div>
-
-                            <div className="mt-4 pt-3 flex justify-between items-center text-xs border-t border-gray-100">
-                                <span className="text-gray-500">{project.parts_count || 0} items</span>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>
