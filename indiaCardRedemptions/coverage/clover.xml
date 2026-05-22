@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779446998996" clover="3.2.0">
-  <project timestamp="1779446998997" name="All files">
-    <metrics statements="166" coveredstatements="166" conditionals="147" coveredconditionals="147" methods="12" coveredmethods="12" elements="325" coveredelements="325" complexity="0" loc="166" ncloc="166" packages="1" files="6" classes="6"/>
+<coverage generated="1779447157722" clover="3.2.0">
+  <project timestamp="1779447157722" name="All files">
+    <metrics statements="179" coveredstatements="179" conditionals="155" coveredconditionals="155" methods="14" coveredmethods="14" elements="348" coveredelements="348" complexity="0" loc="179" ncloc="179" packages="1" files="7" classes="7"/>
     <file name="arbitrageCalculator.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\arbitrageCalculator.ts">
       <metrics statements="6" coveredstatements="6" conditionals="6" coveredconditionals="6" methods="2" coveredmethods="2"/>
       <line num="11" count="4" type="cond" truecount="4" falsecount="0"/>
@@ -185,6 +185,22 @@
       <line num="46" count="19" type="cond" truecount="2" falsecount="0"/>
       <line num="47" count="2" type="stmt"/>
       <line num="52" count="3" type="stmt"/>
+    </file>
+    <file name="travelApi.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\travelApi.ts">
+      <metrics statements="13" coveredstatements="13" conditionals="8" coveredconditionals="8" methods="2" coveredmethods="2"/>
+      <line num="16" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="17" count="1" type="stmt"/>
+      <line num="20" count="5" type="stmt"/>
+      <line num="21" count="5" type="stmt"/>
+      <line num="43" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="44" count="1" type="stmt"/>
+      <line num="47" count="3" type="stmt"/>
+      <line num="48" count="3" type="stmt"/>
+      <line num="50" count="3" type="cond" truecount="4" falsecount="0"/>
+      <line num="51" count="2" type="stmt"/>
+      <line num="54" count="3" type="stmt"/>
+      <line num="55" count="1" type="stmt"/>
+      <line num="57" count="1" type="stmt"/>
     </file>
   </project>
 </coverage>
