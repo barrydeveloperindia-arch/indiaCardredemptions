@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779447474191" clover="3.2.0">
-  <project timestamp="1779447474191" name="All files">
-    <metrics statements="196" coveredstatements="196" conditionals="159" coveredconditionals="159" methods="15" coveredmethods="15" elements="370" coveredelements="370" complexity="0" loc="196" ncloc="196" packages="1" files="8" classes="8"/>
+<coverage generated="1779447722113" clover="3.2.0">
+  <project timestamp="1779447722113" name="All files">
+    <metrics statements="207" coveredstatements="207" conditionals="171" coveredconditionals="171" methods="16" coveredmethods="16" elements="394" coveredelements="394" complexity="0" loc="207" ncloc="207" packages="1" files="9" classes="9"/>
     <file name="aiHandler.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\aiHandler.ts">
       <metrics statements="17" coveredstatements="17" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
       <line num="20" count="3" type="stmt"/>
@@ -205,6 +205,20 @@
       <line num="46" count="19" type="cond" truecount="2" falsecount="0"/>
       <line num="47" count="2" type="stmt"/>
       <line num="52" count="3" type="stmt"/>
+    </file>
+    <file name="pdfSanitizer.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\pdfSanitizer.ts">
+      <metrics statements="11" coveredstatements="11" conditionals="12" coveredconditionals="12" methods="1" coveredmethods="1"/>
+      <line num="20" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="24" count="5" type="cond" truecount="2" falsecount="0"/>
+      <line num="25" count="1" type="stmt"/>
+      <line num="28" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="29" count="1" type="stmt"/>
+      <line num="32" count="3" type="cond" truecount="4" falsecount="0"/>
+      <line num="33" count="1" type="stmt"/>
+      <line num="37" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="38" count="1" type="stmt"/>
+      <line num="41" count="1" type="stmt"/>
     </file>
     <file name="travelApi.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\travelApi.ts">
       <metrics statements="13" coveredstatements="13" conditionals="8" coveredconditionals="8" methods="2" coveredmethods="2"/>
