@@ -16,7 +16,7 @@
 - [x] **Task 8: Light-Theme UI Components Assembly** (Visual Screens)
 - [x] **Task 9: PDF Sandbox & Security Sanitization** (On-device file security check)
 - [x] **Task 10: Local Matrix Offline Cache Fallback** (Robust offline use)
-- [ ] **Task 11: Global Error Boundary & API Fallbacks** (Duffel/Gemini recovery)
+- [x] **Task 11: Global Error Boundary & API Fallbacks** (Duffel/Gemini recovery)
 - [ ] **Task 12: Secure Dotenv Configuration Management** (API keys security)
 
 ---

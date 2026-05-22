@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779447801940" clover="3.2.0">
-  <project timestamp="1779447801940" name="All files">
+<coverage generated="1779447922927" clover="3.2.0">
+  <project timestamp="1779447922927" name="All files">
     <metrics statements="217" coveredstatements="217" conditionals="173" coveredconditionals="173" methods="18" coveredmethods="18" elements="408" coveredelements="408" complexity="0" loc="217" ncloc="217" packages="1" files="10" classes="10"/>
     <file name="aiHandler.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\aiHandler.ts">
       <metrics statements="17" coveredstatements="17" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
