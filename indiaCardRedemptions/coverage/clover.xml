@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779442806700" clover="3.2.0">
-  <project timestamp="1779442806700" name="All files">
-    <metrics statements="111" coveredstatements="111" conditionals="89" coveredconditionals="89" methods="8" coveredmethods="8" elements="208" coveredelements="208" complexity="0" loc="111" ncloc="111" packages="1" files="3" classes="3"/>
+<coverage generated="1779443006741" clover="3.2.0">
+  <project timestamp="1779443006741" name="All files">
+    <metrics statements="115" coveredstatements="115" conditionals="93" coveredconditionals="93" methods="9" coveredmethods="9" elements="217" coveredelements="217" complexity="0" loc="115" ncloc="115" packages="1" files="4" classes="4"/>
     <file name="arbitrageCalculator.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\arbitrageCalculator.ts">
       <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
       <line num="2" count="8" type="cond" truecount="2" falsecount="0"/>
@@ -66,6 +66,13 @@
       <line num="172" count="8" type="cond" truecount="2" falsecount="0"/>
       <line num="173" count="3" type="stmt"/>
       <line num="175" count="5" type="cond" truecount="4" falsecount="0"/>
+    </file>
+    <file name="matrixEngine.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\matrixEngine.ts">
+      <metrics statements="4" coveredstatements="4" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="14" count="5" type="cond" truecount="4" falsecount="0"/>
+      <line num="15" count="3" type="stmt"/>
+      <line num="17" count="2" type="stmt"/>
     </file>
     <file name="milestoneTracker.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\milestoneTracker.ts">
       <metrics statements="52" coveredstatements="52" conditionals="23" coveredconditionals="23" methods="3" coveredmethods="3"/>
