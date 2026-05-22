@@ -48,7 +48,7 @@ The ultimate utility for instant milestone updates with total privacy.
 *   **100% On-Device Parsing**: Import PDF statements. Decryption and text processing are executed locally inside the sandbox. No personal or financial details are uploaded or stored.
 *   **Encrypted File Support**: Prompts for statement passwords, processing decryption entirely in volatile memory.
 
-### 7. AI Travel Concierge (AwardHack AI)
+### 7. AI Travel Concierge (The Points Array AI)
 Your conversational routing copilot powered by Gemini.
 *   **Contextual Routing Engine**: The AI reads your current points balances and transfer routes to generate step-by-step itineraries:
     > *"To book BOM to Paris in Business Class, transfer 30k Amex points to Marriott, then convert 60k Marriott points to Flying Blue for the lowest surcharges."*

@@ -26,41 +26,41 @@ targetFiles.forEach(fileRelPath => {
 
   let content = fs.readFileSync(filePath, 'utf8');
 
-  // 1. Swap background asset
-  content = content.replace(/minimalist_white_luxury_bg\.png/g, 'dark_luxury_bg.png');
+  // 1. Swap background asset to white gold
+  content = content.replace(/dark_luxury_bg\.png/g, 'white_gold_bg.png');
+  content = content.replace(/minimalist_white_luxury_bg\.png/g, 'white_gold_bg.png');
 
-  // 2. Adjust ImageBackground opacity for dark theme
-  content = content.replace(/opacity:\s*0\.7/g, 'opacity: 0.4');
+  // 2. Adjust ImageBackground opacity for light theme readability
+  content = content.replace(/opacity:\s*0\.4/g, 'opacity: 0.75');
 
-  // 3. Swap white gradient overlays to obsidian overlays
-  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.[2-7]\)/g, 'rgba(9, 10, 15, 0.4)');
-  content = content.replace(/rgba\(255,\s*255,\s*255,\s*1\)/g, 'rgba(9, 10, 15, 0.9)');
-  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.8\)/g, 'rgba(9, 10, 15, 0.9)');
+  // 3. Swap overlays back to clean light overlays
+  content = content.replace(/rgba\(9,\s*10,\s*15,\s*0\.4\)/g, 'rgba(255, 255, 255, 0.45)');
+  content = content.replace(/rgba\(9,\s*10,\s*15,\s*0\.9\)/g, 'rgba(255, 255, 255, 0.85)');
 
-  // 4. Update BlurView tints from light to dark
-  content = content.replace(/tint="light"/g, 'tint="dark"');
+  // 4. Update BlurView tints from dark to light / extraLight
+  content = content.replace(/tint="dark"/g, 'tint="light"');
 
-  // 5. Update hardcoded light colors
-  content = content.replace(/#111827/g, '#F3F4F6'); // dark charcoal text -> light grey text
-  content = content.replace(/#4B5563/g, '#9CA3AF'); // medium grey text -> silver-grey text
-  content = content.replace(/#374151/g, '#D1D5DB'); // dark grey -> light grey
+  // 5. Update text colors back to charcoal readables
+  content = content.replace(/#F3F4F6/g, '#1A1E26'); // light text -> deep charcoal
+  content = content.replace(/#9CA3AF/g, '#4B5563'); // silver grey text -> charcoal secondary
+  content = content.replace(/#D1D5DB/g, '#374151'); // light grey -> dark grey
 
-  // 6. Update borders from dark to translucent white
-  content = content.replace(/rgba\(0,\s*0,\s*0,\s*0\.1\)/g, 'rgba(255, 255, 255, 0.1)');
-  content = content.replace(/rgba\(0,\s*0,\s*0,\s*0\.2\)/g, 'rgba(255, 255, 255, 0.15)');
-  content = content.replace(/rgba\(0,\s*0,\s*0,\s*0\.05\)/g, 'rgba(255, 255, 255, 0.05)');
+  // 6. Update borders to subtle dark/gold translucent
+  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.1\)/g, 'rgba(212, 175, 55, 0.12)');
+  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.15\)/g, 'rgba(212, 175, 55, 0.18)');
+  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.05\)/g, 'rgba(0, 0, 0, 0.04)');
 
-  // 7. Update white backdrops in elements to translucent dark-element panels
-  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.6\)/g, 'rgba(20, 22, 31, 0.6)');
-  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.5\)/g, 'rgba(20, 22, 31, 0.5)');
-  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.4\)/g, 'rgba(20, 22, 31, 0.4)');
-  content = content.replace(/rgba\(255,\s*255,\s*255,\s*0\.15\)/g, 'rgba(20, 22, 31, 0.15)');
+  // 7. Update panel overlays back to frosted white glass
+  content = content.replace(/rgba\(20,\s*22,\s*31,\s*0\.6\)/g, 'rgba(255, 255, 255, 0.75)');
+  content = content.replace(/rgba\(20,\s*22,\s*31,\s*0\.5\)/g, 'rgba(255, 255, 255, 0.65)');
+  content = content.replace(/rgba\(20,\s*22,\s*31,\s*0\.4\)/g, 'rgba(255, 255, 255, 0.55)');
+  content = content.replace(/rgba\(20,\s*22,\s*31,\s*0\.15\)/g, 'rgba(255, 255, 255, 0.25)');
 
   // 8. Update solid layouts
-  content = content.replace(/backgroundColor:\s*'#ffffff'/g, "backgroundColor: '#14161F'");
-  content = content.replace(/backgroundColor:\s*'#F3F4F6'/g, "backgroundColor: '#090A0F'");
-  content = content.replace(/backgroundColor:\s*'#F9FAFB'/g, "backgroundColor: '#101116'");
+  content = content.replace(/backgroundColor:\s*'#14161F'/g, "backgroundColor: '#ffffff'");
+  content = content.replace(/backgroundColor:\s*'#090A0F'/g, "backgroundColor: '#FAF9F6'");
+  content = content.replace(/backgroundColor:\s*'#101116'/g, "backgroundColor: '#ffffff'");
 
   fs.writeFileSync(filePath, content, 'utf8');
-  console.log(`Successfully refurbished styles, colors and layers in ${fileRelPath}`);
+  console.log(`Successfully transitioned ${fileRelPath} to White Gold & Snow Quartz layout.`);
 });

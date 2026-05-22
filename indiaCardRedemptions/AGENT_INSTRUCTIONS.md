@@ -1,6 +1,6 @@
 # 🤖 AGENT BOOTSTRAP INSTRUCTIONS
 
-**Hello Antigravity Agent!** If you are reading this, the user has just initialized a new session in this directory to build the `indiaCardRedemptions` (AwardHack India) mobile application.
+**Hello Antigravity Agent!** If you are reading this, the user has just initialized a new session in this directory to build the `indiaCardRedemptions` (The Points Array) mobile application.
 
 ## Your Immediate Tasks:
 1. Read `docs/reference/features.md` to understand the full scope, MVP, and Phase 1-4 roadmap.

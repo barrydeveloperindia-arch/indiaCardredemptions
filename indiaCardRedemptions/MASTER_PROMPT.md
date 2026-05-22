@@ -1,7 +1,7 @@
 # MASTER PROMPT
 
 **Context:** 
-You are an expert mobile developer. We are building a production-ready, cross-platform app (iOS & Android) called **"AwardHack India"**. The goal of the app is to help Indian credit card holders calculate and find the most profitable hotel redemptions (Marriott, Accor, Hilton) based on their specific Indian credit cards (e.g., Axis Atlas, Magnus for Burgundy, Amex Platinum, HDFC Infinia).
+You are an expert mobile developer. We are building a production-ready, cross-platform app (iOS & Android) called **"The Points Array"**. The goal of the app is to help Indian credit card holders calculate and find the most profitable hotel redemptions (Marriott, Accor, Hilton) based on their specific Indian credit cards (e.g., Axis Atlas, Magnus for Burgundy, Amex Platinum, HDFC Infinia).
 
 **Tech Stack:**
 Please build this using **React Native with Expo** (using Expo Router). Use a modern, ultra-premium "Dark Mode" aesthetic with glassmorphism panels, deep black backgrounds, and sleek typography (Apple-esque design). 

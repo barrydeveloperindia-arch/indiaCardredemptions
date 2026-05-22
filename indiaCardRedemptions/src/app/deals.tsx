@@ -19,10 +19,10 @@ export default function DealsScreen() {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/dark_luxury_bg.png')} 
+      source={require('../../assets/images/white_gold_bg.png')} 
       style={styles.container}
       resizeMode="cover"
-      imageStyle={{ width: '100%', height: '100%', opacity: 0.4 }}
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.75 }}
     >
       <Head>
         <title>Live Point Sales Tracker | The Points Array</title>
@@ -33,7 +33,7 @@ export default function DealsScreen() {
 
       <Animated.View entering={FadeIn.duration(1500)} style={StyleSheet.absoluteFillObject}>
         <LinearGradient
-          colors={['rgba(9, 10, 15, 0.4)', 'rgba(9, 10, 15, 0.9)']}
+          colors={['rgba(255, 255, 255, 0.45)', 'rgba(255, 255, 255, 0.85)']}
           style={StyleSheet.absoluteFillObject}
         />
       </Animated.View>
@@ -65,7 +65,7 @@ export default function DealsScreen() {
 
               return (
                 <Animated.View key={sale.id} entering={SlideInRight.delay(400 + idx * 100).springify()}>
-                  <BlurView intensity={20} tint="dark" style={styles.dealCard}>
+                  <BlurView intensity={20} tint="light" style={styles.dealCard}>
                     <View style={styles.dealHeader}>
                       <ThemedText style={styles.partnerName} type="subtitle">
                         {sale.partner}
@@ -82,7 +82,7 @@ export default function DealsScreen() {
                     </ThemedText>
 
                     {/* Math Stats Box */}
-                    <BlurView intensity={30} tint="dark" style={styles.mathGrid}>
+                    <BlurView intensity={30} tint="light" style={styles.mathGrid}>
                       <View style={styles.mathCol}>
                         <ThemedText style={styles.mathLabel} type="code">YIELD</ThemedText>
                         <ThemedText style={styles.mathValue}>
@@ -136,7 +136,7 @@ export default function DealsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090A0F',
+    backgroundColor: '#FAF9F6',
     justifyContent: 'center',
     flexDirection: 'row',
     minHeight: Platform.OS === 'web' ? '100vh' : '100%',
@@ -161,16 +161,16 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 10,
     letterSpacing: 3,
-    color: '#9CA3AF',
+    color: '#4B5563',
   },
   mainTitle: {
     fontSize: 32,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#F3F4F6'
+    color: '#1A1E26'
   },
   pageDescription: {
-    color: '#9CA3AF',
+    color: '#4B5563',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: Spacing.five
@@ -182,9 +182,9 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(9, 10, 15, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   dealHeader: {
     flexDirection: 'row',
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   partnerName: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#F3F4F6'
+    color: '#1A1E26'
   },
   bonusBadge: {
     backgroundColor: 'rgba(245, 158, 11, 0.2)',
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   description: {
-    color: '#9CA3AF',
+    color: '#4B5563',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: Spacing.four,
@@ -221,9 +221,9 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
     padding: Spacing.four,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
     marginBottom: Spacing.four,
-    backgroundColor: 'rgba(9, 10, 15, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   mathCol: {
     flex: 1,
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   mathValue: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#F3F4F6',
+    color: '#1A1E26',
   },
   mathHighlight: {
     fontSize: 16,
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     color: '#FCA5A5',
   },
   recReason: {
-    color: '#D1D5DB',
+    color: '#374151',
     fontSize: 12,
     lineHeight: 18,
   },

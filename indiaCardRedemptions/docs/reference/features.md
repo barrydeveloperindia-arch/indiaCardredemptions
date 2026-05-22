@@ -43,7 +43,7 @@
 
 ---
 
-## 🤖 Feature 5: AI Concierge (AwardHack AI)
+## 🤖 Feature 5: AI Concierge (The Points Array AI)
 *   **Contextual Strategy Chat**: Conversational interface passing the user's active wallet balance, target destinations, and matrix rates directly to the LLM (Gemini).
 *   **Graphical Routing Timeline**: Visual step-by-step maps detailing points transfer routes (e.g., "Transfer 60k Amex to Marriott for flight partners") to reach the target seat/room.
 *   **Carrier Fee Warning Heuristic**: Informs users of hidden tax/fuel surcharges (e.g., "Warning: British Airways passes on high surcharges; transfer to Aeroplan instead").

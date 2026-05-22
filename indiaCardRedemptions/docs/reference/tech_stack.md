@@ -32,7 +32,7 @@ This document details the selected technologies, libraries, and frameworks for *
 
 ### 6. AI Engine (Gemini API)
 *   **Technology**: Google Gemini SDK (`@google/generative-ai`).
-*   **Reasoning**: Powering the contextual AwardHack AI Concierge.
+*   **Reasoning**: Powering the contextual The Points Array AI Concierge.
 *   **TDD Validation**: Mock prompt response payloads to test fallback routing behavior when the model returns unexpected outputs.
 
 ---

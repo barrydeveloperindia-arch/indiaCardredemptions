@@ -65,7 +65,7 @@ All logic and UI code are organized under standard directories:
 
 ---
 
-### 🤖 Feature 5: AI Concierge (AwardHack AI)
+### 🤖 Feature 5: AI Concierge (The Points Array AI)
 *   **Code Location**: 
     *   UI Screen: `src/app/concierge.tsx`
     *   Backend Handler: `src/utils/aiHandler.ts`

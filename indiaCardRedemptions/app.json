@@ -9,10 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.awardhack.india"
+      "bundleIdentifier": "com.thepointsarray"
     },
     "android": {
-      "package": "com.awardhack.india",
+      "package": "com.thepointsarray",
       "permissions": [],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

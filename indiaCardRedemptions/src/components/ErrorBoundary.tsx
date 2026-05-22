@@ -47,14 +47,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    backgroundColor: '#090A0F', // Corporate silver light background
+    backgroundColor: '#FAF9F6', // Corporate silver light background
   },
   title: {
     color: '#1F2937',
     marginBottom: 8,
   },
   message: {
-    color: '#9CA3AF',
+    color: '#4B5563',
     textAlign: 'center',
   },
 });

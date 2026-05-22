@@ -12,10 +12,10 @@ import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 export default function IntelScreen() {
   return (
     <ImageBackground 
-      source={require('../../assets/images/dark_luxury_bg.png')} 
+      source={require('../../assets/images/white_gold_bg.png')} 
       style={styles.container}
       resizeMode="cover"
-      imageStyle={{ width: '100%', height: '100%', opacity: 0.4 }}
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.75 }}
     >
       <Head>
         <title>Credit Card News & Intel | The Points Array</title>
@@ -26,7 +26,7 @@ export default function IntelScreen() {
 
       <Animated.View entering={FadeIn.duration(1500)} style={StyleSheet.absoluteFillObject}>
         <LinearGradient
-          colors={['rgba(9, 10, 15, 0.4)', 'rgba(9, 10, 15, 0.9)']}
+          colors={['rgba(255, 255, 255, 0.45)', 'rgba(255, 255, 255, 0.85)']}
           style={StyleSheet.absoluteFillObject}
         />
       </Animated.View>
@@ -57,7 +57,7 @@ export default function IntelScreen() {
                 entering={FadeInDown.delay(400 + idx * 100).springify()} 
                 key={item.id}
               >
-                <BlurView intensity={20} tint="dark" style={styles.intelCard}>
+                <BlurView intensity={20} tint="light" style={styles.intelCard}>
                   <View style={styles.cardHeader}>
                     <View style={[
                       styles.tagBadge,
@@ -83,7 +83,7 @@ export default function IntelScreen() {
                     {item.content}
                   </ThemedText>
 
-                  <BlurView intensity={30} tint="dark" style={styles.impactBox}>
+                  <BlurView intensity={30} tint="light" style={styles.impactBox}>
                     <ThemedText style={styles.impactLabel} type="code">TACTICAL IMPACT</ThemedText>
                     <ThemedText style={styles.impactText}>{item.impact}</ThemedText>
                   </BlurView>
@@ -100,7 +100,7 @@ export default function IntelScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090A0F',
+    backgroundColor: '#FAF9F6',
     justifyContent: 'center',
     flexDirection: 'row',
     minHeight: (Platform.OS === 'web' ? '100vh' : '100%') as any,
@@ -125,16 +125,16 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 10,
     letterSpacing: 3,
-    color: '#9CA3AF',
+    color: '#4B5563',
   },
   mainTitle: {
     fontSize: 32,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#F3F4F6'
+    color: '#1A1E26'
   },
   pageDescription: {
-    color: '#9CA3AF',
+    color: '#4B5563',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: Spacing.five
@@ -146,9 +146,9 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(9, 10, 15, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -188,11 +188,11 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#F3F4F6',
+    color: '#1A1E26',
     marginBottom: Spacing.two
   },
   itemContent: {
-    color: '#9CA3AF',
+    color: '#4B5563',
     fontSize: 13,
     lineHeight: 20,
     marginBottom: Spacing.four,
@@ -201,9 +201,9 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
     padding: Spacing.four,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(9, 10, 15, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
   },
   impactLabel: {
     fontSize: 10,

@@ -88,7 +88,7 @@ export default function ConsultationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#090A0F',
+    backgroundColor: '#FAF9F6',
     justifyContent: 'center',
     flexDirection: 'row',
   },
@@ -137,12 +137,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.two,
   },
   input: {
-    backgroundColor: '#101116',
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
     borderRadius: Spacing.two,
     padding: Spacing.three,
-    color: '#F3F4F6',
+    color: '#1A1E26',
     fontSize: 14,
   },
   submitButton: {
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.two,
   },
   submitButtonText: {
-    color: '#F3F4F6',
+    color: '#1A1E26',
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.two,
   },
   successText: {
-    color: '#D1D5DB',
+    color: '#374151',
     fontSize: 14,
     lineHeight: 20,
   }

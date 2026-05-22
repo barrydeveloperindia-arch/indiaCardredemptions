@@ -20,7 +20,7 @@ export default function AffiliateEngine({ recommendedCard }: AffiliateEngineProp
   };
 
   return (
-    <BlurView intensity={20} tint="dark" style={styles.container}>
+    <BlurView intensity={20} tint="light" style={styles.container}>
       <View style={styles.content}>
         <ThemedText style={styles.subtitle} type="code">
           OPTIMIZATION ANALYSIS
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.one,
   },
   description: {
-    color: '#9CA3AF',
+    color: '#4B5563',
     fontSize: 12,
     lineHeight: 18,
   },
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   applyText: {
-    color: '#F3F4F6',
+    color: '#1A1E26',
     fontWeight: 'bold',
     fontSize: 13,
   }
