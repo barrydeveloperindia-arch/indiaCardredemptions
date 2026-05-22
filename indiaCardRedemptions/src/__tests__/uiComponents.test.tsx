@@ -326,7 +326,7 @@ describe('DealsScreen Component UI Elements', () => {
     try {
       DealsScreen = require('../app/deals').default;
     } catch (e) {
-      DealsScreen = () => null; // Fallback so tests gracefully fail instead of crashing compiler
+      DealsScreen = function DealsScreenFallback() { return null; };
     }
   });
 
@@ -359,7 +359,7 @@ describe('IntelScreen Component UI Elements', () => {
     try {
       IntelScreen = require('../app/intel').default;
     } catch (e) {
-      IntelScreen = () => null; // Graceful fail during TDD Red phase
+      IntelScreen = function IntelScreenFallback() { return null; };
     }
   });
 
@@ -384,7 +384,7 @@ describe('Phase 4: Monetization UI Elements', () => {
     try {
       ConsultationScreen = require('../app/consultation').default;
     } catch (e) {
-      ConsultationScreen = () => null; // Graceful fail during TDD Red phase
+      ConsultationScreen = function ConsultationScreenFallback() { return null; };
     }
   });
 

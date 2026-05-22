@@ -132,12 +132,12 @@ export default function ConciergeScreen() {
             <Animated.View entering={SlideInRight.delay(600).springify()} style={styles.valueProp}>
               <ThemedText style={styles.vpIcon}>🧭</ThemedText>
               <ThemedText style={styles.vpTitle} type="smallBold">Complex Routing</ThemedText>
-              <ThemedText style={styles.vpDesc}>We find "sweet spots" that generic search engines miss.</ThemedText>
+              <ThemedText style={styles.vpDesc}>We find &quot;sweet spots&quot; that generic search engines miss.</ThemedText>
             </Animated.View>
             <Animated.View entering={SlideInRight.delay(700).springify()} style={styles.valueProp}>
               <ThemedText style={styles.vpIcon}>📞</ThemedText>
               <ThemedText style={styles.vpTitle} type="smallBold">Call Center Bypass</ThemedText>
-              <ThemedText style={styles.vpDesc}>We sit on hold with airlines so you don't have to.</ThemedText>
+              <ThemedText style={styles.vpDesc}>We sit on hold with airlines so you don&apos;t have to.</ThemedText>
             </Animated.View>
           </View>
 

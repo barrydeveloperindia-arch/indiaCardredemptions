@@ -255,13 +255,13 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
             • **Rupee per Point (RpP) Yield Formula**:
             {"\n"}  `Yield (RpP) = Hotel Cash Price (INR) / Points Required`
             {"\n\n"}
-            • **What makes a transfer "ELITE"?**
+            • **What makes a transfer &quot;ELITE&quot;?**
             {"\n"}  If the calculated RpP exceeds **₹1.0**, you are getting maximum value. You should transfer bank points and book the reward stay immediately!
-            {"\n\n"}
-            • **What makes it "GOOD"?**
+            {"\n"}
+            • **What makes it &quot;GOOD&quot;?**
             {"\n"}  Yields between **₹0.5 and ₹0.9** represent solid redemptions (e.g. baseline Marriott/Hilton).
-            {"\n\n"}
-            • **When should you "AVOID"?**
+            {"\n"}
+            • **When should you &quot;AVOID&quot;?**
             {"\n"}  If the RpP is **less than ₹0.5**, transferring points is a loss. You are better off paying cash and keeping your credit card points!
           </ThemedText>
         </BlurView>

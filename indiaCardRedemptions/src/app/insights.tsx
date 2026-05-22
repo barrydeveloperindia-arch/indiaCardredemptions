@@ -102,7 +102,7 @@ export default function InsightsScreen() {
                     🎯 Interactive Axis Atlas MCC Checker
                   </ThemedText>
                   <ThemedText style={styles.checkerDesc}>
-                    Enter a merchant name or payment gateway (e.g. "BharatNXT", "Renting", "Taj Hotel") to verify if it qualifies for Edge Miles.
+                    Enter a merchant name or payment gateway (e.g. &quot;BharatNXT&quot;, &quot;Renting&quot;, &quot;Taj Hotel&quot;) to verify if it qualifies for Edge Miles.
                   </ThemedText>
                   
                   <TextInput
