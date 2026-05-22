@@ -6,15 +6,15 @@
 
 ## 📅 Implementation Task Checklist
 
-- [ ] **Task 1: Core Static Databases Setup** (JSON Rules)
-- [ ] **Task 2: Transfer Matrix Calculation Engine**
-- [ ] **Task 3: Hotel Arbitrage & Point Sales Engine**
-- [ ] **Task 4: Insights Hub Spend Recalculator & MCC Checker**
-- [ ] **Task 5: Secure Local PDF Statement Parser**
-- [ ] **Task 6: Duffel Travel API Cash Pricing Fetcher**
-- [ ] **Task 7: AI Concierge RAG Context Constructor**
-- [ ] **Task 8: Light-Theme UI Components Assembly** (Visual Screens)
-- [ ] **Task 9: PDF Sandbox & Security Sanitization** (On-device file security check)
+- [x] **Task 1: Core Static Databases Setup** (JSON Rules)
+- [x] **Task 2: Transfer Matrix Calculation Engine**
+- [x] **Task 3: Hotel Arbitrage & Point Sales Engine**
+- [x] **Task 4: Insights Hub Spend Recalculator & MCC Checker**
+- [x] **Task 5: Secure Local PDF Statement Parser**
+- [x] **Task 6: Duffel Travel API Cash Pricing Fetcher**
+- [x] **Task 7: AI Concierge RAG Context Constructor**
+- [x] **Task 8: Light-Theme UI Components Assembly** (Visual Screens)
+- [x] **Task 9: PDF Sandbox & Security Sanitization** (On-device file security check)
 - [ ] **Task 10: Local Matrix Offline Cache Fallback** (Robust offline use)
 - [ ] **Task 11: Global Error Boundary & API Fallbacks** (Duffel/Gemini recovery)
 - [ ] **Task 12: Secure Dotenv Configuration Management** (API keys security)
