@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for arbitrageCalculator.ts</title>
+    <title>Code coverage report for offlineCache.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="prettify.css" />
     <link rel="stylesheet" href="base.css" />
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="index.html">All files</a> arbitrageCalculator.ts</h1>
+        <h1><a href="index.html">All files</a> offlineCache.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>8/8</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -83,7 +83,34 @@
 <a name='L18'></a><a href='#L18'>18</a>
 <a name='L19'></a><a href='#L19'>19</a>
 <a name='L20'></a><a href='#L20'>20</a>
-<a name='L21'></a><a href='#L21'>21</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -93,35 +120,56 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
- * Calculates the Value per Point (VPP) in INR.
- * Math: VPP = Cash Price / (Points Cost / Transfer Ratio)
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import AsyncStorage from '@react-native-async-storage/async-storage';
+import staticMatrix from '../constants/transferMatrix.json';
+&nbsp;
+export const TRANSFER_MATRIX_CACHE_KEY = 'TRANSFER_MATRIX_CACHE_KEY';
+&nbsp;
+/**
+ * Saves a transfer matrix object to local offline storage.
  * 
- * @param cashPrice Cash price of the travel booking in INR
- * @param pointPrice Total points cost required for the ticket
- * @param transferRatio Ratios of points to miles conversion
- * @returns The calculated value per card point in INR, or 0.0 on division by zero
+ * @param matrix The transfer matrix data to cache
  */
-export function calculateVpp(cashPrice: number, pointPrice: number, transferRatio: number): number {
-  if (pointPrice &lt;= 0 || transferRatio &lt;= 0) return 0;
-  const cardPointsNeeded = pointPrice / transferRatio;
-  return cashPrice / cardPointsNeeded;
+export async function cacheTransferMatrix(matrix: any): Promise&lt;void&gt; {
+  await AsyncStorage.setItem(TRANSFER_MATRIX_CACHE_KEY, JSON.stringify(matrix));
 }
 &nbsp;
-export function calculateYield(cashPrice: number, pointPrice: number, transferRatio: number): number {
-  if (transferRatio &lt;= 0) return 0;
-  const cardPointsNeeded = pointPrice / transferRatio;
-  return cashPrice / cardPointsNeeded;
+/**
+ * Attempts to fetch the latest transfer matrix from network, falling back to
+ * AsyncStorage or local JSON definitions if offline.
+ * 
+ * @param networkFetch The async function executing the network request
+ * @returns The active transfer matrix payload
+ */
+export async function getMatrixWithOfflineFallback(
+  networkFetch: () =&gt; Promise&lt;any&gt;
+): Promise&lt;any&gt; {
+  try {
+    const data = await networkFetch();
+    await cacheTransferMatrix(data);
+    return data;
+  } catch {
+    const cached = await AsyncStorage.getItem(TRANSFER_MATRIX_CACHE_KEY);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+    return staticMatrix;
+  }
 }
 &nbsp;</pre></td></tr></table></pre>
 

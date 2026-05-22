@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779447722113" clover="3.2.0">
-  <project timestamp="1779447722113" name="All files">
-    <metrics statements="207" coveredstatements="207" conditionals="171" coveredconditionals="171" methods="16" coveredmethods="16" elements="394" coveredelements="394" complexity="0" loc="207" ncloc="207" packages="1" files="9" classes="9"/>
+<coverage generated="1779447801940" clover="3.2.0">
+  <project timestamp="1779447801940" name="All files">
+    <metrics statements="217" coveredstatements="217" conditionals="173" coveredconditionals="173" methods="18" coveredmethods="18" elements="408" coveredelements="408" complexity="0" loc="217" ncloc="217" packages="1" files="10" classes="10"/>
     <file name="aiHandler.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\aiHandler.ts">
       <metrics statements="17" coveredstatements="17" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
       <line num="20" count="3" type="stmt"/>
@@ -181,6 +181,19 @@
       <line num="141" count="13" type="stmt"/>
       <line num="142" count="13" type="stmt"/>
       <line num="144" count="13" type="stmt"/>
+    </file>
+    <file name="offlineCache.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\offlineCache.ts">
+      <metrics statements="10" coveredstatements="10" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="12" count="2" type="stmt"/>
+      <line num="25" count="3" type="stmt"/>
+      <line num="26" count="3" type="stmt"/>
+      <line num="27" count="1" type="stmt"/>
+      <line num="28" count="1" type="stmt"/>
+      <line num="30" count="2" type="stmt"/>
+      <line num="31" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="32" count="1" type="stmt"/>
+      <line num="34" count="1" type="stmt"/>
     </file>
     <file name="pdfParser.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\pdfParser.ts">
       <metrics statements="21" coveredstatements="21" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1"/>
