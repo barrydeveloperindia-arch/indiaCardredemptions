@@ -68,6 +68,12 @@ export function WalletCard({
     textColor = '#92400E';
     badgeText = 'YES PRIVATE';
     borderColor = 'rgba(217, 119, 6, 0.3)';
+  } else if (cardId === 'sbi_aurum') {
+    cardGradient = ['rgba(31, 41, 55, 0.75)', 'rgba(17, 24, 39, 0.95)']; // dark gold glass
+    accentColor = '#D97706';
+    textColor = '#FCD34D';
+    badgeText = 'SBI AURUM';
+    borderColor = 'rgba(217, 119, 6, 0.4)';
   }
 
   // Calculate milestone progression
@@ -78,7 +84,7 @@ export function WalletCard({
     milestoneProgress = calculateAmexTravelProgress(spend);
   }
 
-  const isDarkCard = false;
+  const isDarkCard = cardId === 'sbi_aurum';
   
   // Use a softer selection border
   const activeBorderColor = isSelected ? accentColor : borderColor;
@@ -87,7 +93,7 @@ export function WalletCard({
     <Pressable onPress={onSelect}>
       <BlurView
         intensity={30}
-        tint="light"
+        tint={isDarkCard ? "dark" : "light"}
         style={[
           styles.cardContainer,
           {
@@ -106,7 +112,7 @@ export function WalletCard({
 
         <View style={styles.cardHeader}>
           <ThemedText
-            style={[styles.bankLabel, { color: isDarkCard ? '#4B5563' : '#4B5563' }]}
+            style={[styles.bankLabel, { color: isDarkCard ? '#9CA3AF' : '#4B5563' }]}
             type="smallBold">
             {badgeText}
           </ThemedText>
@@ -122,16 +128,16 @@ export function WalletCard({
           <ThemedText style={[{ color: textColor }, styles.cardTitle]} type="subtitle">
             {cardInfo.name}
           </ThemedText>
-          <ThemedText style={[styles.cardNumber, { color: isDarkCard ? '#4B5563' : '#4B5563' }]}>
+          <ThemedText style={[styles.cardNumber, { color: isDarkCard ? '#D1D5DB' : '#4B5563' }]}>
             •••• •••• •••• {cardId === 'amex_platinum' ? '2026' : '4890'}
           </ThemedText>
         </View>
 
-        <View style={[styles.inputSection, { borderTopColor: isDarkCard ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.1)' }]}>
+        <View style={[styles.inputSection, { borderTopColor: isDarkCard ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }]}>
           <View style={styles.inputRow}>
             <View style={styles.inputCol}>
               <ThemedText
-                style={[styles.inputLabel, { color: isDarkCard ? '#4B5563' : '#374151' }]}
+                style={[styles.inputLabel, { color: isDarkCard ? '#9CA3AF' : '#374151' }]}
                 type="code">
                 PORTFOLIO BALANCE
               </ThemedText>
@@ -140,8 +146,8 @@ export function WalletCard({
                   styles.cardInput,
                   {
                     color: textColor,
-                    backgroundColor: isDarkCard ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.08)',
-                    borderColor: isDarkCard ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.1)',
+                    backgroundColor: isDarkCard ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+                    borderColor: isDarkCard ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                   },
                 ]}
                 keyboardType="numeric"
@@ -153,7 +159,7 @@ export function WalletCard({
             {milestoneProgress && (
               <View style={styles.inputCol}>
                 <ThemedText
-                  style={[styles.inputLabel, { color: isDarkCard ? '#4B5563' : '#374151' }]}
+                  style={[styles.inputLabel, { color: isDarkCard ? '#9CA3AF' : '#374151' }]}
                   type="code">
                   ANNUAL SPEND (INR)
                 </ThemedText>
@@ -162,8 +168,8 @@ export function WalletCard({
                     styles.cardInput,
                     {
                       color: textColor,
-                      backgroundColor: isDarkCard ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.08)',
-                      borderColor: isDarkCard ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.1)',
+                      backgroundColor: isDarkCard ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+                      borderColor: isDarkCard ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
                     },
                   ]}
                   keyboardType="numeric"
@@ -176,7 +182,7 @@ export function WalletCard({
 
           {/* Interactive sliders for selected cards */}
           {isSelected && (
-            <View style={[styles.sliderContainer, { backgroundColor: isDarkCard ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.3)' }]}>
+            <View style={[styles.sliderContainer, { backgroundColor: isDarkCard ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.3)' }]}>
               <PremiumSlider
                 label="Slide Balance"
                 value={balance}
@@ -207,12 +213,12 @@ export function WalletCard({
             <View style={styles.milestoneSection}>
               <View style={styles.milestoneTextRow}>
                 <ThemedText
-                  style={{ color: isDarkCard ? '#374151' : '#1F2937' }}
+                  style={{ color: isDarkCard ? '#E5E7EB' : '#1F2937' }}
                   type="code">
                   Next Milestone: ₹{(milestoneProgress.nextTarget / 100000).toFixed(1)}L
                 </ThemedText>
                 <ThemedText
-                  style={{ color: isDarkCard ? '#374151' : '#1F2937' }}
+                  style={{ color: isDarkCard ? '#E5E7EB' : '#1F2937' }}
                   type="code">
                   Bonus: +{milestoneProgress.bonusEarned.toLocaleString()} pts
                 </ThemedText>
@@ -220,7 +226,7 @@ export function WalletCard({
               <View
                 style={[
                   styles.progressTrack,
-                  { backgroundColor: isDarkCard ? 'rgba(0,0,0,0.1)' : 'rgba(0,0,0,0.1)' },
+                  { backgroundColor: isDarkCard ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)' },
                 ]}>
                 <View
                   style={[
