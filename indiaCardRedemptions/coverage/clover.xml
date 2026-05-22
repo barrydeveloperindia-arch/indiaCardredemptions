@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779443006741" clover="3.2.0">
-  <project timestamp="1779443006741" name="All files">
-    <metrics statements="115" coveredstatements="115" conditionals="93" coveredconditionals="93" methods="9" coveredmethods="9" elements="217" coveredelements="217" complexity="0" loc="115" ncloc="115" packages="1" files="4" classes="4"/>
+<coverage generated="1779445785434" clover="3.2.0">
+  <project timestamp="1779445785435" name="All files">
+    <metrics statements="118" coveredstatements="118" conditionals="97" coveredconditionals="97" methods="10" coveredmethods="10" elements="225" coveredelements="225" complexity="0" loc="118" ncloc="118" packages="1" files="4" classes="4"/>
     <file name="arbitrageCalculator.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\arbitrageCalculator.ts">
-      <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
-      <line num="2" count="8" type="cond" truecount="2" falsecount="0"/>
-      <line num="3" count="6" type="stmt"/>
-      <line num="4" count="6" type="stmt"/>
+      <metrics statements="6" coveredstatements="6" conditionals="6" coveredconditionals="6" methods="2" coveredmethods="2"/>
+      <line num="11" count="4" type="cond" truecount="4" falsecount="0"/>
+      <line num="12" count="1" type="stmt"/>
+      <line num="13" count="1" type="stmt"/>
+      <line num="17" count="8" type="cond" truecount="2" falsecount="0"/>
+      <line num="18" count="6" type="stmt"/>
+      <line num="19" count="6" type="stmt"/>
     </file>
     <file name="loyaltyMatrixEngine.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\loyaltyMatrixEngine.ts">
       <metrics statements="56" coveredstatements="56" conditionals="64" coveredconditionals="64" methods="4" coveredmethods="4"/>
