@@ -92,7 +92,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
       <ThemedText style={styles.sectionTitle} type="title">
         Arbitrage Yield Analyzer
       </ThemedText>
-      <BlurView intensity={20} tint="light" style={styles.inputCard}>
+      <BlurView intensity={20} tint="dark" style={styles.inputCard}>
         {/* Quick Deal Presets */}
         <ThemedText style={styles.inputLabel} type="code">
           QUICK DEAL SIMULATORS (TAP TO TEST FLOW)
@@ -131,7 +131,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
               keyboardType="numeric"
               value={cashPrice}
               onChangeText={setCashPrice}
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor="rgba(9, 10, 15, 0.4)"
             />
             <PremiumSlider
               label="Slide Cash Price"
@@ -154,7 +154,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
               keyboardType="numeric"
               value={pointPrice}
               onChangeText={setPointPrice}
-              placeholderTextColor="rgba(255,255,255,0.4)"
+              placeholderTextColor="rgba(9, 10, 15, 0.4)"
             />
             <PremiumSlider
               label="Slide Points Required"
@@ -192,12 +192,12 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
                   style={[
                     styles.partnerTab,
                     {
-                      backgroundColor: isSelected ? 'rgba(0,0,0,0.1)' : 'transparent',
-                      borderColor: isSelected ? '#111827' : 'rgba(0,0,0,0.1)',
+                      backgroundColor: isSelected ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                      borderColor: isSelected ? '#F3F4F6' : 'rgba(255, 255, 255, 0.1)',
                     },
                   ]}>
                   <ThemedText
-                    style={{ color: isSelected ? '#111827' : '#6B7280' }}
+                    style={{ color: isSelected ? '#F3F4F6' : '#6B7280' }}
                     type="smallBold">
                     {p.name}
                   </ThemedText>
@@ -214,7 +214,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
 
       {/* Yield visualizer panel */}
       {numericPoints > 0 && (
-        <BlurView intensity={30} tint="light" style={[styles.yieldPanel, { borderColor: yieldBadgeColor }]}>
+        <BlurView intensity={30} tint="dark" style={[styles.yieldPanel, { borderColor: yieldBadgeColor }]}>
           <View style={styles.yieldHeader}>
             <View>
               <ThemedText style={styles.yieldSub} type="code">
@@ -250,7 +250,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
       </Pressable>
 
       {showMath && (
-        <BlurView intensity={10} tint="light" style={styles.mathPanelBody}>
+        <BlurView intensity={10} tint="dark" style={styles.mathPanelBody}>
           <ThemedText style={styles.mathText}>
             • **Rupee per Point (RpP) Yield Formula**:
             {"\n"}  `Yield (RpP) = Hotel Cash Price (INR) / Points Required`
@@ -272,8 +272,8 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         Optimal Card Transfers
       </ThemedText>
       {pathways.length === 0 ? (
-        <BlurView intensity={20} tint="light" style={styles.emptyCard}>
-          <ThemedText style={{ color: '#374151' }} type="code">
+        <BlurView intensity={20} tint="dark" style={styles.emptyCard}>
+          <ThemedText style={{ color: '#D1D5DB' }} type="code">
             No transfer pathways exist from your active wallet cards to this program.
           </ThemedText>
         </BlurView>
@@ -281,7 +281,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         pathways.map((path) => (
           <BlurView
             intensity={20}
-            tint="light"
+            tint="dark"
             key={path.cardId}
             style={[
               styles.pathwayRow,
@@ -290,10 +290,10 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
               },
             ]}>
             <View style={styles.pathwayLeft}>
-              <ThemedText style={{ color: '#111827' }} type="subtitle">
+              <ThemedText style={{ color: '#F3F4F6' }} type="subtitle">
                 {path.cardName}
               </ThemedText>
-              <ThemedText style={{ color: '#4B5563' }} type="code">
+              <ThemedText style={{ color: '#9CA3AF' }} type="code">
                 Ratio: {(path.ratio * 10).toFixed(0)}:10 | Points Required: {path.pointsRequired.toLocaleString()}
               </ThemedText>
               {path.notes && (
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: Spacing.four,
     overflow: 'hidden',
   },
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F3F4F6',
     marginBottom: Spacing.three,
   },
   formCol: {
@@ -350,19 +350,19 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 10,
     letterSpacing: 2,
-    color: '#4B5563',
+    color: '#9CA3AF',
     marginBottom: Spacing.two,
   },
   textInput: {
     height: 52,
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
     borderRadius: Spacing.two,
     paddingHorizontal: Spacing.three,
-    color: '#111827',
+    color: '#F3F4F6',
     fontSize: 18,
     fontWeight: 'bold',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   partnerScroll: {
     flexDirection: 'row',
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: Spacing.five,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
   },
   yieldHeader: {
     flexDirection: 'row',
@@ -391,13 +391,13 @@ const styles = StyleSheet.create({
   yieldSub: {
     fontSize: 10,
     letterSpacing: 2,
-    color: '#374151',
+    color: '#D1D5DB',
   },
   yieldValue: {
     fontSize: 38,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#111827'
+    color: '#F3F4F6'
   },
   yieldStatusBadge: {
     borderRadius: Spacing.four,
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
   },
   yieldStatusText: {
-    color: '#111827',
+    color: '#F3F4F6',
     fontSize: 11,
     fontWeight: 'bold',
   },
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: Spacing.three,
     marginTop: Spacing.two,
-    color: '#111827'
+    color: '#F3F4F6'
   },
   emptyCard: {
     borderRadius: Spacing.two,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
   },
   pathwayRow: {
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.three,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.4)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
   },
   pathwayLeft: {
     flex: 1,
@@ -475,14 +475,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(9, 10, 15, 0.4)',
   },
   chevronText: {
-    color: '#111827',
+    color: '#F3F4F6',
     fontSize: 24,
     fontWeight: 'bold',
     marginTop: -4,
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(9, 10, 15, 0.4)',
     position: 'relative',
   },
   presetCardImage: {
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
     padding: Spacing.four,
   },
   presetLabel: {
-    color: '#111827',
+    color: '#F3F4F6',
     fontSize: 13,
     fontWeight: 'bold'
   },
@@ -542,11 +542,11 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderRadius: Spacing.two,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: Spacing.two,
   },
   mathTitle: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     letterSpacing: 0.5,
   },
@@ -554,12 +554,12 @@ const styles = StyleSheet.create({
     padding: Spacing.five,
     borderRadius: Spacing.two,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     marginBottom: Spacing.five,
     overflow: 'hidden',
   },
   mathText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 20,
   },

@@ -37,13 +37,13 @@ export default function TabTwoScreen() {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/minimalist_white_luxury_bg.png')} 
+      source={require('../../assets/images/dark_luxury_bg.png')} 
       style={styles.container}
       resizeMode="cover"
-      imageStyle={{ width: '100%', height: '100%', opacity: 0.7 }}
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.4 }}
     >
       <LinearGradient
-        colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.8)']}
+        colors={['rgba(9, 10, 15, 0.4)', 'rgba(9, 10, 15, 0.9)']}
         style={StyleSheet.absoluteFillObject}
       />
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -59,7 +59,7 @@ export default function TabTwoScreen() {
           </View>
 
           {/* Luxury Switch Selector */}
-          <BlurView intensity={20} tint="light" style={styles.modeSelector}>
+          <BlurView intensity={20} tint="dark" style={styles.modeSelector}>
             <Pressable
               onPress={() => setActiveMode('hotel')}
               style={[styles.modeButton, activeMode === 'hotel' && styles.modeButtonActive]}>
@@ -91,7 +91,7 @@ export default function TabTwoScreen() {
                 London & Europe Trip Solver
               </ThemedText>
 
-              <BlurView intensity={20} tint="light" style={styles.flightCard}>
+              <BlurView intensity={20} tint="dark" style={styles.flightCard}>
                 <ThemedText style={styles.inputLabel} type="code">
                   SELECT DESIRED CABIN CLASS
                 </ThemedText>
@@ -129,12 +129,12 @@ export default function TabTwoScreen() {
               </ThemedText>
 
               {/* HSBC Premier Pathway */}
-              <BlurView intensity={20} tint="light" style={styles.pathwayRow}>
+              <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
                 <View style={styles.pathwayLeft}>
-                  <ThemedText style={{ color: '#111827', fontWeight: 'bold' }} type="smallBold">
+                  <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
                     HSBC Premier Credit Card
                   </ThemedText>
-                  <ThemedText style={{ color: '#4B5563', fontSize: 11 }}>
+                  <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
                     Ratio: 10:10 | Points Required: {hsbcPointsRequired.toLocaleString()}
                   </ThemedText>
                   <ThemedText style={[styles.notesText, { color: hsbcFeasible ? '#34D399' : '#FCA5A5' }]}>
@@ -157,12 +157,12 @@ export default function TabTwoScreen() {
               </BlurView>
 
               {/* Axis Magnus Burgundy Pathway */}
-              <BlurView intensity={20} tint="light" style={styles.pathwayRow}>
+              <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
                 <View style={styles.pathwayLeft}>
-                  <ThemedText style={{ color: '#111827', fontWeight: 'bold' }} type="smallBold">
+                  <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
                     Axis Magnus for Burgundy
                   </ThemedText>
-                  <ThemedText style={{ color: '#4B5563', fontSize: 11 }}>
+                  <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
                     Ratio: 5:4 | Points Required: {axisPointsRequired.toLocaleString()}
                   </ThemedText>
                   <ThemedText style={[styles.notesText, { color: axisFeasible ? '#34D399' : '#FCA5A5' }]}>
@@ -185,7 +185,7 @@ export default function TabTwoScreen() {
               </BlurView>
 
               {/* Step-by-Step London Strategy */}
-              <BlurView intensity={20} tint="light" style={styles.strategyCard}>
+              <BlurView intensity={20} tint="dark" style={styles.strategyCard}>
                 <ThemedText style={styles.strategyTitle} type="subtitle">
                   🗺️ London Outbound Action Plan
                 </ThemedText>
@@ -234,7 +234,7 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#090A0F',
     justifyContent: 'center',
     flexDirection: 'row',
   },
@@ -251,19 +251,19 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: Spacing.four,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     paddingBottom: Spacing.four,
   },
   subTitle: {
     fontSize: 10,
     letterSpacing: 3,
-    color: '#4B5563',
+    color: '#9CA3AF',
   },
   mainTitle: {
     fontSize: 28,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#111827'
+    color: '#F3F4F6'
   },
   modeSelector: {
     flexDirection: 'row',
@@ -271,9 +271,9 @@ const styles = StyleSheet.create({
     padding: Spacing.one,
     marginBottom: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
   },
   modeButton: {
     flex: 1,
@@ -282,15 +282,15 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
   },
   modeButtonActive: {
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(9, 10, 15, 0.4)',
   },
   modeButtonText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
   },
   modeButtonTextActive: {
-    color: '#111827',
+    color: '#F3F4F6',
   },
   flightSolverContainer: {
     gap: Spacing.four,
@@ -298,21 +298,21 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F3F4F6',
     marginBottom: Spacing.two
   },
   flightCard: {
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
   },
   inputLabel: {
     fontSize: 10,
     letterSpacing: 2,
-    color: '#4B5563',
+    color: '#9CA3AF',
     marginBottom: Spacing.three,
   },
   cabinRow: {
@@ -326,15 +326,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: Spacing.two,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
   },
   cabinTabActive: {
     borderColor: '#10B981',
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
   },
   cabinText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 11,
   },
   cabinTextActive: {
@@ -349,19 +349,19 @@ const styles = StyleSheet.create({
   pathwayTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F3F4F6',
     marginTop: Spacing.two
   },
   pathwayRow: {
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.4)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
   },
   pathwayLeft: {
     flex: 1,
@@ -382,16 +382,16 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     marginTop: Spacing.two,
     gap: Spacing.four,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(9, 10, 15, 0.4)',
   },
   strategyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#F3F4F6',
     marginBottom: Spacing.two,
   },
   strategyRow: {
@@ -418,13 +418,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   strategyHeading: {
-    color: '#111827',
+    color: '#F3F4F6',
     fontSize: 13,
     fontWeight: '700',
     marginBottom: Spacing.half,
   },
   strategyDesc: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
   },

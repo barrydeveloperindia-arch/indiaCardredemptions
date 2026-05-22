@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0,0,0,0.08)',
   },
   stepperText: {
-    color: '#111827',
+    color: '#F3F4F6',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: '#111827',
+    backgroundColor: '#090A0F',
     borderWidth: 3,
     marginLeft: -7,
     shadowColor: '#000000',
