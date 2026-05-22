@@ -12,19 +12,19 @@ This document serves as the official implementation plan and checklist for refur
     *   **Target Files**: `src/app/index.tsx`, `src/app/explore.tsx`, `src/app/insights.tsx`, `src/app/intel.tsx`, `src/app/deals.tsx`, `src/app/concierge.tsx`  
     *   **Action**: Swap all occurrences of `minimalist_white_luxury_bg.png` with the new generated `dark_luxury_bg.png`. Set image opacity and background tints to harmonize elements.
 *   [ ] **Task 1.3: Navigation & System Overrides**  
-    *   **Target File**: `src/app/_layout.tsx`  
-    *   **Action**: Update default theme configuration hooks and add a dark-theme Status Bar overlay configuration to prevent white-bar visual clipping on physical Android devices.
+    *   **Target File**: `src/app/_layout.tsx`, `src/components/AppTabs.tsx`  
+    *   **Action**: Update default theme configuration hooks and add a dark-theme Status Bar overlay configuration to prevent white-bar visual clipping on physical Android devices. Update the navigation tab bar to be a floating glassmorphic container with translucent blur layers and gold active-tab outlines.
 
 ---
 
 ## 🛠️ Phase 2: Custom Premium Component Refactoring
-*   [ ] **Task 2.1: Metallic Wallet Card Cards**  
+*   [ ] **Task 2.1: Metallic Wallet Cards with High-Fidelity Physics**  
     *   **Target File**: `src/components/WalletCard.tsx`  
     *   **Action**: Redesign credit card visuals to render with premium metallic gradient finishes, fine gold-border parameters, holographic chip simulation boxes, and aligned VISA/AMEX issuer badges.
-*   [ ] **Task 2.2: Premium Interactive Sliders**  
+*   [ ] **Task 2.2: Custom Premium Interactive Sliders**  
     *   **Target File**: `src/components/PremiumSlider.tsx`  
     *   **Action**: Replace native sliding tracks with dynamic custom-drawn gradient lines, floating value indicators, and feedback animations.
-*   [ ] **Task 2.3: Monetization Promos Upgrade**  
+*   [ ] **Task 2.3: Monetization Promos & Affiliate Cards Upgrade**  
     *   **Target File**: `src/components/AffiliateEngine.tsx`  
     *   **Action**: Refactor promotional modules into high-converting premium highlight boxes featuring linear gold gradients and clean typography.
 
@@ -32,17 +32,17 @@ This document serves as the official implementation plan and checklist for refur
 
 ## 📱 Phase 3: Screen-by-Screen UI Refactoring
 *   [ ] **Task 3.1: Home Landing Page (`src/app/index.tsx`)**  
-    *   *Search Bar*: Replace flat input with a floating glassmorphic tray containing a subtle golden focus glow.  
-    *   *Milestone Radar*: Replace linear tracker rows with glowing gauge lines and milestone completion markers.  
+    *   *Search Input*: Replace flat input with a floating glassmorphic tray containing a subtle golden focus glow.  
+    *   *Milestone Radar / Gauges*: Replace linear tracker rows with glowing gauge lines, circular progress indicators, and milestone completion markers.  
     *   *VIP Action Banner*: Redesign premium service CTA card using dark gradients (`#1C1E24` to `#0B0C10`) and gold borders.
 *   [ ] **Task 3.2: Arbitrage Yield Analyzer (`src/app/explore.tsx`)**  
     *   *Yield Display*: Scale the RpP text sizing and color-code indicators based on yields (ELITE = glowing green, AVOID = soft crimson).  
     *   *Quick Deal Presets*: Upgrade preview card thumbnail containers with rounded glass layers and dark gradients.  
-    *   *Transfer Pathways*: Apply glowing feasibility indicators.
+    *   *Transfer Pathways Flow*: Apply visual connecting lines and glowing transfer bubbles.
 *   [ ] **Task 3.3: Insights & Hacks Page (`src/app/insights.tsx`)**  
     *   *MCC Checker*: Redesign the input field and search indicators to match a high-end dashboard interface.  
     *   *Stacking Flow Diagrams*: Render connected multi-step flowcharts utilizing golden node bubbles and alignment guidelines.  
-    *   *Pro Paywall*: Refurbish the overlay with high-blur backdrops, central lock icons, and elegant CTA buttons.
+    *   *Pro Paywall Blur*: Refurbish the overlay with high-blur backdrops, central lock icons, and elegant gold-trimmed CTA buttons.
 *   [ ] **Task 3.4: Live Buy Deals Tracker (`src/app/deals.tsx`)**  
     *   *Deals Feed*: Display active promotions inside floating glass cards.  
     *   *Cost Math Box*: Format cost per point values into highlighted tabular modules.
