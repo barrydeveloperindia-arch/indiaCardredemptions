@@ -1,0 +1,45 @@
+{
+  "axis_m4b": {
+    "name": "Axis Bank (Magnus for Burgundy / Atlas)",
+    "partners": {
+      "marriott": {
+        "name": "Marriott Bonvoy",
+        "ratio": 0.8
+      },
+      "air_india": {
+        "name": "Air India (Maharaja Club)",
+        "ratio": 0.8
+      },
+      "krisflyer": {
+        "name": "Singapore Airlines (KrisFlyer)",
+        "ratio": 0.8
+      }
+    }
+  },
+  "hdfc_infinia": {
+    "name": "HDFC Infinia",
+    "partners": {
+      "accor": {
+        "name": "Accor Live Limitless",
+        "ratio": 1.0
+      },
+      "krisflyer": {
+        "name": "Singapore Airlines (KrisFlyer)",
+        "ratio": 1.0
+      }
+    }
+  },
+  "amex_platinum": {
+    "name": "Amex Platinum Charge",
+    "partners": {
+      "marriott": {
+        "name": "Marriott Bonvoy",
+        "ratio": 1.0
+      },
+      "hilton": {
+        "name": "Hilton Honors",
+        "ratio": 0.9
+      }
+    }
+  }
+}

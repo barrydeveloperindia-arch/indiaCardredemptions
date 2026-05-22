@@ -1,0 +1,30 @@
+{
+  "europe": {
+    "name": "Europe",
+    "recommendations": [
+      {
+        "program": "aeroplan",
+        "name": "Air Canada Aeroplan",
+        "taxWarning": false,
+        "note": "No fuel surcharges. Use for Swiss/Lufthansa Business Class."
+      },
+      {
+        "program": "flying_blue",
+        "name": "Air France-KLM (Flying Blue)",
+        "taxWarning": true,
+        "note": "High taxes (~€300+). Wait for Promo Rewards."
+      }
+    ]
+  },
+  "se_asia": {
+    "name": "South East Asia",
+    "recommendations": [
+      {
+        "program": "krisflyer",
+        "name": "Singapore Airlines (KrisFlyer)",
+        "taxWarning": false,
+        "note": "Best availability for flights to SE Asia."
+      }
+    ]
+  }
+}
