@@ -1,0 +1,34 @@
+{
+  "Zomato": {
+    "category": "dining",
+    "mcc": "5812"
+  },
+  "Swiggy": {
+    "category": "dining",
+    "mcc": "5812"
+  },
+  "Amazon": {
+    "category": "shopping",
+    "mcc": "5311"
+  },
+  "Flipkart": {
+    "category": "shopping",
+    "mcc": "5311"
+  },
+  "Uber": {
+    "category": "travel",
+    "mcc": "4121"
+  },
+  "Ola": {
+    "category": "travel",
+    "mcc": "4121"
+  },
+  "MakeMyTrip": {
+    "category": "travel",
+    "mcc": "4722"
+  },
+  "TajHotels": {
+    "category": "hotels",
+    "mcc": "7011"
+  }
+}

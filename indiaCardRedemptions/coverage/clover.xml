@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779442428160" clover="3.2.0">
-  <project timestamp="1779442428160" name="All files">
+<coverage generated="1779442806700" clover="3.2.0">
+  <project timestamp="1779442806700" name="All files">
     <metrics statements="111" coveredstatements="111" conditionals="89" coveredconditionals="89" methods="8" coveredmethods="8" elements="208" coveredelements="208" complexity="0" loc="111" ncloc="111" packages="1" files="3" classes="3"/>
     <file name="arbitrageCalculator.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\arbitrageCalculator.ts">
       <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
