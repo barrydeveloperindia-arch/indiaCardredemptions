@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for matrixEngine.ts</title>
+    <title>Code coverage report for envConfig.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="prettify.css" />
     <link rel="stylesheet" href="base.css" />
@@ -19,13 +19,13 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="index.html">All files</a> matrixEngine.ts</h1>
+        <h1><a href="index.html">All files</a> envConfig.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
@@ -80,10 +80,7 @@
 <a name='L15'></a><a href='#L15'>15</a>
 <a name='L16'></a><a href='#L16'>16</a>
 <a name='L17'></a><a href='#L17'>17</a>
-<a name='L18'></a><a href='#L18'>18</a>
-<a name='L19'></a><a href='#L19'>19</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L18'></a><a href='#L18'>18</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -94,28 +91,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import transferMatrixData from '../constants/transferMatrix.json';
-&nbsp;
-const matrix: Record&lt;string, Record&lt;string, number&gt;&gt; = transferMatrixData;
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export interface ApiCredentials {
+  duffelToken: string;
+  geminiApiKey: string;
+}
 &nbsp;
 /**
- * Retrieves the conversion transfer ratio for a card and a loyalty partner.
- * Math: Miles Received = Card Points * Transfer Ratio
+ * Safely extracts environment credentials for travel search and concierge AI endpoints.
+ * Falls back to empty string parameters if not set.
  * 
- * @param cardId Unique ID of the card profile
- * @param partnerId Unique ID of the loyalty partner
- * @returns The conversion ratio multiplier, or 0.0 if not found
+ * @returns An object containing mapped API keys and tokens
  */
-export function getTransferRatio(cardId: string, partnerId: string): number {
-  if (matrix[cardId] &amp;&amp; typeof matrix[cardId][partnerId] === 'number') {
-    return matrix[cardId][partnerId];
-  }
-  return 0.0;
+export function getApiCredentials(): ApiCredentials {
+  return {
+    duffelToken: process.env.EXPO_PUBLIC_DUFFEL_TOKEN || '',
+    geminiApiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY || '',
+  };
 }
 &nbsp;</pre></td></tr></table></pre>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779447922927" clover="3.2.0">
-  <project timestamp="1779447922927" name="All files">
-    <metrics statements="217" coveredstatements="217" conditionals="173" coveredconditionals="173" methods="18" coveredmethods="18" elements="408" coveredelements="408" complexity="0" loc="217" ncloc="217" packages="1" files="10" classes="10"/>
+<coverage generated="1779448683495" clover="3.2.0">
+  <project timestamp="1779448683495" name="All files">
+    <metrics statements="218" coveredstatements="218" conditionals="177" coveredconditionals="177" methods="19" coveredmethods="19" elements="414" coveredelements="414" complexity="0" loc="218" ncloc="218" packages="1" files="11" classes="11"/>
     <file name="aiHandler.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\aiHandler.ts">
       <metrics statements="17" coveredstatements="17" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
       <line num="20" count="3" type="stmt"/>
@@ -30,6 +30,10 @@
       <line num="17" count="8" type="cond" truecount="2" falsecount="0"/>
       <line num="18" count="6" type="stmt"/>
       <line num="19" count="6" type="stmt"/>
+    </file>
+    <file name="envConfig.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\envConfig.ts">
+      <metrics statements="1" coveredstatements="1" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+      <line num="13" count="2" type="stmt"/>
     </file>
     <file name="loyaltyMatrixEngine.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\loyaltyMatrixEngine.ts">
       <metrics statements="56" coveredstatements="56" conditionals="64" coveredconditionals="64" methods="4" coveredmethods="4"/>
