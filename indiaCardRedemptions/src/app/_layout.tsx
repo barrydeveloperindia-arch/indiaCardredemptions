@@ -8,6 +8,7 @@ import AppTabs from '@/components/AppTabs';
 import { WalletProvider } from '@/context/WalletContext';
 import { AuthProvider, AuthContext } from '../context/AuthContext';
 import AuthForm from '../components/AuthForm';
+import { OfflineBanner } from '@/components/OfflineBanner';
 
 const CustomTheme = {
   ...DarkTheme,
@@ -47,6 +48,7 @@ export default function TabLayout() {
       <WalletProvider>
         <ThemeProvider value={CustomTheme}>
           <StatusBar style="light" />
+          <OfflineBanner />
           <AnimatedSplashOverlay />
           <AppContent />
         </ThemeProvider>

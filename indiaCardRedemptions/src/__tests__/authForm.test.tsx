@@ -3,6 +3,14 @@ import { render, fireEvent, act } from '@testing-library/react-native';
 import { AuthContext } from '../context/AuthContext';
 import AuthForm from '../components/AuthForm';
 
+jest.mock('expo-image', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    Image: (props: any) => React.createElement(View, props),
+  };
+});
+
 describe('AuthForm Component TDD Specifications', () => {
   let mockLogin: jest.Mock;
   let mockRegister: jest.Mock;
@@ -112,5 +120,10 @@ describe('AuthForm Component TDD Specifications', () => {
     });
 
     expect(mockAuthenticateBiometrics).toHaveBeenCalled();
+  });
+
+  it('should render the branding logo on the screen', () => {
+    const { getByTestId } = renderComponent();
+    expect(getByTestId('login-logo-container')).toBeTruthy();
   });
 });

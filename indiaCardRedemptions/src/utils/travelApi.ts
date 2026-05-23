@@ -135,3 +135,65 @@ export async function createDuffelOrder(
     return null;
   }
 }
+
+/**
+ * Creates a hotel booking/stay using simulated Hotel API.
+ * 
+ * @param hotelId The unique ID of the hotel preset selected by the user
+ * @param guest Guest details for the hotel stay
+ * @param apiToken Optional API token for authorization
+ * @returns Object with bookingReference, bookingId, and status, or null on failure
+ */
+export async function createHotelBooking(
+  hotelId: string,
+  guest: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    checkInDate: string;
+    checkOutDate: string;
+  },
+  apiToken?: string
+): Promise<{ bookingReference: string; bookingId: string; status: string } | null> {
+  if (!apiToken) {
+    return null;
+  }
+
+  const cleanedId = hotelId.replace('presets_', '').substring(0, 4).toUpperCase();
+  return {
+    bookingReference: `HTL-${cleanedId}-${Math.floor(100000 + Math.random() * 900000)}`,
+    bookingId: `res_mock_${Math.floor(100000 + Math.random() * 900000)}`,
+    status: 'confirmed',
+  };
+}
+
+/**
+ * Simulates checking reward points award seat/room availability from Seat.aero / Points.yeah APIs.
+ * 
+ * @param program Loyalty program name (e.g. marriott, krisflyer, avios)
+ * @param origin Flight origin or Hotel location
+ * @param destination Flight destination or blank
+ * @param date Query date
+ * @returns AwardAvailability details containing availability status and seat count
+ */
+export async function checkAwardAvailability(
+  program: string,
+  origin: string,
+  destination: string,
+  date: string
+): Promise<{ available: boolean; seatsRemaining: number; pointsRequired: number; program: string }> {
+  const randomSeats = Math.floor(Math.random() * 5) + 1;
+  const isAvailable = true;
+  let pointsRequired = 15000;
+  if (program.toLowerCase().includes('krisflyer') || program.toLowerCase().includes('singapore')) {
+    pointsRequired = 18000;
+  } else if (program.toLowerCase().includes('accor')) {
+    pointsRequired = 10000;
+  }
+  return {
+    available: isAvailable,
+    seatsRemaining: randomSeats,
+    pointsRequired,
+    program,
+  };
+}

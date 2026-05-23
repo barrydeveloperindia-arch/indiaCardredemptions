@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator
 } from 'react-native';
+import { Image } from 'expo-image';
 import { AuthContext } from '../context/AuthContext';
 
 interface AuthFormProps {
@@ -88,6 +89,13 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
 
   return (
     <View style={styles.cardContainer}>
+      <View style={styles.logoContainer} testID="login-logo-container">
+        <Image
+          source={require('@/assets/images/icon.png')}
+          style={styles.logo}
+          contentFit="contain"
+        />
+      </View>
       <Text style={styles.headerTitle}>
         {isLoginState ? 'WELCOME BACK' : 'CREATE ACCOUNT'}
       </Text>
@@ -193,6 +201,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 5,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logo: {
+    width: 72,
+    height: 72,
+    borderRadius: 18,
   },
   headerTitle: {
     fontSize: 22,

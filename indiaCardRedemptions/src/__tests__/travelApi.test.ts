@@ -239,3 +239,59 @@ describe('Duffel Travel API Order Creation', () => {
     });
   });
 });
+
+describe('Hotel Booking API Helper', () => {
+  it('should successfully create a hotel reservation and return confirmation reference', async () => {
+    const { createHotelBooking } = require('../utils/travelApi');
+    const guest = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      checkInDate: '2026-12-01',
+      checkOutDate: '2026-12-05',
+    };
+
+    const result = await createHotelBooking('presets_fairmont_jaipur', guest, 'test_hotel_token_123');
+    expect(result).toEqual({
+      bookingReference: expect.stringMatching(/^HTL-FAIR-\d+$/),
+      bookingId: expect.stringMatching(/^res_mock_\d+$/),
+      status: 'confirmed',
+    });
+  });
+
+  it('should return null if apiToken is missing', async () => {
+    const { createHotelBooking } = require('../utils/travelApi');
+    const guest = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      checkInDate: '2026-12-01',
+      checkOutDate: '2026-12-05',
+    };
+
+    const result = await createHotelBooking('presets_fairmont_jaipur', guest);
+    expect(result).toBeNull();
+  });
+});
+
+describe('Award Availability API Helper', () => {
+  it('should return live award seat details and calculate correct required points', async () => {
+    const { checkAwardAvailability } = require('../utils/travelApi');
+    
+    // Marriott Check
+    const resultMarriott = await checkAwardAvailability('Marriott Bonvoy', 'DEL', 'LHR', '2026-12-01');
+    expect(resultMarriott.available).toBe(true);
+    expect(resultMarriott.seatsRemaining).toBeGreaterThanOrEqual(1);
+    expect(resultMarriott.seatsRemaining).toBeLessThanOrEqual(5);
+    expect(resultMarriott.pointsRequired).toBe(15000);
+    expect(resultMarriott.program).toBe('Marriott Bonvoy');
+
+    // Singapore KrisFlyer Check
+    const resultSQ = await checkAwardAvailability('Singapore KrisFlyer', 'DEL', 'SIN', '2026-12-01');
+    expect(resultSQ.pointsRequired).toBe(18000);
+
+    // Accor Check
+    const resultAccor = await checkAwardAvailability('Accor Live Limitless', 'DEL', 'CDG', '2026-12-01');
+    expect(resultAccor.pointsRequired).toBe(10000);
+  });
+});

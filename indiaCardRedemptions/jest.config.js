@@ -5,6 +5,8 @@ module.exports = {
   ],
   moduleNameMapper: {
     '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.js',
+    '^@/assets/(.*)$': '<rootDir>/assets/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   setupFilesAfterEnv: [],
   collectCoverage: true,

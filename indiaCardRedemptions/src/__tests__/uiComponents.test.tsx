@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { WalletCard } from '../components/WalletCard';
 import { ArbitrageCalculator } from '../components/ArbitrageCalculator';
 
@@ -247,6 +247,74 @@ describe('ArbitrageCalculator Component UI Elements', () => {
     // Range sliders for Cash Price and Points Required
     expect(getByText('Slide Cash Price')).toBeTruthy();
     expect(getByText('Slide Points Required')).toBeTruthy();
+  });
+
+  it('should run E2E hotel booking simulation successfully', async () => {
+    const { getByText, getByPlaceholderText, findByText } = render(
+      <ArbitrageCalculator walletBalances={mockWallet} />
+    );
+
+    // Click on Book Luxury Stay button
+    const bookBtn = getByText('🏨 Book Luxury Stay (Cash & Points Arbitrage)');
+    expect(bookBtn).toBeTruthy();
+    fireEvent.press(bookBtn);
+
+    // Form should render
+    expect(getByText('Hotel Guest Checkout Details')).toBeTruthy();
+    expect(getByPlaceholderText('First Name (e.g. John)')).toBeTruthy();
+
+    // Input guest details
+    fireEvent.changeText(getByPlaceholderText('First Name (e.g. John)'), 'Barry');
+    fireEvent.changeText(getByPlaceholderText('Last Name (e.g. Doe)'), 'Developer');
+    fireEvent.changeText(getByPlaceholderText('Email Address'), 'barry@example.com');
+
+    // Click confirm reservation
+    const confirmBtn = getByText('Confirm Hotel Reservation');
+    fireEvent.press(confirmBtn);
+
+    // Should transition to confirmed stay panel
+    expect(await findByText('Stay Confirmed! 🎉')).toBeTruthy();
+    expect(getByText('Booking Reference:')).toBeTruthy();
+
+    // Click reset stay
+    const resetBtn = getByText('Book Another Stay');
+    fireEvent.press(resetBtn);
+
+    // Should be back to idle state
+    expect(getByText('🏨 Book Luxury Stay (Cash & Points Arbitrage)')).toBeTruthy();
+  });
+
+  it('should trigger points copying, open bank portal, and search rewards deep-links correctly', async () => {
+    const { Clipboard, Linking, Alert } = require('react-native');
+    const setStringSpy = jest.spyOn(Clipboard, 'setString').mockImplementation(() => {});
+    const openUrlSpy = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+
+    const { getByText } = render(
+      <ArbitrageCalculator walletBalances={mockWallet} />
+    );
+
+    const copyBtn = getByText('📋 Copy Points');
+    const openBankBtn = getByText('🌐 Open Bank');
+    const searchRewardsBtn = getByText('🔍 Search Rewards');
+
+    expect(copyBtn).toBeTruthy();
+    expect(openBankBtn).toBeTruthy();
+    expect(searchRewardsBtn).toBeTruthy();
+
+    fireEvent.press(copyBtn);
+    await waitFor(() => expect(setStringSpy).toHaveBeenCalledWith('15000'));
+    await waitFor(() => expect(alertSpy).toHaveBeenCalledWith('Copied', expect.stringContaining('15,000')));
+
+    fireEvent.press(openBankBtn);
+    await waitFor(() => expect(openUrlSpy).toHaveBeenCalledWith('https://www.hsbc.co.in/credit-cards/rewards/'));
+
+    fireEvent.press(searchRewardsBtn);
+    await waitFor(() => expect(openUrlSpy).toHaveBeenCalledWith('https://www.marriott.com/reservation/search.mi?isRewardPlay=true'));
+
+    setStringSpy.mockRestore();
+    openUrlSpy.mockRestore();
+    alertSpy.mockRestore();
   });
 });
 
