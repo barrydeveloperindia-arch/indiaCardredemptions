@@ -37,43 +37,38 @@ export function WalletCard({
   const cardInfo = CC_PORTFOLIO[cardId];
   if (!cardInfo) return null;
 
-  // Determine card specific style details with translucent light glass colors
-  let cardGradient: [string, string] = ['rgba(243, 244, 246, 0.85)', 'rgba(229, 231, 235, 0.95)']; // Soft silver-quartz
+  // Determine card specific style details with metallic finishes
+  let cardGradient: [string, string] = ['#1E2028', '#101115']; // Polished Dark Steel
   let accentColor = '#D4AF37'; // Champagne Gold active highlight
-  let textColor = '#1A1E26'; // Deep charcoal text
+  let textColor = '#F3F4F6'; // White text
   let badgeText = cardInfo.bank;
-  let borderColor = 'rgba(212, 175, 55, 0.15)';
+  let borderColor = 'rgba(255, 255, 255, 0.08)';
 
   if (cardId === 'axis_m4b') {
-    cardGradient = ['rgba(253, 242, 248, 0.85)', 'rgba(251, 207, 232, 0.95)']; // Frosted Rose Burgundy
-    accentColor = '#9D174D'; // Burgundy
-    textColor = '#831843';
+    cardGradient = ['#2E111E', '#14050B']; // Metallic Burgundy
+    accentColor = '#D4AF37'; // Gold
+    textColor = '#F3F4F6';
     badgeText = 'AXIS BURGUNDY';
-    borderColor = 'rgba(157, 23, 77, 0.25)';
   } else if (cardId === 'amex_platinum') {
-    cardGradient = ['rgba(243, 244, 246, 0.85)', 'rgba(209, 213, 219, 0.95)']; // Frosted Platinum Silver
-    accentColor = '#4B5563';
-    textColor = '#1F2937';
+    cardGradient = ['#2D3139', '#14161B']; // Metallic Platinum
+    accentColor = '#D4AF37'; // Gold
+    textColor = '#F3F4F6';
     badgeText = 'AMEX CHARGE';
-    borderColor = 'rgba(75, 85, 99, 0.25)';
   } else if (cardId === 'hsbc_premier') {
-    cardGradient = ['rgba(254, 242, 242, 0.85)', 'rgba(252, 165, 165, 0.95)']; // Frosted Crimson Red
-    accentColor = '#B91C1C';
-    textColor = '#991B1B';
+    cardGradient = ['#300C0C', '#120202']; // Metallic Crimson
+    accentColor = '#D4AF37'; // Gold
+    textColor = '#F3F4F6';
     badgeText = 'HSBC PREMIER';
-    borderColor = 'rgba(185, 28, 28, 0.25)';
   } else if (cardId === 'yes_private') {
-    cardGradient = ['rgba(255, 251, 235, 0.85)', 'rgba(253, 230, 138, 0.95)']; // Frosted Gold Quartz
-    accentColor = '#D97706';
-    textColor = '#92400E';
+    cardGradient = ['#2A2312', '#0E0B05']; // Metallic Gold Quartz
+    accentColor = '#D4AF37'; // Gold
+    textColor = '#F3F4F6';
     badgeText = 'YES PRIVATE';
-    borderColor = 'rgba(217, 119, 6, 0.25)';
   } else if (cardId === 'sbi_aurum') {
-    cardGradient = ['rgba(254, 243, 199, 0.9)', 'rgba(253, 230, 138, 0.98)']; // Gold-Dust Aurum Quartz
-    accentColor = '#D97706';
-    textColor = '#92400E';
+    cardGradient = ['#2C220E', '#0D0A04']; // Metallic Aurum
+    accentColor = '#D4AF37'; // Gold
+    textColor = '#F3F4F6';
     badgeText = 'SBI AURUM';
-    borderColor = 'rgba(217, 119, 6, 0.35)';
   }
 
   // Calculate milestone progression
@@ -84,14 +79,15 @@ export function WalletCard({
     milestoneProgress = calculateAmexTravelProgress(spend);
   }
 
-  const isDarkCard = false;
+  const isDarkCard = true;
   
-  // Use a softer selection border
-  const activeBorderColor = isSelected ? accentColor : borderColor;
+  // Use a gold selection border
+  const activeBorderColor = isSelected ? '#D4AF37' : borderColor;
 
   return (
     <Pressable onPress={onSelect}>
       <BlurView
+        testID="wallet-card-blur"
         intensity={30}
         tint={isDarkCard ? "dark" : "light"}
         style={[
@@ -112,14 +108,15 @@ export function WalletCard({
 
         <View style={styles.cardHeader}>
           <ThemedText
-            style={[styles.bankLabel, { color: isDarkCard ? '#4B5563' : '#4B5563' }]}
+            style={[styles.bankLabel, { color: '#9CA3AF' }]}
             type="smallBold">
             {badgeText}
           </ThemedText>
           <View
+            testID="holographic-chip"
             style={[
               styles.chipIcon,
-              { backgroundColor: isDarkCard ? '#F59E0B' : '#B45309', opacity: 0.8 },
+              { backgroundColor: '#D4AF37', opacity: 0.85 },
             ]}
           />
         </View>
@@ -128,9 +125,21 @@ export function WalletCard({
           <ThemedText style={[{ color: textColor }, styles.cardTitle]} type="subtitle">
             {cardInfo.name}
           </ThemedText>
-          <ThemedText style={[styles.cardNumber, { color: isDarkCard ? '#374151' : '#4B5563' }]}>
-            •••• •••• •••• {cardId === 'amex_platinum' ? '2026' : '4890'}
-          </ThemedText>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <ThemedText style={[styles.cardNumber, { color: '#9CA3AF' }]}>
+              •••• •••• •••• {cardId === 'amex_platinum' ? '2026' : '4890'}
+            </ThemedText>
+            <View
+              testID="card-network-badge"
+              style={[
+                styles.networkBadge,
+                { borderColor: '#D4AF37' }
+              ]}>
+              <ThemedText style={{ color: '#D4AF37', fontSize: 9, fontWeight: 'bold' }}>
+                {cardId === 'amex_platinum' ? 'AMEX' : 'VISA'}
+              </ThemedText>
+            </View>
+          </View>
         </View>
 
         <View style={[styles.inputSection, { borderTopColor: isDarkCard ? 'rgba(212, 175, 55, 0.12)' : 'rgba(212, 175, 55, 0.12)' }]}>
@@ -355,5 +364,11 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.04)',
+  },
+  networkBadge: {
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: 2,
   },
 });
