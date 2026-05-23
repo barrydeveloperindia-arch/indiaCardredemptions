@@ -45,10 +45,10 @@ export default function InsightsScreen() {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/white_gold_bg.png')} 
+      source={require('../../assets/images/dark_luxury_bg.png')} 
       style={styles.container}
       resizeMode="cover"
-      imageStyle={{ width: '100%', height: '100%', opacity: 0.75 }}
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
         <title>Double/Triple Dip Calculator & Atlas Checker | The Points Array</title>
@@ -59,7 +59,7 @@ export default function InsightsScreen() {
 
       <Animated.View entering={FadeIn.duration(1500)} style={StyleSheet.absoluteFillObject}>
         <LinearGradient
-          colors={['rgba(255, 255, 255, 0.45)', 'rgba(255, 255, 255, 0.85)']}
+          colors={['rgba(9, 10, 15, 0.75)', 'rgba(9, 10, 15, 0.95)']}
           style={StyleSheet.absoluteFillObject}
         />
       </Animated.View>
@@ -80,7 +80,7 @@ export default function InsightsScreen() {
 
           {/* Premium Segmented Tab Selector */}
           <Animated.View entering={FadeInDown.delay(300).springify()}>
-            <BlurView intensity={25} tint="light" style={styles.tabContainer}>
+            <BlurView intensity={25} tint="dark" style={styles.tabContainer}>
               <Pressable 
                 onPress={() => setActiveTab('facts')} 
                 style={[styles.tabButton, activeTab === 'facts' && styles.activeTabButton]}
@@ -105,7 +105,7 @@ export default function InsightsScreen() {
             <View style={styles.sectionContainer}>
               {/* Interactive Axis Atlas MCC Checker Widget */}
               <Animated.View entering={FadeInDown.delay(400).springify()}>
-                <BlurView intensity={20} tint="light" style={styles.checkerCard}>
+                <BlurView intensity={20} tint="dark" style={styles.checkerCard}>
                   <ThemedText style={styles.checkerTitle} type="subtitle">
                     🎯 Interactive Axis Atlas MCC Checker
                   </ThemedText>
@@ -153,7 +153,7 @@ export default function InsightsScreen() {
 
                 return (
                   <Animated.View key={insight.cardId} entering={SlideInRight.delay(600 + idx * 100).springify()}>
-                    <BlurView intensity={20} tint="light" style={styles.factCard}>
+                    <BlurView intensity={20} tint="dark" style={styles.factCard}>
                       {bannerSource && (
                         <Image 
                           source={bannerSource} 
@@ -196,7 +196,7 @@ export default function InsightsScreen() {
               <View style={{ position: 'relative' }}>
               {/* Spend ROI Calculator Widget */}
               <Animated.View entering={FadeInDown.delay(400).springify()}>
-                <BlurView intensity={20} tint="light" style={styles.calculatorCard}>
+                <BlurView intensity={20} tint="dark" style={styles.calculatorCard}>
                   <ThemedText style={styles.calcTitle} type="subtitle">
                     🚀 Double/Triple Dip ROI Calculator
                   </ThemedText>
@@ -264,7 +264,7 @@ export default function InsightsScreen() {
               </Animated.View>
 
               <Animated.View entering={FadeInDown.delay(600).springify()}>
-                <BlurView intensity={20} tint="light" style={styles.flowCard}>
+                <BlurView intensity={20} tint="dark" style={styles.flowCard}>
                   <ThemedText style={styles.flowDesc}>
                     {selectedStrategy.description}
                   </ThemedText>
@@ -290,7 +290,7 @@ export default function InsightsScreen() {
               {/* THE PAYWALL OVERLAY */}
               {!isSubscribed && (
                 <View style={[StyleSheet.absoluteFillObject, { zIndex: 10, borderRadius: Spacing.three, overflow: 'hidden' }]}>
-                  <BlurView intensity={60} tint="light" style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center', padding: Spacing.five }]}>
+                  <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center', padding: Spacing.five }]}>
                     <View style={styles.paywallBox}>
                       <ThemedText style={{ fontSize: 40, textAlign: 'center', marginBottom: Spacing.two }}>🔒</ThemedText>
                       <ThemedText style={styles.paywallTitle}>Unlock The Points Array Pro</ThemedText>
@@ -317,7 +317,7 @@ export default function InsightsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#090A0F',
     justifyContent: 'center',
     flexDirection: 'row',
     minHeight: Platform.OS === 'web' ? '100vh' : '100%',
@@ -339,29 +339,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.five,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.06)',
+    borderBottomColor: 'rgba(212, 175, 55, 0.12)',
     paddingBottom: Spacing.four,
   },
   subTitle: {
     fontSize: 10,
     letterSpacing: 3,
-    color: '#4B5563',
+    color: '#9CA3AF',
   },
   mainTitle: {
     fontSize: 32,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#1A1E26'
+    color: '#F3F4F6'
   },
   tabContainer: {
     flexDirection: 'row',
     borderRadius: Spacing.three,
     padding: Spacing.one,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
     marginBottom: Spacing.five,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   tabButton: {
     flex: 1,
@@ -370,15 +370,15 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
   },
   activeTabButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
   },
   tabLabel: {
-    color: '#6B7280',
+    color: '#9CA3AF',
     fontSize: 11,
     letterSpacing: 0.5,
   },
   activeTabLabel: {
-    color: '#1A1E26',
+    color: '#D4AF37',
   },
   sectionContainer: {
     gap: Spacing.five,
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   sectionHeading: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginBottom: Spacing.one
   },
   checkerCard: {
@@ -395,28 +395,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   checkerTitle: {
     fontSize: 18,
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontWeight: 'bold',
     marginBottom: Spacing.one
   },
   checkerDesc: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
     marginBottom: Spacing.four,
   },
   checkerInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.4)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(212, 175, 55, 0.15)',
     borderRadius: Spacing.two,
     paddingHorizontal: Spacing.four,
     height: 48,
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontSize: 14,
     marginBottom: Spacing.four,
   },
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     color: '#FCA5A5',
   },
   resultText: {
-    color: '#374151',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
   },
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   factHeader: {
     flexDirection: 'row',
@@ -478,13 +478,13 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   factCardTitle: {
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontSize: 15,
     fontWeight: 'bold',
     marginTop: Spacing.half,
   },
   factDesc: {
-    color: '#1F2937',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
     marginBottom: Spacing.three,
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
   bulletText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 16,
     flex: 1,
@@ -514,16 +514,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   calcTitle: {
     fontSize: 18,
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontWeight: 'bold',
     marginBottom: Spacing.one
   },
   calcDesc: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
     marginBottom: Spacing.four,
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   chipButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
     borderRadius: Spacing.two,
@@ -543,15 +543,15 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(212, 175, 55, 0.12)',
   },
   activeChipButton: {
-    backgroundColor: 'rgba(245, 158, 11, 0.2)',
-    borderColor: '#FBBF24',
+    backgroundColor: '#D4AF37',
+    borderColor: '#D4AF37',
   },
   chipLabel: {
     fontSize: 10,
-    color: '#4B5563',
+    color: '#9CA3AF',
   },
   activeChipLabel: {
-    color: '#FBBF24',
+    color: '#090A0F',
     fontWeight: 'bold',
   },
   sliderCol: {
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   roiPanel: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     borderRadius: Spacing.two,
     padding: Spacing.four,
     borderWidth: 1,
@@ -575,19 +575,19 @@ const styles = StyleSheet.create({
   },
   roiLabel: {
     fontSize: 9,
-    color: '#6B7280',
+    color: '#9CA3AF',
     letterSpacing: 1,
   },
   roiLabelRight: {
     fontSize: 9,
-    color: '#6B7280',
+    color: '#9CA3AF',
     letterSpacing: 1,
     textAlign: 'right',
   },
   roiValue: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginTop: Spacing.half,
   },
   roiPercent: {
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.half,
   },
   roiTextDetail: {
-    color: '#6B7280',
+    color: '#9CA3AF',
     fontSize: 9,
     lineHeight: 14,
   },
@@ -607,10 +607,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   flowDesc: {
-    color: '#1F2937',
+    color: '#9CA3AF',
     fontSize: 13,
     lineHeight: 20,
     marginBottom: Spacing.four,
@@ -622,24 +622,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.three,
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     borderRadius: Spacing.two,
     padding: Spacing.three,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.08)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
   },
   stepMapBubble: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
     borderWidth: 1,
-    borderColor: '#FBBF24',
+    borderColor: '#D4AF37',
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepMapNum: {
-    color: '#FBBF24',
+    color: '#D4AF37',
     fontSize: 13,
     fontWeight: 'bold',
   },
@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepMapText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
   },
@@ -656,5 +656,46 @@ const styles = StyleSheet.create({
     height: 140,
     borderRadius: 10,
     marginBottom: Spacing.four,
+  },
+  paywallBox: {
+    backgroundColor: '#14161F',
+    borderRadius: Spacing.three,
+    padding: Spacing.six,
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    width: '90%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  paywallTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#D4AF37',
+    textAlign: 'center',
+    marginBottom: Spacing.two,
+  },
+  paywallDesc: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: Spacing.five,
+  },
+  subscribeBtn: {
+    backgroundColor: '#D4AF37',
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.six,
+    borderRadius: Spacing.two,
+    width: '100%',
+    alignItems: 'center',
+  },
+  subscribeBtnText: {
+    color: '#090A0F',
+    fontSize: 14,
+    fontWeight: 'bold',
   }
 });
