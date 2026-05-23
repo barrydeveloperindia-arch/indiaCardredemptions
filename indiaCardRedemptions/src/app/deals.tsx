@@ -13,6 +13,12 @@ import {
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeIn, SlideInRight } from 'react-native-reanimated';
+import { Image } from 'expo-image';
+
+const partnerBanners: Record<string, any> = {
+  'Hilton Honors': require('../../assets/images/luxury_resort_pool_1779184214418.png'),
+  'Qatar Privilege Club': require('../../assets/images/deals_qatar_banner.png'),
+};
 
 export default function DealsScreen() {
   const { walletBalances } = useWallet();
@@ -63,9 +69,18 @@ export default function DealsScreen() {
               const costData = calculateCostPerPoint(sale);
               const recommendation = getWalletRecommendation(sale, walletBalances);
 
+              const bannerSource = partnerBanners[sale.partner];
+
               return (
                 <Animated.View key={sale.id} entering={SlideInRight.delay(400 + idx * 100).springify()}>
                   <BlurView intensity={20} tint="light" style={styles.dealCard}>
+                    {bannerSource && (
+                      <Image 
+                        source={bannerSource} 
+                        style={styles.cardBanner} 
+                        resizeMode="cover"
+                      />
+                    )}
                     <View style={styles.dealHeader}>
                       <ThemedText style={styles.partnerName} type="subtitle">
                         {sale.partner}
@@ -293,5 +308,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#6B7280',
     textAlign: 'right',
+  },
+  cardBanner: {
+    width: '100%',
+    height: 140,
+    borderRadius: 10,
+    marginBottom: Spacing.four,
   }
 });

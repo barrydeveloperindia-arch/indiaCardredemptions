@@ -91,3 +91,151 @@ describe('Duffel Travel API Fetcher', () => {
     expect(await searchCashFlights('BOM', 'LHR', '2026-10-15', 'fake_token')).toBe(0);
   });
 });
+
+describe('Duffel Travel API Order Creation', () => {
+  let originalFetch: typeof global.fetch;
+
+  beforeAll(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('should successfully create an order and return PNR booking reference', async () => {
+    const mockOrderResponse = {
+      data: {
+        booking_reference: 'XYZ789',
+        id: 'ord_0000abc',
+        slices: [{ origin: 'BOM', destination: 'LHR' }],
+      },
+    };
+
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockOrderResponse),
+      } as Response)
+    );
+
+    const passenger = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      passportNumber: 'A1234567',
+    };
+
+    // @ts-ignore
+    const { createDuffelOrder } = require('../utils/travelApi');
+    const result = await createDuffelOrder('off_xyz', passenger, 'fake_token');
+
+    expect(result).toEqual({
+      bookingReference: 'XYZ789',
+      orderId: 'ord_0000abc',
+      status: 'confirmed',
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://api.duffel.com/air/orders',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'Authorization': 'Bearer fake_token',
+          'Duffel-Version': 'v2',
+          'Content-Type': 'application/json',
+        }),
+      })
+    );
+  });
+
+  it('should return null if order creation response is not ok', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: false,
+      } as Response)
+    );
+
+    const passenger = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      passportNumber: 'A1234567',
+    };
+
+    // @ts-ignore
+    const { createDuffelOrder } = require('../utils/travelApi');
+    const result = await createDuffelOrder('off_xyz', passenger, 'fake_token');
+    expect(result).toBeNull();
+  });
+
+  it('should return null if apiToken is missing', async () => {
+    const passenger = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      passportNumber: 'A1234567',
+    };
+
+    // @ts-ignore
+    const { createDuffelOrder } = require('../utils/travelApi');
+    const result = await createDuffelOrder('off_xyz', passenger);
+    expect(result).toBeNull();
+  });
+
+  it('should return null if payload or order object is null/empty', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ data: null }),
+      } as Response)
+    );
+
+    const passenger = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      passportNumber: 'A1234567',
+    };
+
+    // @ts-ignore
+    const { createDuffelOrder } = require('../utils/travelApi');
+    const result = await createDuffelOrder('off_xyz', passenger, 'fake_token');
+    expect(result).toBeNull();
+  });
+
+  it('should return null on request exceptions/rejections', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.reject(new Error('Network drop'))
+    );
+
+    const passenger = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      passportNumber: 'A1234567',
+    };
+
+    // @ts-ignore
+    const { createDuffelOrder } = require('../utils/travelApi');
+    const result = await createDuffelOrder('off_xyz', passenger, 'fake_token');
+    expect(result).toBeNull();
+  });
+
+  it('should return mock successful order when using test token', async () => {
+    const passenger = {
+      firstName: 'Barry',
+      lastName: 'Developer',
+      email: 'barry@example.com',
+      passportNumber: 'A1234567',
+    };
+    // @ts-ignore
+    const { createDuffelOrder } = require('../utils/travelApi');
+    const result = await createDuffelOrder('off_xyz', passenger, 'test_duffel_token_123');
+    expect(result).toEqual({
+      bookingReference: 'PNR-LHR789',
+      orderId: 'ord_mock_12345',
+      status: 'confirmed',
+    });
+  });
+});

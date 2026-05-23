@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Pressable, ImageBackground } from 'react-native';
+import { ScrollView, StyleSheet, View, Pressable, ImageBackground, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ArbitrageCalculator } from '@/components/ArbitrageCalculator';
@@ -7,14 +7,29 @@ import { useWallet } from '@/context/WalletContext';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { PassengerForm } from '@/components/PassengerForm';
+import { createDuffelOrder } from '@/utils/travelApi';
 
 export default function TabTwoScreen() {
   const { walletBalances, cards } = useWallet();
   const [activeMode, setActiveMode] = useState<'hotel' | 'flight'>('hotel');
   const [cabinClass, setCabinClass] = useState<'business' | 'economy'>('business');
+  
+  const [bookingState, setBookingState] = useState<'idle' | 'form' | 'booking' | 'confirmed'>('idle');
+  const [passengerData, setPassengerData] = useState<any>(null);
+  const [bookingDetails, setBookingDetails] = useState<any>(null);
 
-  // Compute total points in active wallet
-  const totalPoints = cards.reduce((acc, c) => acc + c.balance, 0);
+  const handlePassengerSubmit = async (data: any) => {
+    setPassengerData(data);
+    setBookingState('booking');
+    const order = await createDuffelOrder('off_economy_lhr_bom_01', data, 'test_duffel_token_123');
+    if (order) {
+      setBookingDetails(order);
+      setBookingState('confirmed');
+    } else {
+      setBookingState('idle');
+    }
+  };
 
   // Flight requirements for London (per person one-way)
   const aeroplanBizReq = 65000;
@@ -223,6 +238,83 @@ export default function TabTwoScreen() {
                   </View>
                 </View>
               </BlurView>
+
+              {/* Duffel In-App Cash Booking Integration */}
+              <View style={styles.bookingContainer}>
+                {bookingState === 'idle' && (
+                  <TouchableOpacity
+                    style={styles.bookCashBtn}
+                    onPress={() => setBookingState('form')}
+                    activeOpacity={0.7}
+                  >
+                    <ThemedText style={styles.bookCashText} type="smallBold">
+                      ✈️ Book Cash Flight (Duffel API Checkout)
+                    </ThemedText>
+                  </TouchableOpacity>
+                )}
+
+                {bookingState === 'form' && (
+                  <View>
+                    <PassengerForm onSubmit={handlePassengerSubmit} />
+                    <Pressable
+                      style={styles.cancelBtn}
+                      onPress={() => setBookingState('idle')}
+                    >
+                      <ThemedText style={styles.cancelText} type="smallBold">
+                        Cancel Booking
+                      </ThemedText>
+                    </Pressable>
+                  </View>
+                )}
+
+                {bookingState === 'booking' && (
+                  <BlurView intensity={20} tint="light" style={styles.loadingCard}>
+                    <ActivityIndicator size="large" color="#D4AF37" />
+                    <ThemedText style={styles.loadingText} type="smallBold">
+                      Processing Flight Booking via Duffel...
+                    </ThemedText>
+                  </BlurView>
+                )}
+
+                {bookingState === 'confirmed' && (
+                  <BlurView intensity={25} tint="light" style={styles.confirmationCard}>
+                    <ThemedText style={styles.confirmedTitle} type="title">
+                      Booking Confirmed! 🎉
+                    </ThemedText>
+                    <View style={styles.divider} />
+                    
+                    <View style={styles.confirmRow}>
+                      <ThemedText style={styles.confirmLabel}>PNR Reference:</ThemedText>
+                      <ThemedText style={styles.confirmVal} type="code">
+                        {bookingDetails?.bookingReference}
+                      </ThemedText>
+                    </View>
+
+                    <View style={styles.confirmRow}>
+                      <ThemedText style={styles.confirmLabel}>Passenger:</ThemedText>
+                      <ThemedText style={styles.confirmVal} type="smallBold">
+                        {passengerData?.firstName} {passengerData?.lastName}
+                      </ThemedText>
+                    </View>
+
+                    <View style={styles.confirmRow}>
+                      <ThemedText style={styles.confirmLabel}>Ticket Status:</ThemedText>
+                      <ThemedText style={[styles.confirmVal, { color: '#10B981' }]}>
+                        {bookingDetails?.status?.toUpperCase()}
+                      </ThemedText>
+                    </View>
+
+                    <Pressable
+                      style={styles.resetBtn}
+                      onPress={() => setBookingState('idle')}
+                    >
+                      <ThemedText style={styles.resetBtnText} type="smallBold">
+                        Book Another Flight
+                      </ThemedText>
+                    </Pressable>
+                  </BlurView>
+                )}
+              </View>
             </View>
           )}
         </ScrollView>
@@ -427,5 +519,102 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     fontSize: 12,
     lineHeight: 18,
+  },
+  bookingContainer: {
+    marginTop: Spacing.four,
+    gap: Spacing.three,
+  },
+  bookCashBtn: {
+    backgroundColor: '#0A1C2A',
+    height: 52,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    shadowColor: '#0A1C2A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  bookCashText: {
+    color: '#D4AF37',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  cancelBtn: {
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  cancelText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  loadingCard: {
+    borderRadius: Spacing.three,
+    padding: Spacing.six,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.three,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+  },
+  loadingText: {
+    color: '#4B5563',
+    fontSize: 14,
+  },
+  confirmationCard: {
+    borderRadius: Spacing.three,
+    padding: Spacing.six,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#34D399',
+    gap: Spacing.three,
+  },
+  confirmedTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#10B981',
+    textAlign: 'center',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E6EAEF',
+    marginVertical: Spacing.one,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.one,
+  },
+  confirmLabel: {
+    color: '#4B6B88',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  confirmVal: {
+    color: '#0A1C2A',
+    fontSize: 15,
+  },
+  resetBtn: {
+    backgroundColor: '#FAF9F6',
+    height: 48,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E6EAEF',
+    marginTop: Spacing.three,
+  },
+  resetBtnText: {
+    color: '#4B6B88',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

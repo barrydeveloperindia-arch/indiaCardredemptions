@@ -8,6 +8,13 @@ import { intelFeed } from '@/data/intelFeed';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import { Image } from 'expo-image';
+
+const tagBanners: Record<string, any> = {
+  'DEVALUATION': require('../../assets/images/intel_devaluation_banner.png'),
+  'SWEET SPOT': require('../../assets/images/singapore_biz_deal_1779184247834.png'),
+  'NEWS': require('../../assets/images/fairmont_jaipur_deal_1779184231669.png'),
+};
 
 export default function IntelScreen() {
   return (
@@ -52,13 +59,23 @@ export default function IntelScreen() {
           </Animated.View>
 
           <View style={styles.listContainer}>
-            {intelFeed.map((item, idx) => (
-              <Animated.View 
-                entering={FadeInDown.delay(400 + idx * 100).springify()} 
-                key={item.id}
-              >
-                <BlurView intensity={20} tint="light" style={styles.intelCard}>
-                  <View style={styles.cardHeader}>
+            {intelFeed.map((item, idx) => {
+              const bannerSource = tagBanners[item.tag];
+
+              return (
+                <Animated.View 
+                  entering={FadeInDown.delay(400 + idx * 100).springify()} 
+                  key={item.id}
+                >
+                  <BlurView intensity={20} tint="light" style={styles.intelCard}>
+                    {bannerSource && (
+                      <Image 
+                        source={bannerSource} 
+                        style={styles.cardBanner} 
+                        resizeMode="cover"
+                      />
+                    )}
+                    <View style={styles.cardHeader}>
                     <View style={[
                       styles.tagBadge,
                       item.tag === 'DEVALUATION' ? styles.tagDeval :
@@ -89,7 +106,7 @@ export default function IntelScreen() {
                   </BlurView>
                 </BlurView>
               </Animated.View>
-            ))}
+            );})}
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -216,5 +233,11 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     fontSize: 12,
     lineHeight: 18,
+  },
+  cardBanner: {
+    width: '100%',
+    height: 140,
+    borderRadius: 10,
+    marginBottom: Spacing.four,
   }
 });

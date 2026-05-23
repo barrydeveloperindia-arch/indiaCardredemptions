@@ -16,7 +16,7 @@ const AGENTS = {
     tasks: {
       build: {
         desc: 'Compile Android Release APK',
-        cmd: '$env:JAVA_HOME="C:\\Program Files\\Android\\Android Studio\\jbr"; ./gradlew assembleRelease',
+        cmd: '$env:NODE_ENV="production"; $env:JAVA_HOME="C:\\Program Files\\Android\\Android Studio\\jbr"; ./gradlew assembleRelease',
         cwd: 'android'
       },
       clean: {
@@ -62,12 +62,23 @@ const AGENTS = {
         cwd: '.'
       }
     }
+  },
+  travel: {
+    name: 'Travel & Affiliate Integration Agent',
+    color: '\x1b[35m', // Magenta
+    tasks: {
+      verify_api: {
+        desc: 'Verify connectivity and credentials of Duffel flight api endpoints',
+        cmd: 'node scripts/test_travel_api.js',
+        cwd: '.'
+      }
+    }
   }
 };
 
 function printHelp() {
   console.log('\n\x1b[1m🤖 The Points Array - Agent Manager\x1b[0m');
-  console.log('Usage: node scripts/agent_orchestrator.js --agent <compiler|qa|branding> --task <task_name>\n');
+  console.log('Usage: node scripts/agent_orchestrator.js --agent <compiler|qa|branding|travel> --task <task_name>\n');
   console.log('Registered Specialist Agents & Tasks:');
   
   for (const [agentKey, agent] of Object.entries(AGENTS)) {

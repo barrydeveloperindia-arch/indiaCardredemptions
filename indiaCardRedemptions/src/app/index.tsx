@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, TextInput, Image, ImageBackground, Platform, Pressable, Dimensions } from 'react-native';
+import { ScrollView, StyleSheet, View, TextInput, ImageBackground, Platform, Pressable, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { WalletCard } from '@/components/WalletCard';
@@ -7,9 +7,11 @@ import AffiliateEngine from '@/components/AffiliateEngine';
 import { useWallet } from '@/context/WalletContext';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { calculateAxisAtlasProgress, calculateAmexTravelProgress, calculateAxisMagnusBurgundyProgress } from '@/utils/milestoneTracker';
+import { getOptimalTransferPathway } from '@/utils/loyaltyMatrixEngine';
 import Head from 'expo-router/head';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import Animated, { FadeInDown, FadeIn, SlideInRight, useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, withSequence, withDelay } from 'react-native-reanimated';
 
 const CURATED_ARBITRAGE = [
@@ -128,8 +130,43 @@ function CardCarousel() {
   );
 }
 
+const SEARCH_DESTINATIONS = [
+  {
+    name: 'London & Europe',
+    keywords: ['london', 'europe', 'paris', 'swiss', 'lufthansa', 'france', 'germany', 'uk', 'heathrow', 'cdg'],
+    partner: 'aeroplan',
+    partnerName: 'Air Canada Aeroplan',
+    requiredMiles: 60000,
+    description: 'Fly to London or Europe in Business Class (Swiss / Lufthansa).'
+  },
+  {
+    name: 'Singapore & Bali',
+    keywords: ['singapore', 'bali', 'se_asia', 'thailand', 'bangkok', 'hanoi', 'vietnam', 'malaysia', 'indonesia'],
+    partner: 'krisflyer',
+    partnerName: 'Singapore Airlines KrisFlyer',
+    requiredMiles: 35000,
+    description: 'Best availability for Singapore Airlines Business Class.'
+  },
+  {
+    name: 'Maldives Overwater Resort',
+    keywords: ['maldives', 'hotel', 'resort', 'marriott', 'bonvoy', 'hilton', 'vacation', 'beach'],
+    partner: 'marriott_bonvoy',
+    partnerName: 'Marriott Bonvoy',
+    requiredMiles: 40000,
+    description: 'Redeem points for premium stays at Marriott resorts.'
+  },
+  {
+    name: 'Qatar Qsuite (USA / Doha)',
+    keywords: ['qatar', 'doha', 'usa', 'america', 'new york', 'qsuite', 'boston', 'chicago'],
+    partner: 'qatar_avios',
+    partnerName: 'Qatar Airways Privilege Club',
+    requiredMiles: 70000,
+    description: "Fly in the world's best Business Class (Qsuite) via Doha."
+  }
+];
+
 export default function HomeScreen() {
-  const { cards, updateBalance, updateSpend } = useWallet();
+  const { cards, updateBalance, updateSpend, walletBalances } = useWallet();
   const [selectedCardId, setSelectedCardId] = useState<string>('axis_m4b');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -137,6 +174,11 @@ export default function HomeScreen() {
     searchQuery === '' || 
     deal.destination.toLowerCase().includes(searchQuery.toLowerCase()) || 
     deal.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const matchedDestinations = searchQuery.trim() === '' ? [] : SEARCH_DESTINATIONS.filter(dest =>
+    dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    dest.keywords.some(keyword => searchQuery.toLowerCase().includes(keyword) || keyword.includes(searchQuery.toLowerCase()))
   );
 
   const totalPoints = cards.reduce((acc, c) => acc + c.balance, 0);
@@ -229,6 +271,70 @@ export default function HomeScreen() {
               />
             </BlurView>
           </Animated.View>
+
+          {/* Dynamic Search Results */}
+          {searchQuery.trim() !== '' && (
+            <Animated.View entering={FadeInDown.delay(100).springify()}>
+              <ThemedText style={styles.sectionLabel} type="subtitle">Optimal Route Results</ThemedText>
+              {matchedDestinations.length === 0 ? (
+                <View style={styles.noResultsBox}>
+                  <ThemedText style={{ color: '#4B5563', fontSize: 13, textAlign: 'center' }}>
+                    No exact flight path matches in our automated database. Contact Concierge for offline custom routing.
+                  </ThemedText>
+                </View>
+              ) : (
+                matchedDestinations.map(dest => {
+                  const pathways = getOptimalTransferPathway(dest.partner, dest.requiredMiles, walletBalances);
+                  return (
+                    <View key={dest.partner} style={styles.searchResultCard}>
+                      <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFillObject} />
+                      <LinearGradient colors={['rgba(255, 255, 255, 0.75)', 'rgba(255, 255, 255, 0.45)']} style={StyleSheet.absoluteFillObject} />
+                      
+                      <View style={{ padding: Spacing.four }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <ThemedText style={{ fontSize: 16, fontWeight: 'bold', color: '#1A1E26' }}>{dest.name}</ThemedText>
+                          <View style={styles.partnerBadge}>
+                            <ThemedText style={styles.partnerBadgeText}>{dest.partnerName}</ThemedText>
+                          </View>
+                        </View>
+                        <ThemedText style={{ fontSize: 12, color: '#4B5563', marginTop: Spacing.one }}>{dest.description}</ThemedText>
+                        
+                        <View style={styles.divider} />
+                        
+                        <ThemedText style={{ fontSize: 11, fontWeight: 'bold', color: '#F59E0B', marginBottom: Spacing.two }}>OPTIMAL WALLET ROUTING</ThemedText>
+                        
+                        {pathways.length === 0 ? (
+                          <ThemedText style={{ fontSize: 12, color: '#DC2626' }}>No card in your wallet supports this transfer partner.</ThemedText>
+                        ) : (
+                          pathways.map((path, idx) => (
+                            <View key={path.cardId} style={[styles.pathwayRow, idx > 0 && { marginTop: Spacing.two }]}>
+                              <View style={{ flex: 1 }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                                  <ThemedText style={{ fontSize: 13, fontWeight: 'bold', color: '#1A1E26' }}>{path.cardName}</ThemedText>
+                                  {path.notes && (
+                                    <View style={styles.noteBadge}>
+                                      <ThemedText style={styles.noteBadgeText}>{path.notes}</ThemedText>
+                                    </View>
+                                  )}
+                                </View>
+                                <ThemedText style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Ratio: {path.ratio.toFixed(1)}:1 | Requires: {path.pointsRequired.toLocaleString()} pts</ThemedText>
+                              </View>
+                              
+                              <View style={[styles.statusBadge, { backgroundColor: path.isFeasible ? '#D1FAE5' : '#FEE2E2' }]}>
+                                <ThemedText style={[styles.statusBadgeText, { color: path.isFeasible ? '#065F46' : '#991B1B' }]}>
+                                  {path.isFeasible ? '✓ FEASIBLE' : '✗ INSUFFICIENT'}
+                                </ThemedText>
+                              </View>
+                            </View>
+                          ))
+                        )}
+                      </View>
+                    </View>
+                  );
+                })
+              )}
+            </Animated.View>
+          )}
 
           {/* INFINITE CAROUSEL - Indian CC Ecosystem */}
           <Animated.View entering={FadeInDown.delay(300).springify()}>
@@ -645,4 +751,66 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(245, 158, 11, 0.2)',
   },
+  searchResultCard: {
+    borderRadius: Spacing.three,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.45)',
+    marginBottom: Spacing.five,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+  },
+  partnerBadge: {
+    backgroundColor: 'rgba(212, 175, 55, 0.12)',
+    paddingHorizontal: Spacing.two,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  partnerBadgeText: {
+    color: '#B45309',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.06)',
+    marginVertical: Spacing.three,
+  },
+  pathwayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.4)',
+    padding: Spacing.three,
+    borderRadius: Spacing.two,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.02)',
+  },
+  noteBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 3,
+    marginLeft: 6,
+  },
+  noteBadgeText: {
+    color: '#92400E',
+    fontSize: 8,
+    fontWeight: 'bold',
+  },
+  statusBadge: {
+    paddingHorizontal: Spacing.two,
+    paddingVertical: 4,
+    borderRadius: 4,
+    minWidth: 85,
+    alignItems: 'center',
+  },
+  statusBadgeText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
 });
+

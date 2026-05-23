@@ -418,3 +418,28 @@ describe('Phase 4: Monetization UI Elements', () => {
     expect(getByText(/Apply Now/i)).toBeTruthy();
   });
 });
+
+describe('HomeScreen Search and Dynamic Routing UI', () => {
+  let HomeScreen: any;
+  beforeAll(() => {
+    try {
+      HomeScreen = require('../app/index').default;
+    } catch (e) {
+      HomeScreen = function HomeScreenFallback() { return null; };
+    }
+  });
+
+  it('renders the search bar placeholder and elements on index screen', () => {
+    if (!HomeScreen) return;
+    
+    const { WalletProvider } = require('../context/WalletContext');
+    const { getByPlaceholderText } = render(
+      <WalletProvider>
+        <HomeScreen />
+      </WalletProvider>
+    );
+
+    expect(getByPlaceholderText(/Search "London", "Maldives".../i)).toBeTruthy();
+  });
+});
+

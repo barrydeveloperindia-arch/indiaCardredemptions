@@ -13,7 +13,15 @@ import {
 } from '@/data/cardInsights';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 import Animated, { FadeInDown, FadeIn, SlideInRight } from 'react-native-reanimated';
+
+const insightBanners: Record<string, any> = {
+  'axis_atlas': require('../../assets/images/intel_devaluation_banner.png'),
+  'indusind_avios': require('../../assets/images/singapore_biz_deal_1779184247834.png'),
+  'hsbc_premier': require('../../assets/images/luxury_travel_bg_1779183265686.png'),
+  'amex_travel': require('../../assets/images/hacks_taj_banner.png'),
+};
 
 export default function InsightsScreen() {
   const [activeTab, setActiveTab] = useState<'facts' | 'dips'>('facts');
@@ -140,10 +148,20 @@ export default function InsightsScreen() {
                 </ThemedText>
               </Animated.View>
               
-              {cardInsights.map((insight, idx) => (
-                <Animated.View key={insight.cardId} entering={SlideInRight.delay(600 + idx * 100).springify()}>
-                  <BlurView intensity={20} tint="light" style={styles.factCard}>
-                    <View style={styles.factHeader}>
+              {cardInsights.map((insight, idx) => {
+                const bannerSource = insightBanners[insight.cardId];
+
+                return (
+                  <Animated.View key={insight.cardId} entering={SlideInRight.delay(600 + idx * 100).springify()}>
+                    <BlurView intensity={20} tint="light" style={styles.factCard}>
+                      {bannerSource && (
+                        <Image 
+                          source={bannerSource} 
+                          style={styles.cardBanner} 
+                          resizeMode="cover"
+                        />
+                      )}
+                      <View style={styles.factHeader}>
                       <ThemedText style={styles.factIcon}>{insight.icon}</ThemedText>
                       <View style={styles.factTitleCol}>
                         <ThemedText style={styles.factCardCategory} type="code">
@@ -167,7 +185,7 @@ export default function InsightsScreen() {
                     </View>
                   </BlurView>
                 </Animated.View>
-              ))}
+              );})}
             </View>
           )}
 
@@ -633,4 +651,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
+  cardBanner: {
+    width: '100%',
+    height: 140,
+    borderRadius: 10,
+    marginBottom: Spacing.four,
+  }
 });

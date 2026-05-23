@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, View, TextInput, Pressable, ScrollView, Image } from 'react-native';
+import { StyleSheet, View, TextInput, Pressable, ScrollView } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import { PremiumSlider } from './PremiumSlider';
@@ -8,6 +8,7 @@ import { calculateYield } from '@/utils/arbitrageCalculator';
 import { getOptimalTransferPathway, getTaxWarning } from '@/utils/loyaltyMatrixEngine';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 
 interface ArbitrageCalculatorProps {
   walletBalances: { [cardId: string]: number };

@@ -7,6 +7,7 @@ import Head from 'expo-router/head';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeIn, SlideInRight } from 'react-native-reanimated';
+import { Image } from 'expo-image';
 
 export default function ConciergeScreen() {
   const [name, setName] = useState('');
@@ -50,6 +51,14 @@ export default function ConciergeScreen() {
             <ThemedText style={styles.pageDescription}>
               Hand your points over to our Redemption Architects. We handle complex routing, airline waitlists, and ticket issuance so you can focus on the journey.
             </ThemedText>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(350).springify()}>
+            <Image 
+              source={require('../../assets/images/concierge_service_banner.png')}
+              style={styles.heroBanner}
+              resizeMode="cover"
+            />
           </Animated.View>
 
           {/* Pricing Tier */}
@@ -305,4 +314,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 16,
   },
+  heroBanner: {
+    width: '100%',
+    height: 160,
+    borderRadius: 12,
+    marginBottom: Spacing.five,
+  }
 });
