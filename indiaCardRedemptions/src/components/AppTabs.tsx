@@ -32,7 +32,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="concierge">
         <NativeTabs.Trigger.Label>Concierge</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
+          src={require('@/assets/images/tabIcons/concierge.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
@@ -40,7 +40,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="insights">
         <NativeTabs.Trigger.Label>Hacks</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
+          src={require('@/assets/images/tabIcons/hacks.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
@@ -48,7 +48,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="intel">
         <NativeTabs.Trigger.Label>Intel</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
+          src={require('@/assets/images/tabIcons/intel.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
@@ -56,7 +56,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="deals">
         <NativeTabs.Trigger.Label>Deals</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
+          src={require('@/assets/images/tabIcons/deals.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>
