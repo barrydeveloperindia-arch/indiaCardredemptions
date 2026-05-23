@@ -17,10 +17,10 @@ export default function ConciergeScreen() {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/white_gold_bg.png')} 
+      source={require('../../assets/images/dark_luxury_bg.png')} 
       style={styles.container}
       resizeMode="cover"
-      imageStyle={{ width: '100%', height: '100%', opacity: 0.75 }}
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
         <title>Concierge & Executive Strategy | The Points Array</title>
@@ -28,7 +28,7 @@ export default function ConciergeScreen() {
 
       <Animated.View entering={FadeIn.duration(1500)} style={StyleSheet.absoluteFillObject}>
         <LinearGradient
-          colors={['rgba(255, 255, 255, 0.45)', 'rgba(255, 255, 255, 0.85)']}
+          colors={['rgba(9, 10, 15, 0.75)', 'rgba(9, 10, 15, 0.95)']}
           style={StyleSheet.absoluteFillObject}
         />
       </Animated.View>
@@ -63,8 +63,8 @@ export default function ConciergeScreen() {
 
           {/* Pricing Tier */}
           <Animated.View entering={FadeInDown.delay(400).springify()}>
-            <BlurView intensity={30} tint="light" style={styles.pricingCard}>
-              <LinearGradient colors={['rgba(245, 158, 11, 0.2)', 'rgba(180, 83, 9, 0.05)']} style={StyleSheet.absoluteFillObject} />
+            <BlurView intensity={30} tint="dark" style={styles.pricingCard}>
+              <LinearGradient colors={['rgba(212, 175, 55, 0.2)', 'rgba(180, 133, 9, 0.05)']} style={StyleSheet.absoluteFillObject} />
               <ThemedText style={styles.pricingBadge} type="code">FLAT FEE</ThemedText>
               <View style={styles.pricingRow}>
                 <ThemedText style={styles.priceText}>₹15,000</ThemedText>
@@ -78,7 +78,7 @@ export default function ConciergeScreen() {
 
           {/* Inquiry Form */}
           <Animated.View entering={FadeInDown.delay(500).springify()}>
-            <BlurView intensity={20} tint="light" style={styles.formCard}>
+            <BlurView intensity={20} tint="dark" style={styles.formCard}>
               <ThemedText style={styles.formTitle} type="subtitle">
                 Request a Strategy Blueprint
               </ThemedText>
@@ -159,7 +159,7 @@ export default function ConciergeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#090A0F',
     justifyContent: 'center',
     flexDirection: 'row',
     minHeight: Platform.OS === 'web' ? '100vh' : '100%',
@@ -190,10 +190,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#1A1E26'
+    color: '#F3F4F6'
   },
   pageDescription: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: Spacing.five
@@ -202,13 +202,13 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    borderColor: '#D4AF37',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     marginBottom: Spacing.five,
   },
   pricingBadge: {
-    color: '#FBBF24',
+    color: '#D4AF37',
     fontSize: 10,
     letterSpacing: 2,
     marginBottom: Spacing.two,
@@ -221,15 +221,15 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 36,
     fontWeight: '900',
-    color: '#1A1E26',
+    color: '#F3F4F6',
   },
   priceSubtext: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     marginLeft: Spacing.two,
     fontSize: 14,
   },
   pricingDesc: {
-    color: '#6B7280',
+    color: '#9CA3AF',
     fontSize: 12,
   },
   formCard: {
@@ -238,13 +238,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     marginBottom: Spacing.five,
   },
   formTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginBottom: Spacing.four,
   },
   inputGroup: {
@@ -252,18 +252,18 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 9,
-    color: '#6B7280',
+    color: '#9CA3AF',
     letterSpacing: 1,
     marginBottom: Spacing.two,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.4)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(212, 175, 55, 0.15)',
     borderRadius: Spacing.two,
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontSize: 14,
   },
   textArea: {
@@ -271,14 +271,14 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   submitBtn: {
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#D4AF37',
     borderRadius: Spacing.two,
     paddingVertical: Spacing.four,
     alignItems: 'center',
     marginTop: Spacing.two,
   },
   submitBtnText: {
-    color: '#1A1E26',
+    color: '#090A0F',
     fontWeight: 'bold',
     fontSize: 15,
   },
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   valueProp: {
     flex: 1,
     padding: Spacing.four,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     borderRadius: Spacing.three,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
@@ -306,11 +306,11 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.two,
   },
   vpTitle: {
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginBottom: Spacing.one,
   },
   vpDesc: {
-    color: '#6B7280',
+    color: '#9CA3AF',
     fontSize: 11,
     lineHeight: 16,
   },
