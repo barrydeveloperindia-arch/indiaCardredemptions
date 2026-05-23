@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, View, TextInput, Pressable, ScrollView } from 'react-native';
+import { StyleSheet, View, TextInput, Pressable, ScrollView, ActivityIndicator, TouchableOpacity, Linking, Alert } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import { PremiumSlider } from './PremiumSlider';
@@ -9,6 +9,9 @@ import { getOptimalTransferPathway, getTaxWarning } from '@/utils/loyaltyMatrixE
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
+import { HotelGuestForm } from './HotelGuestForm';
+import { createHotelBooking } from '../utils/travelApi';
+import { getBankTransferUrl, getPartnerSearchUrl, copyToClipboard } from '@/utils/bridgeHelper';
 
 interface ArbitrageCalculatorProps {
   walletBalances: { [cardId: string]: number };
@@ -19,6 +22,24 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
   const [pointPrice, setPointPrice] = useState<string>('15000');
   const [partner, setPartner] = useState<string>('marriott_bonvoy');
   const [showMath, setShowMath] = useState<boolean>(false);
+
+  // Hotel Booking UI States
+  const [bookingState, setBookingState] = useState<'idle' | 'form' | 'booking' | 'confirmed'>('idle');
+  const [guestData, setGuestData] = useState<any>(null);
+  const [bookingDetails, setBookingDetails] = useState<any>(null);
+
+  const handleGuestSubmit = async (data: any) => {
+    setGuestData(data);
+    setBookingState('booking');
+    // Simulate booking with test token
+    const booking = await createHotelBooking(partner, data, 'test_hotel_token_123');
+    if (booking) {
+      setBookingDetails(booking);
+      setBookingState('confirmed');
+    } else {
+      setBookingState('idle');
+    }
+  };
 
   const scrollRef = useRef<ScrollView>(null);
 
@@ -93,7 +114,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
       <ThemedText style={styles.sectionTitle} type="title">
         Arbitrage Yield Analyzer
       </ThemedText>
-      <BlurView intensity={20} tint="light" style={styles.inputCard}>
+      <BlurView intensity={20} tint="dark" style={styles.inputCard}>
         {/* Quick Deal Presets */}
         <ThemedText style={styles.inputLabel} type="code">
           QUICK DEAL SIMULATORS (TAP TO TEST FLOW)
@@ -107,7 +128,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
             <Pressable key={idx} onPress={() => applyPreset(pr)} style={styles.presetCard}>
               <Image source={pr.image} style={styles.presetCardImage} />
               <LinearGradient
-                colors={['transparent', 'rgba(255,255,255,0.9)']}
+                colors={['transparent', '#090A0F']}
                 style={styles.presetOverlay}
               />
               <View style={styles.presetCardContent}>
@@ -193,12 +214,12 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
                   style={[
                     styles.partnerTab,
                     {
-                      backgroundColor: isSelected ? 'rgba(212, 175, 55, 0.12)' : 'transparent',
-                      borderColor: isSelected ? '#1A1E26' : 'rgba(212, 175, 55, 0.12)',
+                      backgroundColor: isSelected ? '#D4AF37' : 'transparent',
+                      borderColor: isSelected ? '#D4AF37' : 'rgba(212, 175, 55, 0.2)',
                     },
                   ]}>
                   <ThemedText
-                    style={{ color: isSelected ? '#1A1E26' : '#6B7280' }}
+                    style={{ color: isSelected ? '#090A0F' : '#9CA3AF' }}
                     type="smallBold">
                     {p.name}
                   </ThemedText>
@@ -215,7 +236,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
 
       {/* Yield visualizer panel */}
       {numericPoints > 0 && (
-        <BlurView intensity={30} tint="light" style={[styles.yieldPanel, { borderColor: yieldBadgeColor }]}>
+        <BlurView intensity={30} tint="dark" style={[styles.yieldPanel, { borderColor: yieldBadgeColor }]}>
           <View style={styles.yieldHeader}>
             <View>
               <ThemedText style={styles.yieldSub} type="code">
@@ -251,7 +272,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
       </Pressable>
 
       {showMath && (
-        <BlurView intensity={10} tint="light" style={styles.mathPanelBody}>
+        <BlurView intensity={10} tint="dark" style={styles.mathPanelBody}>
           <ThemedText style={styles.mathText}>
             • **Rupee per Point (RpP) Yield Formula**:
             {"\n"}  `Yield (RpP) = Hotel Cash Price (INR) / Points Required`
@@ -273,8 +294,8 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         Optimal Card Transfers
       </ThemedText>
       {pathways.length === 0 ? (
-        <BlurView intensity={20} tint="light" style={styles.emptyCard}>
-          <ThemedText style={{ color: '#374151' }} type="code">
+        <BlurView intensity={20} tint="dark" style={styles.emptyCard}>
+          <ThemedText style={{ color: '#9CA3AF' }} type="code">
             No transfer pathways exist from your active wallet cards to this program.
           </ThemedText>
         </BlurView>
@@ -282,7 +303,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         pathways.map((path) => (
           <BlurView
             intensity={20}
-            tint="light"
+            tint="dark"
             key={path.cardId}
             style={[
               styles.pathwayRow,
@@ -291,10 +312,10 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
               },
             ]}>
             <View style={styles.pathwayLeft}>
-              <ThemedText style={{ color: '#1A1E26' }} type="subtitle">
+              <ThemedText style={{ color: '#F3F4F6' }} type="subtitle">
                 {path.cardName}
               </ThemedText>
-              <ThemedText style={{ color: '#4B5563' }} type="code">
+              <ThemedText style={{ color: '#9CA3AF' }} type="code">
                 Ratio: {(path.ratio * 10).toFixed(0)}:10 | Points Required: {path.pointsRequired.toLocaleString()}
               </ThemedText>
               {path.notes && (
@@ -302,6 +323,49 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
                   {path.notes}
                 </ThemedText>
               )}
+              
+              <View style={styles.bridgeActionsRow}>
+                <TouchableOpacity
+                  style={styles.bridgeBtn}
+                  onPress={async () => {
+                    const copied = await copyToClipboard(path.pointsRequired.toString());
+                    if (copied) {
+                      Alert.alert('Copied', `Copied ${path.pointsRequired.toLocaleString()} points to clipboard!`);
+                    }
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <ThemedText style={styles.bridgeBtnText} type="smallBold">
+                    📋 Copy Points
+                  </ThemedText>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.bridgeBtn}
+                  onPress={async () => {
+                    const url = getBankTransferUrl(path.cardId);
+                    await Linking.openURL(url);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <ThemedText style={styles.bridgeBtnText} type="smallBold">
+                    🌐 Open Bank
+                  </ThemedText>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.bridgeBtn}
+                  onPress={async () => {
+                    const url = getPartnerSearchUrl(partner);
+                    await Linking.openURL(url);
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <ThemedText style={styles.bridgeBtnText} type="smallBold">
+                    🔍 Search Rewards
+                  </ThemedText>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View
@@ -318,6 +382,97 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
           </BlurView>
         ))
       )}
+
+      {/* Hotel Booking Integration */}
+      <View style={styles.bookingContainer}>
+        {bookingState === 'idle' && (
+          <TouchableOpacity
+            style={styles.bookCashBtn}
+            onPress={() => setBookingState('form')}
+            activeOpacity={0.7}
+          >
+            <ThemedText style={styles.bookCashText} type="smallBold">
+              🏨 Book Luxury Stay (Cash & Points Arbitrage)
+            </ThemedText>
+          </TouchableOpacity>
+        )}
+
+        {bookingState === 'form' && (
+          <View>
+            <HotelGuestForm onSubmit={handleGuestSubmit} />
+            <Pressable
+              style={styles.cancelBtn}
+              onPress={() => setBookingState('idle')}
+            >
+              <ThemedText style={styles.cancelText} type="smallBold">
+                Cancel Booking
+              </ThemedText>
+            </Pressable>
+          </View>
+        )}
+
+        {bookingState === 'booking' && (
+          <BlurView intensity={20} tint="dark" style={styles.loadingCard}>
+            <ActivityIndicator size="large" color="#D4AF37" />
+            <ThemedText style={styles.loadingText} type="smallBold">
+              Securing Hotel Arbitrage Reservation...
+            </ThemedText>
+          </BlurView>
+        )}
+
+        {bookingState === 'confirmed' && (
+          <BlurView intensity={25} tint="dark" style={styles.confirmationCard}>
+            <ThemedText style={styles.confirmedTitle} type="title">
+              Stay Confirmed! 🎉
+            </ThemedText>
+            <View style={styles.divider} />
+            
+            <View style={styles.confirmRow}>
+              <ThemedText style={styles.confirmLabel}>Hotel Program:</ThemedText>
+              <ThemedText style={styles.confirmVal} type="smallBold">
+                {partners.find(p => p.id === partner)?.name || partner}
+              </ThemedText>
+            </View>
+
+            <View style={styles.confirmRow}>
+              <ThemedText style={styles.confirmLabel}>Booking Reference:</ThemedText>
+              <ThemedText style={styles.confirmVal} type="code">
+                {bookingDetails?.bookingReference}
+              </ThemedText>
+            </View>
+
+            <View style={styles.confirmRow}>
+              <ThemedText style={styles.confirmLabel}>Primary Guest:</ThemedText>
+              <ThemedText style={styles.confirmVal} type="smallBold">
+                {guestData?.firstName} {guestData?.lastName}
+              </ThemedText>
+            </View>
+
+            <View style={styles.confirmRow}>
+              <ThemedText style={styles.confirmLabel}>Stay Dates:</ThemedText>
+              <ThemedText style={styles.confirmVal} type="code">
+                {guestData?.checkInDate} to {guestData?.checkOutDate}
+              </ThemedText>
+            </View>
+
+            <View style={styles.confirmRow}>
+              <ThemedText style={styles.confirmLabel}>Reservation Status:</ThemedText>
+              <ThemedText style={[styles.confirmVal, { color: '#10B981' }]}>
+                {bookingDetails?.status?.toUpperCase()}
+              </ThemedText>
+            </View>
+
+            <Pressable
+              style={styles.resetBtn}
+              onPress={() => setBookingState('idle')}
+            >
+              <ThemedText style={styles.resetBtnText} type="smallBold">
+                Book Another Stay
+              </ThemedText>
+            </Pressable>
+          </BlurView>
+        )}
+      </View>
     </View>
   );
 }
@@ -342,7 +497,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginBottom: Spacing.three,
   },
   formCol: {
@@ -351,15 +506,15 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 10,
     letterSpacing: 2,
-    color: '#4B5563',
+    color: '#9CA3AF',
     marginBottom: Spacing.two,
   },
   textInput: {
     height: 52,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     borderRadius: Spacing.two,
     paddingHorizontal: Spacing.three,
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontSize: 18,
     fontWeight: 'bold',
     borderWidth: 1,
@@ -382,7 +537,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: Spacing.five,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   yieldHeader: {
     flexDirection: 'row',
@@ -392,13 +547,13 @@ const styles = StyleSheet.create({
   yieldSub: {
     fontSize: 10,
     letterSpacing: 2,
-    color: '#374151',
+    color: '#9CA3AF',
   },
   yieldValue: {
     fontSize: 38,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#1A1E26'
+    color: '#F3F4F6'
   },
   yieldStatusBadge: {
     borderRadius: Spacing.four,
@@ -429,7 +584,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: Spacing.three,
     marginTop: Spacing.two,
-    color: '#1A1E26'
+    color: '#F3F4F6'
   },
   emptyCard: {
     borderRadius: Spacing.two,
@@ -547,7 +702,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.two,
   },
   mathTitle: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     letterSpacing: 0.5,
   },
@@ -560,8 +715,124 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   mathText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 20,
+  },
+  bookingContainer: {
+    marginTop: Spacing.four,
+    gap: Spacing.three,
+  },
+  bookCashBtn: {
+    backgroundColor: '#14161F',
+    height: 52,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    shadowColor: '#14161F',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  bookCashText: {
+    color: '#D4AF37',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  cancelBtn: {
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  cancelText: {
+    color: '#EF4444',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  loadingCard: {
+    borderRadius: Spacing.three,
+    padding: Spacing.six,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.three,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
+  },
+  loadingText: {
+    color: '#9CA3AF',
+    fontSize: 14,
+  },
+  confirmationCard: {
+    borderRadius: Spacing.three,
+    padding: Spacing.six,
+    overflow: 'hidden',
+    backgroundColor: '#14161F',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    gap: Spacing.three,
+  },
+  confirmedTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#D4AF37',
+    textAlign: 'center',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    marginVertical: Spacing.one,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.one,
+  },
+  confirmLabel: {
+    color: '#9CA3AF',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  confirmVal: {
+    color: '#F3F4F6',
+    fontSize: 15,
+  },
+  resetBtn: {
+    backgroundColor: '#14161F',
+    height: 48,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#D4AF37',
+    marginTop: Spacing.three,
+  },
+  resetBtnText: {
+    color: '#D4AF37',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  bridgeActionsRow: {
+    flexDirection: 'row',
+    marginTop: Spacing.two,
+    gap: Spacing.two,
+    flexWrap: 'wrap',
+  },
+  bridgeBtn: {
+    backgroundColor: 'rgba(212, 175, 55, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.two,
+    borderRadius: 6,
+  },
+  bridgeBtnText: {
+    color: '#D4AF37',
+    fontSize: 9,
+    fontWeight: '600',
   },
 });

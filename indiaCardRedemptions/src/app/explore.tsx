@@ -52,13 +52,13 @@ export default function TabTwoScreen() {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/white_gold_bg.png')} 
+      source={require('../../assets/images/dark_luxury_bg.png')} 
       style={styles.container}
       resizeMode="cover"
-      imageStyle={{ width: '100%', height: '100%', opacity: 0.75 }}
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <LinearGradient
-        colors={['rgba(255, 255, 255, 0.45)', 'rgba(255, 255, 255, 0.85)']}
+        colors={['rgba(9, 10, 15, 0.75)', 'rgba(9, 10, 15, 0.95)']}
         style={StyleSheet.absoluteFillObject}
       />
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -74,7 +74,7 @@ export default function TabTwoScreen() {
           </View>
 
           {/* Luxury Switch Selector */}
-          <BlurView intensity={20} tint="light" style={styles.modeSelector}>
+          <BlurView intensity={20} tint="dark" style={styles.modeSelector}>
             <Pressable
               onPress={() => setActiveMode('hotel')}
               style={[styles.modeButton, activeMode === 'hotel' && styles.modeButtonActive]}>
@@ -106,7 +106,7 @@ export default function TabTwoScreen() {
                 London & Europe Trip Solver
               </ThemedText>
 
-              <BlurView intensity={20} tint="light" style={styles.flightCard}>
+              <BlurView intensity={20} tint="dark" style={styles.flightCard}>
                 <ThemedText style={styles.inputLabel} type="code">
                   SELECT DESIRED CABIN CLASS
                 </ThemedText>
@@ -144,12 +144,12 @@ export default function TabTwoScreen() {
               </ThemedText>
 
               {/* HSBC Premier Pathway */}
-              <BlurView intensity={20} tint="light" style={styles.pathwayRow}>
+              <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
                 <View style={styles.pathwayLeft}>
-                  <ThemedText style={{ color: '#1A1E26', fontWeight: 'bold' }} type="smallBold">
+                  <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
                     HSBC Premier Credit Card
                   </ThemedText>
-                  <ThemedText style={{ color: '#4B5563', fontSize: 11 }}>
+                  <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
                     Ratio: 10:10 | Points Required: {hsbcPointsRequired.toLocaleString()}
                   </ThemedText>
                   <ThemedText style={[styles.notesText, { color: hsbcFeasible ? '#34D399' : '#FCA5A5' }]}>
@@ -172,12 +172,12 @@ export default function TabTwoScreen() {
               </BlurView>
 
               {/* Axis Magnus Burgundy Pathway */}
-              <BlurView intensity={20} tint="light" style={styles.pathwayRow}>
+              <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
                 <View style={styles.pathwayLeft}>
-                  <ThemedText style={{ color: '#1A1E26', fontWeight: 'bold' }} type="smallBold">
+                  <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
                     Axis Magnus for Burgundy
                   </ThemedText>
-                  <ThemedText style={{ color: '#4B5563', fontSize: 11 }}>
+                  <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
                     Ratio: 5:4 | Points Required: {axisPointsRequired.toLocaleString()}
                   </ThemedText>
                   <ThemedText style={[styles.notesText, { color: axisFeasible ? '#34D399' : '#FCA5A5' }]}>
@@ -200,7 +200,7 @@ export default function TabTwoScreen() {
               </BlurView>
 
               {/* Step-by-Step London Strategy */}
-              <BlurView intensity={20} tint="light" style={styles.strategyCard}>
+              <BlurView intensity={20} tint="dark" style={styles.strategyCard}>
                 <ThemedText style={styles.strategyTitle} type="subtitle">
                   🗺️ London Outbound Action Plan
                 </ThemedText>
@@ -268,7 +268,7 @@ export default function TabTwoScreen() {
                 )}
 
                 {bookingState === 'booking' && (
-                  <BlurView intensity={20} tint="light" style={styles.loadingCard}>
+                  <BlurView intensity={20} tint="dark" style={styles.loadingCard}>
                     <ActivityIndicator size="large" color="#D4AF37" />
                     <ThemedText style={styles.loadingText} type="smallBold">
                       Processing Flight Booking via Duffel...
@@ -277,7 +277,7 @@ export default function TabTwoScreen() {
                 )}
 
                 {bookingState === 'confirmed' && (
-                  <BlurView intensity={25} tint="light" style={styles.confirmationCard}>
+                  <BlurView intensity={25} tint="dark" style={styles.confirmationCard}>
                     <ThemedText style={styles.confirmedTitle} type="title">
                       Booking Confirmed! 🎉
                     </ThemedText>
@@ -326,7 +326,7 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#090A0F',
     justifyContent: 'center',
     flexDirection: 'row',
   },
@@ -349,13 +349,13 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 10,
     letterSpacing: 3,
-    color: '#4B5563',
+    color: '#9CA3AF',
   },
   mainTitle: {
     fontSize: 28,
     fontWeight: '900',
     marginTop: Spacing.one,
-    color: '#1A1E26'
+    color: '#F3F4F6'
   },
   modeSelector: {
     flexDirection: 'row',
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   modeButton: {
     flex: 1,
@@ -374,15 +374,13 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
   },
   modeButtonActive: {
-    backgroundColor: 'rgba(212, 175, 55, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: '#D4AF37',
   },
   modeButtonText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
   },
   modeButtonTextActive: {
-    color: '#1A1E26',
+    color: '#090A0F',
   },
   flightSolverContainer: {
     gap: Spacing.four,
@@ -390,7 +388,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginBottom: Spacing.two
   },
   flightCard: {
@@ -399,12 +397,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   inputLabel: {
     fontSize: 10,
     letterSpacing: 2,
-    color: '#4B5563',
+    color: '#9CA3AF',
     marginBottom: Spacing.three,
   },
   cabinRow: {
@@ -419,29 +417,29 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.two,
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.12)',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   cabinTabActive: {
-    borderColor: '#10B981',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderColor: '#D4AF37',
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
   },
   cabinText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 11,
   },
   cabinTextActive: {
-    color: '#34D399',
+    color: '#D4AF37',
     fontSize: 11,
   },
   targetLabel: {
     fontSize: 10,
-    color: '#6B7280',
+    color: '#9CA3AF',
     marginTop: Spacing.one,
   },
   pathwayTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginTop: Spacing.two
   },
   pathwayRow: {
@@ -453,14 +451,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   pathwayLeft: {
     flex: 1,
     gap: Spacing.one,
   },
   notesText: {
-    color: '#34D399',
+    color: '#D4AF37',
     fontSize: 10,
     fontWeight: 'bold',
     marginTop: Spacing.one,
@@ -478,12 +476,12 @@ const styles = StyleSheet.create({
     marginTop: Spacing.two,
     gap: Spacing.four,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   strategyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginBottom: Spacing.two,
   },
   strategyRow: {
@@ -495,14 +493,14 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderColor: 'rgba(16, 185, 129, 0.6)',
+    backgroundColor: 'rgba(212, 175, 55, 0.2)',
+    borderColor: 'rgba(212, 175, 55, 0.6)',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   strategyNumText: {
-    color: '#34D399',
+    color: '#D4AF37',
     fontSize: 11,
     fontWeight: 'bold',
   },
@@ -510,13 +508,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   strategyHeading: {
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontSize: 13,
     fontWeight: '700',
     marginBottom: Spacing.half,
   },
   strategyDesc: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
   },
@@ -525,14 +523,14 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   bookCashBtn: {
-    backgroundColor: '#0A1C2A',
+    backgroundColor: '#14161F',
     height: 52,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#D4AF37',
-    shadowColor: '#0A1C2A',
+    shadowColor: '#14161F',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -561,30 +559,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.three,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
   },
   loadingText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 14,
   },
   confirmationCard: {
     borderRadius: Spacing.three,
     padding: Spacing.six,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#14161F',
     borderWidth: 1,
-    borderColor: '#34D399',
+    borderColor: '#D4AF37',
     gap: Spacing.three,
   },
   confirmedTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#10B981',
+    color: '#D4AF37',
     textAlign: 'center',
   },
   divider: {
     height: 1,
-    backgroundColor: '#E6EAEF',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     marginVertical: Spacing.one,
   },
   confirmRow: {
@@ -594,26 +592,26 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.one,
   },
   confirmLabel: {
-    color: '#4B6B88',
+    color: '#9CA3AF',
     fontSize: 14,
     fontWeight: '500',
   },
   confirmVal: {
-    color: '#0A1C2A',
+    color: '#F3F4F6',
     fontSize: 15,
   },
   resetBtn: {
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#14161F',
     height: 48,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E6EAEF',
+    borderColor: '#D4AF37',
     marginTop: Spacing.three,
   },
   resetBtnText: {
-    color: '#4B6B88',
+    color: '#D4AF37',
     fontSize: 14,
     fontWeight: '600',
   },
