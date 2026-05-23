@@ -1,10 +1,13 @@
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { View, StyleSheet } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/AnimatedIcon';
 import AppTabs from '@/components/AppTabs';
 import { WalletProvider } from '@/context/WalletContext';
+import { AuthProvider, AuthContext } from '../context/AuthContext';
+import AuthForm from '../components/AuthForm';
 
 const CustomTheme = {
   ...DarkTheme,
@@ -18,14 +21,50 @@ const CustomTheme = {
   },
 };
 
+function AppContent() {
+  const { user, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <View style={styles.authContainer} />;
+  }
+
+  if (!user) {
+    return (
+      <View style={styles.authContainer}>
+        <View style={styles.formWrapper}>
+          <AuthForm />
+        </View>
+      </View>
+    );
+  }
+
+  return <AppTabs />;
+}
+
 export default function TabLayout() {
   return (
-    <WalletProvider>
-      <ThemeProvider value={CustomTheme}>
-        <StatusBar style="light" />
-        <AnimatedSplashOverlay />
-        <AppTabs />
-      </ThemeProvider>
-    </WalletProvider>
+    <AuthProvider>
+      <WalletProvider>
+        <ThemeProvider value={CustomTheme}>
+          <StatusBar style="light" />
+          <AnimatedSplashOverlay />
+          <AppContent />
+        </ThemeProvider>
+      </WalletProvider>
+    </AuthProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  authContainer: {
+    flex: 1,
+    backgroundColor: '#090A0F',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  formWrapper: {
+    maxWidth: 400,
+    width: '100%',
+    alignSelf: 'center',
+  },
+});
