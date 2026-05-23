@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
+import { ScrollView, StyleSheet, View, TextInput, TouchableOpacity, Alert, Platform, ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'expo-image';
 
 export default function ConsultationScreen() {
   const [name, setName] = useState('');
@@ -23,7 +25,16 @@ export default function ConsultationScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
+    <ImageBackground 
+      source={require('../../assets/images/dark_luxury_bg.png')} 
+      style={styles.container}
+      resizeMode="cover"
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
+    >
+      <LinearGradient
+        colors={['rgba(9, 10, 15, 0.75)', 'rgba(9, 10, 15, 0.95)']}
+        style={StyleSheet.absoluteFillObject}
+      />
       <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
@@ -42,15 +53,22 @@ export default function ConsultationScreen() {
             Stop guessing if you are getting the best value. Let our experts audit your credit card portfolio and find the optimal flight routings for your next vacation.
           </ThemedText>
 
+          {/* Banner image */}
+          <Image 
+            source={require('../../assets/images/hacks_taj_banner.png')}
+            style={styles.heroBanner}
+            resizeMode="cover"
+          />
+
           {submitted ? (
-            <View style={styles.successBox}>
+            <BlurView intensity={20} tint="dark" style={styles.successBox}>
               <ThemedText style={styles.successTitle} type="subtitle">Request Received!</ThemedText>
               <ThemedText style={styles.successText}>
                 Our concierge team will reach out to {name} shortly to coordinate your strategy session for {destination}.
               </ThemedText>
-            </View>
+            </BlurView>
           ) : (
-            <View style={styles.formCard}>
+            <BlurView intensity={20} tint="dark" style={styles.formCard}>
               <View style={styles.inputGroup}>
                 <ThemedText style={styles.label} type="code">FULL NAME</ThemedText>
                 <TextInput
@@ -65,30 +83,31 @@ export default function ConsultationScreen() {
               <View style={styles.inputGroup}>
                 <ThemedText style={styles.label} type="code">TRAVEL GOAL</ThemedText>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, styles.textArea]}
                   placeholder="Destination / Goal (e.g. Honeymoon to Maldives)"
                   placeholderTextColor="#6B7280"
                   value={destination}
                   onChangeText={setDestination}
                   multiline
+                  numberOfLines={4}
                 />
               </View>
 
               <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
                 <ThemedText style={styles.submitButtonText}>Submit Request</ThemedText>
               </TouchableOpacity>
-            </View>
+            </BlurView>
           )}
         </ScrollView>
       </SafeAreaView>
-    </ThemedView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#090A0F',
     justifyContent: 'center',
     flexDirection: 'row',
   },
@@ -108,52 +127,57 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 10,
     letterSpacing: 3,
-    color: '#D97706',
+    color: '#D4AF37',
   },
   mainTitle: {
     fontSize: 26,
     fontWeight: '900',
     marginTop: Spacing.one,
+    color: '#F3F4F6',
   },
   pageDescription: {
-    color: '#6B7280',
+    color: '#9CA3AF',
     fontSize: 13,
     lineHeight: 18,
     marginBottom: Spacing.five,
   },
   formCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: Spacing.three,
     padding: Spacing.four,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
+    borderColor: 'rgba(212, 175, 55, 0.12)',
+    overflow: 'hidden',
   },
   inputGroup: {
     marginBottom: Spacing.four,
   },
   label: {
     fontSize: 10,
-    color: '#6B7280',
+    color: '#9CA3AF',
     marginBottom: Spacing.two,
   },
   input: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(20, 22, 31, 0.4)',
     borderWidth: 1,
-    borderColor: 'rgba(212, 175, 55, 0.12)',
+    borderColor: 'rgba(212, 175, 55, 0.15)',
     borderRadius: Spacing.two,
     padding: Spacing.three,
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontSize: 14,
   },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
   submitButton: {
-    backgroundColor: '#D97706',
+    backgroundColor: '#D4AF37',
     padding: Spacing.three,
     borderRadius: Spacing.two,
     alignItems: 'center',
     marginTop: Spacing.two,
   },
   submitButtonText: {
-    color: '#1A1E26',
+    color: '#090A0F',
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -163,15 +187,22 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(16, 185, 129, 0.3)',
     borderRadius: Spacing.three,
     padding: Spacing.four,
+    overflow: 'hidden',
   },
   successTitle: {
-    color: '#10B981',
+    color: '#34D399',
     fontWeight: 'bold',
     marginBottom: Spacing.two,
   },
   successText: {
-    color: '#374151',
+    color: '#9CA3AF',
     fontSize: 14,
     lineHeight: 20,
+  },
+  heroBanner: {
+    width: '100%',
+    height: 160,
+    borderRadius: 12,
+    marginBottom: Spacing.five,
   }
 });
