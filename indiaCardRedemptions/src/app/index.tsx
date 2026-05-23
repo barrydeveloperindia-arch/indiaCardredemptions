@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ScrollView, StyleSheet, View, TextInput, ImageBackground, Platform, Pressable, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AuthContext } from '../context/AuthContext';
 import { ThemedText } from '@/components/ThemedText';
 import { WalletCard } from '@/components/WalletCard';
 import AffiliateEngine from '@/components/AffiliateEngine';
@@ -167,8 +168,10 @@ const SEARCH_DESTINATIONS = [
 
 export default function HomeScreen() {
   const { cards, updateBalance, updateSpend, walletBalances } = useWallet();
+  const { logout } = useContext(AuthContext);
   const [selectedCardId, setSelectedCardId] = useState<string>('axis_m4b');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchFocused, setSearchFocused] = useState(false);
 
   const filteredDeals = CURATED_ARBITRAGE.filter(deal => 
     searchQuery === '' || 
@@ -203,10 +206,10 @@ export default function HomeScreen() {
     const milestones = cards.map((c) => {
       if (c.cardId === 'axis_m4b') {
         const prog = calculateAxisMagnusBurgundyProgress(c.spend);
-        if (prog.nextTarget > 0) return { title: 'Axis AEP Milestone', progress: prog.progressPercent, image: require('../../assets/images/singapore_biz_deal_1779184247834.png'), color: '#F472B6' };
+        if (prog.nextTarget > 0) return { title: 'Axis AEP Milestone', progress: prog.progressPercent, image: require('../../assets/images/singapore_biz_deal_1779184247834.png'), color: '#D4AF37' };
       } else if (c.cardId === 'amex_platinum') {
         const prog = calculateAmexTravelProgress(c.spend);
-        if (prog.nextTarget > 0) return { title: 'Taj e-Gift Voucher', progress: prog.progressPercent, image: require('../../assets/images/luxury_resort_pool_1779184214418.png'), color: '#60A5FA' };
+        if (prog.nextTarget > 0) return { title: 'Taj e-Gift Voucher', progress: prog.progressPercent, image: require('../../assets/images/luxury_resort_pool_1779184214418.png'), color: '#D4AF37' };
       }
       return null;
     }).filter(Boolean) as { title: string, progress: number, image: any, color: string }[];
@@ -218,13 +221,13 @@ export default function HomeScreen() {
         {milestones.map((m, idx) => (
           <Animated.View entering={SlideInRight.delay(600 + idx * 100).springify()} key={idx} style={styles.milestoneVisualCard}>
             <Image source={m.image} style={StyleSheet.absoluteFillObject} />
-            <LinearGradient colors={['transparent', 'rgba(255,255,255,0.9)']} style={StyleSheet.absoluteFillObject} />
+            <LinearGradient colors={['transparent', '#090A0F']} style={StyleSheet.absoluteFillObject} />
             <View style={styles.milestoneVisualContent}>
-              <ThemedText style={{ color: '#1A1E26', fontWeight: 'bold', fontSize: 13,  marginBottom: Spacing.half }}>{m.title}</ThemedText>
+              <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold', fontSize: 13,  marginBottom: Spacing.half }}>{m.title}</ThemedText>
               <View style={styles.milestoneVisualTrack}>
-                <View style={[styles.milestoneVisualFill, { width: `${m.progress}%`, backgroundColor: m.color }]} />
+                <View style={[styles.milestoneVisualFill, { width: `${m.progress}%`, backgroundColor: '#D4AF37' }]} />
               </View>
-              <ThemedText style={{ color: m.color, fontSize: 10, fontWeight: 'bold', marginTop: 4 }}>{m.progress.toFixed(0)}% TO GOAL</ThemedText>
+              <ThemedText style={{ color: '#D4AF37', fontSize: 10, fontWeight: 'bold', marginTop: 4 }}>{m.progress.toFixed(0)}% ACHIEVED</ThemedText>
             </View>
           </Animated.View>
         ))}
@@ -234,10 +237,10 @@ export default function HomeScreen() {
 
   return (
     <ImageBackground 
-      source={require('../../assets/images/white_gold_bg.png')} 
+      source={require('../../assets/images/dark_luxury_bg.png')} 
       style={styles.container}
       resizeMode="cover"
-      imageStyle={{ width: '100%', height: '100%', opacity: 0.75 }}
+      imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
         <title>The Points Array | Hotel & Flight Arbitrage Solver</title>
@@ -245,7 +248,7 @@ export default function HomeScreen() {
       
       <Animated.View entering={FadeIn.duration(1500)} style={StyleSheet.absoluteFillObject}>
         <LinearGradient
-          colors={['rgba(255, 255, 255, 0.45)', 'rgba(255, 255, 255, 0.85)']}
+          colors={['rgba(9, 10, 15, 0.75)', 'rgba(9, 10, 15, 0.95)']}
           style={StyleSheet.absoluteFillObject}
         />
       </Animated.View>
@@ -259,15 +262,20 @@ export default function HomeScreen() {
           <Animated.View entering={FadeInDown.delay(200).springify()}>
             <View style={styles.heroHeader}>
               <ThemedText style={styles.heroTitle} type="title">Where will your points take you?</ThemedText>
+              <Pressable onPress={logout} style={styles.logoutButton} testID="logout-button">
+                <ThemedText style={styles.logoutText}>LOGOUT</ThemedText>
+              </Pressable>
             </View>
-            <BlurView intensity={30} tint="light" style={styles.searchContainer}>
+            <BlurView intensity={30} tint="dark" style={[styles.searchContainer, searchFocused && { borderColor: '#D4AF37', shadowColor: '#D4AF37', shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 }]}>
               <ThemedText style={styles.searchIcon}>🔍</ThemedText>
               <TextInput
                 style={[styles.searchInput, { outlineStyle: 'none' } as any]}
                 placeholder='Search "London", "Maldives"...'
-                placeholderTextColor="rgba(0,0,0,0.3)"
+                placeholderTextColor="rgba(255, 255, 255, 0.4)"
                 value={searchQuery}
                 onChangeText={setSearchQuery}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
               />
             </BlurView>
           </Animated.View>
@@ -350,13 +358,13 @@ export default function HomeScreen() {
           {/* VIP HIGH TICKET TRIGGER */}
           {isVipUser && (
             <Animated.View entering={FadeInDown.delay(500).springify()}>
-              <Pressable style={styles.vipBanner}>
-                <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFillObject} />
-                <LinearGradient colors={['rgba(245, 158, 11, 0.4)', 'rgba(180, 83, 9, 0.1)']} style={StyleSheet.absoluteFillObject} />
+              <Pressable style={styles.vipBanner} testID="vip-banner">
+                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFillObject} />
+                <LinearGradient colors={['#1C1E24', '#0B0C10']} style={StyleSheet.absoluteFillObject} />
                 <View style={{ padding: Spacing.five }}>
-                  <ThemedText style={{ color: '#FDE68A', fontSize: 10, letterSpacing: 2, fontWeight: 'bold' }}>EXECUTIVE SERVICE</ThemedText>
-                  <ThemedText style={{ color: '#1A1E26', fontSize: 20, fontWeight: 'bold', marginTop: Spacing.two }}>Too Many Points, Too Little Time?</ThemedText>
-                  <ThemedText style={{ color: '#FEF3C7', fontSize: 13, marginTop: Spacing.two, lineHeight: 18 }}>
+                  <ThemedText style={{ color: '#D4AF37', fontSize: 10, letterSpacing: 2, fontWeight: 'bold' }}>EXECUTIVE SERVICE</ThemedText>
+                  <ThemedText style={{ color: '#F3F4F6', fontSize: 20, fontWeight: 'bold', marginTop: Spacing.two }}>Too Many Points, Too Little Time?</ThemedText>
+                  <ThemedText style={{ color: '#9CA3AF', fontSize: 13, marginTop: Spacing.two, lineHeight: 18 }}>
                     You have over 5 Lakh points. Our Redemption Architects can handle the complex routing and secure your next First Class flight for a flat fee.
                   </ThemedText>
                   <View style={styles.vipButton}>
@@ -436,7 +444,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#090A0F',
     justifyContent: 'center',
     flexDirection: 'row',
     minHeight: Platform.OS === 'web' ? '100vh' : '100%',
@@ -455,13 +463,15 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.four,
     padding: Spacing.five,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     marginBottom: Spacing.five,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 20,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.15)',
   },
   dashboardTopRow: {
     flexDirection: 'row',
@@ -472,18 +482,18 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 10,
     letterSpacing: 3,
-    color: '#4B5563',
+    color: '#9CA3AF',
   },
   mainTitle: {
     fontSize: 34,
     fontWeight: '900',
-    color: '#1A1E26'
+    color: '#F3F4F6'
   },
   ringChartPlaceholder: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderWidth: 2,
     borderColor: 'rgba(212, 175, 55, 0.12)',
     alignItems: 'center',
@@ -518,7 +528,7 @@ const styles = StyleSheet.create({
     height: 151,
     borderRadius: Spacing.three,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.45)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     overflow: 'hidden',
     position: 'relative',
     shadowColor: '#000',
@@ -532,7 +542,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '50%',
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
   },
   emvChip: {
     width: 34,
@@ -540,15 +550,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#E5C07B',
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.45)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     overflow: 'hidden',
     position: 'relative',
     marginTop: Spacing.two,
   },
-  emvLineTop: { position: 'absolute', top: 6, left: 0, right: 0, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.45)' },
-  emvLineBottom: { position: 'absolute', bottom: 6, left: 0, right: 0, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.45)' },
-  emvLineLeft: { position: 'absolute', top: 0, bottom: 0, left: 10, width: 1, backgroundColor: 'rgba(255, 255, 255, 0.45)' },
-  emvLineRight: { position: 'absolute', top: 0, bottom: 0, right: 10, width: 1, backgroundColor: 'rgba(255, 255, 255, 0.45)' },
+  emvLineTop: { position: 'absolute', top: 6, left: 0, right: 0, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.08)' },
+  emvLineBottom: { position: 'absolute', bottom: 6, left: 0, right: 0, height: 1, backgroundColor: 'rgba(255, 255, 255, 0.08)' },
+  emvLineLeft: { position: 'absolute', top: 0, bottom: 0, left: 10, width: 1, backgroundColor: 'rgba(255, 255, 255, 0.08)' },
+  emvLineRight: { position: 'absolute', top: 0, bottom: 0, right: 10, width: 1, backgroundColor: 'rgba(255, 255, 255, 0.08)' },
   networkCircle: {
     width: 24,
     height: 24,
@@ -559,23 +569,23 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(245,158,11,0.3)',
+    borderColor: 'rgba(212, 175, 55, 0.4)',
     marginBottom: Spacing.five,
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    shadowColor: '#F59E0B',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
+    shadowColor: '#D4AF37',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 15,
   },
   vipButton: {
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#D4AF37',
     paddingVertical: Spacing.three,
     borderRadius: Spacing.two,
     marginTop: Spacing.four,
     alignItems: 'center',
   },
   vipButtonText: {
-    color: '#FFF',
+    color: '#090A0F',
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -585,13 +595,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.four,
     borderRadius: Spacing.four,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     marginBottom: Spacing.five,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.05,
     shadowRadius: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.15)',
   },
   searchIcon: {
     fontSize: 20,
@@ -600,18 +612,37 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 18,
-    color: '#1A1E26',
+    color: '#F3F4F6',
     fontWeight: '500',
   },
   heroHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: Spacing.four,
     marginTop: Spacing.two,
   },
   heroTitle: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: '900',
-    color: '#1A1E26',
-    textAlign: 'center',
+    color: '#F3F4F6',
+    flex: 1,
+    textAlign: 'left',
+    paddingRight: Spacing.four,
+  },
+  logoutButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
+  },
+  logoutText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#F3F4F6',
+    letterSpacing: 1.2,
   },
   newsTicker: {
     flexDirection: 'row',
@@ -619,13 +650,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
     borderRadius: Spacing.three,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: 'rgba(20, 22, 31, 0.75)',
     marginBottom: Spacing.five,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,
     shadowRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.15)',
   },
   tickerBadge: {
     backgroundColor: '#EF4444',
@@ -638,14 +671,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tickerText: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     flex: 1,
   },
   sectionLabel: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#1A1E26',
+    color: '#F3F4F6',
     marginBottom: Spacing.three,
     letterSpacing: 0.5
   },
@@ -670,7 +703,7 @@ const styles = StyleSheet.create({
   milestoneVisualTrack: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.45)',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     overflow: 'hidden',
   },
   milestoneVisualFill: {
