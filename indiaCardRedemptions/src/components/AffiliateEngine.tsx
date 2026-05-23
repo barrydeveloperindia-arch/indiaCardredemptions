@@ -20,7 +20,7 @@ export default function AffiliateEngine({ recommendedCard }: AffiliateEngineProp
   };
 
   return (
-    <BlurView intensity={20} tint="light" style={styles.container}>
+    <BlurView intensity={20} tint="dark" style={styles.container}>
       <View style={styles.content}>
         <ThemedText style={styles.subtitle} type="code">
           OPTIMIZATION ANALYSIS
@@ -44,18 +44,18 @@ const styles = StyleSheet.create({
     borderRadius: Spacing.three,
     padding: Spacing.five,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: 'rgba(212, 175, 55, 0.3)',
     flexDirection: 'column',
     gap: Spacing.four,
     marginVertical: Spacing.four,
     overflow: 'hidden',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: 'rgba(20, 22, 31, 0.95)',
   },
   content: {
     flex: 1,
   },
   subtitle: {
-    color: '#10B981',
+    color: '#D4AF37',
     fontSize: 10,
     letterSpacing: 2,
     marginBottom: Spacing.two,
@@ -63,22 +63,23 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 'bold',
     marginBottom: Spacing.one,
+    color: '#F3F4F6',
   },
   description: {
-    color: '#4B5563',
+    color: '#9CA3AF',
     fontSize: 12,
     lineHeight: 18,
   },
   applyButton: {
-    backgroundColor: '#10B981',
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.four,
+    backgroundColor: '#D4AF37',
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.five,
     borderRadius: Spacing.two,
     alignItems: 'center',
     alignSelf: 'flex-start',
   },
   applyText: {
-    color: '#1A1E26',
+    color: '#090A0F',
     fontWeight: 'bold',
     fontSize: 13,
   }
