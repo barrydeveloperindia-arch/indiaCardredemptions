@@ -14,15 +14,22 @@ jest.mock('expo-router/unstable-native-tabs', () => {
       {children}
     </View>
   );
+  MockNativeTabs.displayName = 'MockNativeTabs';
 
   const MockTrigger = ({ children, name }: any) => (
     <View testID={`tab-trigger-${name}`}>
       {children}
     </View>
   );
+  MockTrigger.displayName = 'MockTrigger';
 
-  MockTrigger.Label = ({ children }: any) => <Text testID="tab-label">{children}</Text>;
-  MockTrigger.Icon = () => <View testID="tab-icon" />;
+  const MockTriggerLabel = ({ children }: any) => <Text testID="tab-label">{children}</Text>;
+  MockTriggerLabel.displayName = 'MockTriggerLabel';
+  MockTrigger.Label = MockTriggerLabel;
+
+  const MockTriggerIcon = () => <View testID="tab-icon" />;
+  MockTriggerIcon.displayName = 'MockTriggerIcon';
+  MockTrigger.Icon = MockTriggerIcon;
 
   MockNativeTabs.Trigger = MockTrigger;
 
