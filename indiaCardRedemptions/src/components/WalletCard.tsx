@@ -321,6 +321,8 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: Spacing.two,
     paddingHorizontal: Spacing.three,
+    paddingVertical: 0,
+    textAlignVertical: 'center',
     fontSize: 15,
     fontWeight: 'bold',
     borderWidth: 1,
