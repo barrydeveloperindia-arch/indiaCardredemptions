@@ -74,8 +74,8 @@ function CardCarousel() {
       <View style={styles.cardShine} />
       <View style={{ padding: Spacing.four, flex: 1, justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <ThemedText style={{ fontSize: 11, letterSpacing: 2, color: '#374151', fontWeight: 'bold' }}>{bank}</ThemedText>
-          <ThemedText style={{ fontSize: 14, color: 'rgba(0,0,0,0.3)', fontStyle: 'italic' }}>)))</ThemedText>
+          <ThemedText style={{ fontSize: 11, letterSpacing: 2, color: '#374151', fontWeight: 'bold' }} numberOfLines={1} maxFontSizeMultiplier={1.25}>{bank}</ThemedText>
+          <ThemedText style={{ fontSize: 14, color: 'rgba(0,0,0,0.3)', fontStyle: 'italic' }} numberOfLines={1} maxFontSizeMultiplier={1.25}>)))</ThemedText>
         </View>
 
         {/* EMV Chip */}
@@ -88,8 +88,8 @@ function CardCarousel() {
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <View>
-            <ThemedText style={{ color: '#4B5563', fontSize: 12, letterSpacing: 2, marginBottom: Spacing.half }}>•••• •••• •••• {lastFour}</ThemedText>
-            <ThemedText style={{ fontSize: 15, fontWeight: 'bold', color: '#1A1E26' }}>{name}</ThemedText>
+            <ThemedText style={{ color: '#4B5563', fontSize: 12, letterSpacing: 2, marginBottom: Spacing.half }} numberOfLines={1} maxFontSizeMultiplier={1.25}>•••• •••• •••• {lastFour}</ThemedText>
+            <ThemedText style={{ fontSize: 15, fontWeight: 'bold', color: '#1A1E26' }} numberOfLines={1} maxFontSizeMultiplier={1.25}>{name}</ThemedText>
           </View>
           
           {network === 'MASTERCARD' && (
@@ -99,11 +99,11 @@ function CardCarousel() {
             </View>
           )}
           {network === 'VISA' && (
-            <ThemedText style={{ fontSize: 18, fontWeight: '900', fontStyle: 'italic', color: '#1A1E26' }}>VISA</ThemedText>
+            <ThemedText style={{ fontSize: 18, fontWeight: '900', fontStyle: 'italic', color: '#1A1E26' }} numberOfLines={1} maxFontSizeMultiplier={1.25}>VISA</ThemedText>
           )}
           {network === 'AMEX' && (
             <View style={{ backgroundColor: '#374151', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 2 }}>
-              <ThemedText style={{ fontSize: 12, fontWeight: 'bold', color: '#1A1E26' }}>AMEX</ThemedText>
+              <ThemedText style={{ fontSize: 12, fontWeight: 'bold', color: '#1A1E26' }} numberOfLines={1} maxFontSizeMultiplier={1.25}>AMEX</ThemedText>
             </View>
           )}
         </View>

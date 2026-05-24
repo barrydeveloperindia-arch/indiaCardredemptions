@@ -524,7 +524,9 @@ const styles = StyleSheet.create({
   },
   bookCashBtn: {
     backgroundColor: '#14161F',
-    height: 52,
+    minHeight: 52,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -542,7 +544,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   cancelBtn: {
-    height: 48,
+    minHeight: 48,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
@@ -602,7 +606,9 @@ const styles = StyleSheet.create({
   },
   resetBtn: {
     backgroundColor: '#14161F',
-    height: 48,
+    minHeight: 48,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
