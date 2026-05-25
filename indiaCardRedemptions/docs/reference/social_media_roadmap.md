@@ -124,5 +124,36 @@ The official profile asset represents a credit card sleekly transitioning into a
     *   *Topic*: **The Affiliate Redirect Trick.**
     *   *Body*: Graphic guide on using CashKaro, Grab Deals, and SmartBuy to "triple-dip" cash back and reward points before checking out.
 *   **LinkedIn (Day 27 - Product Launch)**:
-    *   *Topic*: **How We Built 'The Points Array' App.**
+    *   *Topic*: **How We Built 'The Indian Points Array' App.**
     *   *Body*: Behind-the-scenes engineering writeup on creating a React Native client and an Express server to calculate yields, keep track of card milestones, and manage reward databases. Direct call-to-action to install.
+
+---
+
+## 📝 4. Sample Instagram Caption Template
+
+Here is a high-converting caption template designed for the **Week 1 / Day 1 Reel** (Delhi-London sweet spot):
+
+### 🎥 Reel Caption: Delhi to London Business Class for ₹4,500 ✈️
+> Delhi to London in Business Class for ₹4,500. 
+> 
+> No, this isn't a mistake fare. It's just simple points math. 💎
+> 
+> Most people swipe their credit cards for years, only to redeem their hard-earned points for shopping vouchers or domestic flights. You’re leaving lakhs of rupees on the table.
+> 
+> Here is the exact blueprint to book a flatbed seat on this route:
+> 
+> 1️⃣ **The Setup**: Instead of booking directly through Air India (which costs 90,000 points), we route through Star Alliance partner **Air Canada Aeroplan**.
+> 
+> 2️⃣ **The Transfer**: Convert 87,500 Axis EDGE Points from your wallet. At the Burgundy 5:4 ratio, this lands as exactly **70,000 Aeroplan miles** in your account.
+> 
+> 3️⃣ **The Booking**: Log into the Aeroplan portal, search for the nonstop Air India flight, and book it for 70k miles + ~₹4,500 in taxes. No fuel surcharges.
+> 
+> That’s a ₹2.2 Lakh flight for the cost of a dinner. 
+> 
+> 📲 **Want to know where your points can take you?** 
+> We built **The Indian Points Array** app to automatically calculate the highest-yield pathways for your specific wallet. 
+> 
+> 👉 **Tap the link in our bio** to download the app and run a free audit on your credit card balances today!
+> 
+> ---
+> #travelhacking #creditcardsindia #businessclass #travelhacks #luxurytravel #axisbank #airindia #theindianpointsarray #pointscalculator #frequentflyer
