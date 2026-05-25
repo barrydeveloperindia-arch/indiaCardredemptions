@@ -63,7 +63,7 @@ describe('ConciergeScreen Inquiry Submission Flow', () => {
     fireEvent.changeText(portfolioInput, 'Infinia & Atlas');
     fireEvent.changeText(destInput, 'London business class');
 
-    const submitBtn = getByText('Initialize Request');
+    const submitBtn = getByText(/Initialize Request/);
     fireEvent.press(submitBtn);
 
     // Verify success box

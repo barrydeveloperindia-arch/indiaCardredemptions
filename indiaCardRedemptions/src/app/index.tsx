@@ -262,9 +262,6 @@ export default function HomeScreen() {
           <Animated.View entering={FadeInDown.delay(200).springify()}>
             <View style={styles.heroHeader}>
               <ThemedText style={styles.heroTitle} type="title">Where will your points take you?</ThemedText>
-              <Pressable onPress={logout} style={styles.logoutButton} testID="logout-button">
-                <ThemedText style={styles.logoutText}>LOGOUT</ThemedText>
-              </Pressable>
             </View>
             <BlurView intensity={30} tint="dark" style={[styles.searchContainer, searchFocused && { borderColor: '#D4AF37', shadowColor: '#D4AF37', shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 }]}>
               <ThemedText style={styles.searchIcon}>🔍</ThemedText>
@@ -435,6 +432,13 @@ export default function HomeScreen() {
               />
             </Animated.View>
           ))}
+
+          {/* Logout Option at the bottom */}
+          <Animated.View entering={FadeInDown.delay(1200).springify()} style={{ marginTop: Spacing.eight, alignItems: 'center', marginBottom: Spacing.four }}>
+            <Pressable onPress={logout} style={styles.logoutButtonBottom} testID="logout-button">
+              <ThemedText style={styles.logoutTextBottom}>LOGOUT OF ACCOUNT</ThemedText>
+            </Pressable>
+          </Animated.View>
         </ScrollView>
       </SafeAreaView>
     </ImageBackground>
@@ -616,9 +620,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   heroHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: Spacing.four,
     marginTop: Spacing.two,
   },
@@ -626,23 +627,23 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '900',
     color: '#F3F4F6',
-    flex: 1,
     textAlign: 'left',
-    paddingRight: Spacing.four,
   },
-  logoutButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+  logoutButtonBottom: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: Spacing.two,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(20, 22, 31, 0.75)',
+    backgroundColor: 'rgba(20, 22, 31, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  logoutText: {
-    fontSize: 10,
+  logoutTextBottom: {
+    fontSize: 11,
     fontWeight: 'bold',
-    color: '#F3F4F6',
-    letterSpacing: 1.2,
+    color: 'rgba(243, 244, 246, 0.6)',
+    letterSpacing: 2,
   },
   newsTicker: {
     flexDirection: 'row',

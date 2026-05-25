@@ -10,7 +10,8 @@
     "web": "expo start --web",
     "build:web": "expo export -p web",
     "lint": "expo lint",
-    "test": "jest"
+    "test": "jest",
+    "backend": "ts-node backend/server.ts"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.1.0",

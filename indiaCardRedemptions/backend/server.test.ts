@@ -8,7 +8,8 @@ import {
   ipRequestCounts,
   idempotencyKeys,
   redisCache,
-  userBalances
+  userBalances,
+  handleFlightBooking
 } from './server';
 import jwt from 'jsonwebtoken';
 
@@ -178,6 +179,64 @@ describe('Backend Express Security Middlewares', () => {
       // Trigger interceptor res.json
       mockResponse.json({ flights: 'new_result' });
       expect(redisCache.has('/api/flights')).toBe(true);
+    });
+  });
+
+  describe('Concierge Flight Booking API Endpoints', () => {
+    let mockReq: any;
+    let mockRes: any;
+    const JWT_SECRET = 'super_secret_points_array_key';
+
+    beforeEach(() => {
+      userBalances.set('user_01', 100000);
+      mockReq = {
+        headers: { 'idempotency-key': 'new_idemp_key_99' },
+        body: {
+          userId: 'user_01',
+          points: 50000,
+          conciergeFee: 25000,
+          routes: [{ origin: 'DEL', destination: 'LHR' }],
+          passengers: { adults: 1, children: 0 }
+        }
+      };
+      mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      };
+    });
+
+    it('should reject booking if routes or passengers are missing', async () => {
+      mockReq.body = { userId: 'user_01', points: 10000 };
+
+      await handleFlightBooking(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: expect.stringContaining('Missing route or passenger details') })
+      );
+    });
+
+    it('should reject booking if points balance is insufficient', async () => {
+      mockReq.body.points = 200000; // Exceeds balance
+
+      await handleFlightBooking(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({ error: expect.stringContaining('Insufficient points balance') })
+      );
+    });
+
+    it('should complete booking successfully when all inputs and balances are valid', async () => {
+      await handleFlightBooking(mockReq, mockRes);
+
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('Concierge flight booking initialized'),
+          bookingId: expect.any(String)
+        })
+      );
     });
   });
 });

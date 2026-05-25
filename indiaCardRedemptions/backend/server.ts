@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const app = express();
@@ -41,7 +42,7 @@ export function rateLimiter(req: Request, res: Response, next: NextFunction) {
   if (record.count > maxRequests) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
-  next();
+  return next();
 }
 
 export function stripe3DSGating(req: Request, res: Response, next: NextFunction) {
@@ -53,7 +54,7 @@ export function stripe3DSGating(req: Request, res: Response, next: NextFunction)
       payment_intent_client_secret: 'pi_3Ds_gated_secret_token_123',
     });
   }
-  next();
+  return next();
 }
 
 // ==========================================
@@ -76,7 +77,7 @@ export function verifyJwtOwnership(req: AuthenticatedRequest, res: Response, nex
       return res.status(403).json({ error: 'BOLA Violation: Access denied to requested user resource' });
     }
 
-    next();
+    return next();
   } catch {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
@@ -98,7 +99,7 @@ export async function enforceIdempotency(req: Request, res: Response, next: Next
   }
 
   idempotencyKeys.add(idempotencyKey);
-  next();
+  return next();
 }
 
 // Simulated Row-level transactional lock for double-spend protection
@@ -140,11 +141,11 @@ export function redisCacheMiddleware(req: Request, res: Response, next: NextFunc
     return originalJson(body);
   };
 
-  next();
+  return next();
 }
 
 // API Route Hookups
-app.get('/api/search/flights', rateLimiter, redisCacheMiddleware, (req, res) => {
+app.get('/api/search/flights', rateLimiter, redisCacheMiddleware, (_req, res) => {
   res.json({
     flights: [
       { id: '1', origin: 'BOM', destination: 'LHR', miles: 45000 },
@@ -153,18 +154,35 @@ app.get('/api/search/flights', rateLimiter, redisCacheMiddleware, (req, res) => 
   });
 });
 
-app.post('/api/bookings/hotel', rateLimiter, verifyJwtOwnership, enforceIdempotency, stripe3DSGating, async (req: AuthenticatedRequest, res) => {
-  const { userId, points } = req.body;
+export async function handleFlightBooking(req: AuthenticatedRequest, res: Response) {
+  const { userId, points, conciergeFee, routes, passengers } = req.body;
+  
+  if (!routes || !passengers) {
+    return res.status(400).json({ error: 'Missing route or passenger details' });
+  }
+
   const success = await deductPointsTransaction(userId, points);
 
   if (!success) {
-    return res.status(400).json({ error: 'Insufficient funds or database transaction failed' });
+    return res.status(400).json({ error: 'Insufficient points balance or transaction failed' });
   }
 
-  res.status(201).json({
-    message: 'Booking completed successfully',
-    bookingId: 'bk_987654321',
+  return res.status(201).json({
+    message: 'Concierge flight booking initialized',
+    bookingId: 'fl_bk_' + Math.floor(100000 + Math.random() * 900000),
+    conciergeFeeCharged: conciergeFee,
+    status: 'pending_issuance'
   });
-});
+}
+
+app.post('/api/bookings/flight', rateLimiter, verifyJwtOwnership, enforceIdempotency, stripe3DSGating, handleFlightBooking);
+
+const isMain = process.argv[1] && (process.argv[1].endsWith('server.ts') || process.argv[1].endsWith('server.js'));
+if (isMain) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Backend server listening on port ${PORT}`);
+  });
+}
 
 export { app, ipRequestCounts, idempotencyKeys, redisCache, userBalances };

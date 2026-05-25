@@ -8,12 +8,18 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeIn, SlideInRight } from 'react-native-reanimated';
 import { Image } from 'expo-image';
+import { parseTravelScenario } from '@/utils/aiHandler';
 
 export default function ConciergeScreen() {
   const [name, setName] = useState('');
   const [portfolio, setPortfolio] = useState('');
   const [destination, setDestination] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  const analysis = destination.trim().length > 5 ? parseTravelScenario(destination, {
+    amex_platinum: 120000,
+    axis_m4b: 56000,
+  }) : null;
 
   return (
     <ImageBackground 
@@ -128,8 +134,62 @@ export default function ConciergeScreen() {
                     />
                   </View>
 
+                  {analysis && (
+                    <View style={styles.scorecardContainer}>
+                      <ThemedText style={styles.scorecardTitle} type="code">
+                        STRATEGY BLUEPRINT PREVIEW
+                      </ThemedText>
+                      
+                      <View style={styles.scorecardRow}>
+                        <ThemedText style={styles.scorecardLabel}>Feasibility:</ThemedText>
+                        <View style={[
+                          styles.badge, 
+                          analysis.feasibilityScore === 'HIGH' ? styles.badgeHigh : 
+                          analysis.feasibilityScore === 'MEDIUM' ? styles.badgeMedium : 
+                          styles.badgeLow
+                        ]}>
+                          <ThemedText style={styles.badgeText}>
+                            {analysis.feasibilityScore}
+                          </ThemedText>
+                        </View>
+                      </View>
+
+                      <View style={styles.scorecardRow}>
+                        <ThemedText style={styles.scorecardLabel}>Passengers:</ThemedText>
+                        <ThemedText style={styles.scorecardValue}>
+                          {analysis.passengers.adults} Adults, {analysis.passengers.children} Kids
+                        </ThemedText>
+                      </View>
+
+                      <View style={styles.scorecardRow}>
+                        <ThemedText style={styles.scorecardLabel}>Identified Routes:</ThemedText>
+                        <ThemedText style={styles.scorecardValue}>
+                          {analysis.routes.map(r => `${r.origin} -> ${r.destination}`).join(' | ')}
+                        </ThemedText>
+                      </View>
+
+                      <View style={styles.scorecardRow}>
+                        <ThemedText style={styles.scorecardLabel}>Est. Points Required:</ThemedText>
+                        <ThemedText style={styles.scorecardValue}>
+                          {analysis.pointsRequiredEstimate.toLocaleString()} pts ({analysis.recommendedProgram})
+                        </ThemedText>
+                      </View>
+
+                      <View style={styles.scorecardRow}>
+                        <ThemedText style={styles.scorecardLabel}>Est. Cash Savings:</ThemedText>
+                        <ThemedText style={styles.savingsValue}>
+                          ₹{analysis.savingsEstimate.toLocaleString()}
+                        </ThemedText>
+                      </View>
+                    </View>
+                  )}
+
                   <Pressable style={styles.submitBtn} onPress={() => setSubmitted(true)}>
-                    <ThemedText style={styles.submitBtnText}>Initialize Request</ThemedText>
+                    <ThemedText style={styles.submitBtnText}>
+                      {analysis 
+                        ? `Initialize Request (₹${analysis.conciergePremiumFee.toLocaleString()} Fee)` 
+                        : 'Initialize Request'}
+                    </ThemedText>
                   </Pressable>
                 </>
               )}
@@ -319,5 +379,61 @@ const styles = StyleSheet.create({
     height: 160,
     borderRadius: 12,
     marginBottom: Spacing.five,
+  },
+  scorecardContainer: {
+    backgroundColor: 'rgba(9, 10, 15, 0.5)',
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.25)',
+    borderRadius: Spacing.two,
+    padding: Spacing.four,
+    marginBottom: Spacing.four,
+  },
+  scorecardTitle: {
+    fontSize: 9,
+    color: '#D4AF37',
+    letterSpacing: 2,
+    fontWeight: 'bold',
+    marginBottom: Spacing.three,
+  },
+  scorecardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.two,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  scorecardLabel: {
+    color: '#9CA3AF',
+    fontSize: 12,
+  },
+  scorecardValue: {
+    color: '#F3F4F6',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  savingsValue: {
+    color: '#34D399',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  badge: {
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    borderRadius: 99,
+  },
+  badgeHigh: {
+    backgroundColor: 'rgba(52, 211, 153, 0.15)',
+  },
+  badgeMedium: {
+    backgroundColor: 'rgba(251, 191, 36, 0.15)',
+  },
+  badgeLow: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#F3F4F6',
   }
 });
