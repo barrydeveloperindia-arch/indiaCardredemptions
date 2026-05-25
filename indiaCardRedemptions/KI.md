@@ -1,4 +1,4 @@
-# 🧠 Local Knowledge Item (KI): India Card Redemptions
+# 🧠 Local Knowledge Item (KI): The Indian Points Array
 
 This localized Knowledge Item serves as the master reference for future development, design, and travel arbitrage engineering within the `indiaCardRedemptions` repository.
 

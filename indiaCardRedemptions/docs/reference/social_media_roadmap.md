@@ -1,6 +1,6 @@
 # 🚀 Instagram & LinkedIn Branding & Content Roadmap
 
-This document outlines the visual identity, profile copy, and a 4-week content roadmap to launch and grow the social media presence of **India Card Redemptions** / **The Points Array**.
+This document outlines the visual identity, profile copy, and a 4-week content roadmap to launch and grow the social media presence of **The Indian Points Array**.
 
 ---
 
@@ -27,25 +27,25 @@ The official profile asset represents a credit card sleekly transitioning into a
 ## 📲 2. Profile Configurations
 
 ### 📸 Instagram Setup
-*   **Handle**: `@indiacardredemptions` (or `@thepointsarray`)
-*   **Display Name**: India Card Redemptions | Travel Hacks
+*   **Handle**: `@indianpointsarray`
+*   **Display Name**: The Indian Points Array | Travel Hacks
 *   **Category**: Financial Service / Travel Agency
 *   **Bio Copy**:
     > 💳 Stop swiping blind. Start traveling in Business.
     > ✈️ We turn credit card points into luxury flight redemptions.
     > 📈 Real-time arbitrage math & sweet spot alerts.
-    > 👇 Download The Points Array App to check your yield:
+    > 👇 Download The Indian Points Array App to check your yield:
     > `[LinkTree URL: App Download | Booking Concierge]`
 
 ### 💼 LinkedIn Setup
 *   **Page Type**: Company Page / Creator Profile
 *   **Tagline**: Corporate Credit Card Arbitrage & Luxury Travel Redemptions for HNWIs.
 *   **About Section**:
-    > **India Card Redemptions** helps founders, executives, and high-net-worth individuals (HNWIs) optimize their credit card spends to unlock maximum reward values. 
+    > **The Indian Points Array** helps founders, executives, and high-net-worth individuals (HNWIs) optimize their credit card spends to unlock maximum reward values. 
     > 
     > We specialize in B2B vendor payment arbitrage, Forex optimization on ad spends (Google Ads, AWS), and direct award-flight routing across international alliances. By shifting business expenses onto custom-mapped reward paths, our clients routinely convert operational overheads into flatbed Business/First Class travel and luxury hotel stays at zero out-of-pocket cost.
     > 
-    > 📲 Access our tracking and calculation models via **The Points Array** mobile application.
+    > 📲 Access our tracking and calculation models via **The Indian Points Array** mobile application.
 
 ---
 
