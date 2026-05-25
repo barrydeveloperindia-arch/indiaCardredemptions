@@ -1,62 +1,78 @@
-# 📝 Task List: Instagram Content Production & Publishing
+# 🗓️ 3-Month Instagram Content Calendar & Production Task List
 
-This playbook breaks down the exact production workflow required to take the posts in `instagram_posts_generation.md` from raw concepts to live assets.
-
----
-
-## 📂 Phase 1: Sourcing Assets (One-Time Setup)
-- [ ] **Establish Figma/Canva Workspace**:
-  - Create a shared design folder.
-  - Input the brand color palette: Obsidian Base (`#090A0F`), Accent Gold (`#D4AF37`), Text Champagne (`#F5F2EB`).
-  - Set default typography: Outfit (headings) and Inter (body).
-- [ ] **Collect App Screen Recordings**:
-  - Open **The Indian Points Array** mobile app.
-  - Record short 5-second clips scrolling through the `ArbitrageCalculator`, showing the `WalletCard` gradients, and running flight searches.
-  - Store these in a "B-Roll" folder.
-- [ ] **Source Luxury Cabin B-Roll**:
-  - Download 10-15 high-quality, royalty-free clips of Business Class seats, airport lounges, and luxury hotel suites (use Canva Pro, Pexels, or Pixabay).
+This playbook establishes a complete **3-month (12-week) content calendar** and execution task list for **The Indian Points Array** on Instagram.
 
 ---
 
-## 🎨 Phase 2: Carousel Graphic Production (For Posts 1, 3, 5, 7)
-- [ ] **Step 1: Design the Slide Templates (Canva/Figma)**:
-  - Slide size: 1080x1350 px (Portrait 4:5 aspect ratio is better than 1:1 squares because it occupies more screen space).
-  - Create a "Hook Cover" slide template (Dark slate background, bold white/gold header text, and a minimalist card graphic).
-  - Create a "Data Comparison" slide template (Clean tables showing *Before vs After* or *Fees vs Rewards*).
-  - Create a "Call to Action" slide template (Mockup of a phone displaying the app with a gold arrow pointing downwards to the bio).
-- [ ] **Step 2: Input the Generated Copy**:
-  - Open `instagram_posts_generation.md`.
-  - Copy-paste the slide text for Post 1 (POS Hack) and Post 3 (Whale Bounce) into the templates.
-- [ ] **Step 3: Export**:
-  - Export as high-quality PNGs.
+## 🎨 Phase 1: Visual Identity & Templates
+- [ ] **Canva/Figma Theme Setup**: Design 3 visual templates based on **The Indian Points Array** styling:
+  - *Primary Background*: Obsidian Black (`#090A0F`)
+  - *Accent Elements*: Metallic Gold (`#D4AF37`)
+  - *Typography*: Outfit (Headings) + Inter (Body)
+- [ ] **B-Roll Bank Collection**: Gather 15 reusable high-definition clips of Business Class cabins, airport lounges, and luxury hotel rooms.
 
 ---
 
-## 🎬 Phase 3: Reel Video Editing (For Posts 2, 4, 6)
-- [ ] **Step 1: Record Voiceover / Talking Head**:
-  - Read the script from `instagram_posts_generation.md` using a warm, confident tone.
-  - Keep the pacing fast—aim to fit the script within 30 to 45 seconds.
-- [ ] **Step 2: Import into Editing Software (CapCut / Premiere Pro)**:
-  - Set timeline to 9:16 aspect ratio (1080x1920 px).
-  - Cut out any silent pauses or breathing spaces.
-- [ ] **Step 3: Overlay B-Roll & Screen Recordings**:
-  - When mentioning the credit card, slide in the app’s `WalletCard` graphic.
-  - When mentioning the flight booking, overlay the luxury cabin B-roll.
-- [ ] **Step 4: Generate Dynamic Captions**:
-  - Use CapCut’s "Auto Captions" tool.
-  - Style the text: Bold sans-serif, white/gold colors, styled in the center of the screen.
+## 🗓️ Month 1: Foundation & Authority (Weeks 1 - 4)
+*Goal: Introduce the brand, establish mathematical authority, and hook the audience with simple sweet spots.*
+
+### 📋 Month 1 Production Tasks:
+- [ ] **Week 1: Core Flight Sweeps**
+  - Post 1 (Reel): Delhi to London Business Class for ₹4,500 using Aeroplan points.
+  - Post 2 (Carousel): The Qatar Airways Avios Bridge (Bypassing direct-transfer blocks).
+- [ ] **Week 2: App & Milestone Basics**
+  - Post 3 (Reel): How to read Axis Atlas Milestone progress bars.
+  - Post 4 (Carousel): The 4 best credit cards in India for 2026.
+- [ ] **Week 3: General Spend Optimization**
+  - Post 5 (Reel): The Amazon Pay voucher loop (getting 20% back on Uber/Zomato).
+  - Post 4 (Carousel): Bypassing IRCTC credit card booking fees using GyFTR cards.
+- [ ] **Week 4: First App Launch Sweep**
+  - Post 7 (Reel): Introducing **The Indian Points Array** App (Wallet Audit CTA).
+  - Post 8 (Carousel): High Yield vs Low Yield point redemptions.
 
 ---
 
-## 🚀 Phase 4: Publishing & Optimization
-- [ ] **Step 1: Format Captions**:
-  - Copy the captions from `instagram_posts_generation.md`.
-  - Ensure clear line breaks between paragraphs so it doesn't look like a block of text.
-- [ ] **Step 2: Schedule the Posts**:
-  - Use Instagram Creator Studio or Meta Business Suite.
-  - Optimal India Posting Hours:
-    *   **Morning**: 8:30 AM (commute reading).
-    *   **Afternoon**: 1:30 PM (lunch break scrolling).
-    *   **Night**: 8:30 PM (peak activity).
-- [ ] **Step 3: First Comment Setup**:
-  - Pin a comment explaining where to find the link (e.g. *"Link to download the app is in the bio. Comment APP below and we will DM you the direct link!"*).
+## 🗓️ Month 2: Advanced B2B & Business Arbitrage (Weeks 5 - 8)
+*Goal: Target high-spenders, founders, and business owners. Introduce cash flow floating and tax optimization.*
+
+### 📋 Month 2 Production Tasks:
+- [ ] **Week 5: B2B Gateway Proxies**
+  - Post 9 (Reel): Why banks blocked Pice/BharatNXT gateways and the POS workaround.
+  - Post 10 (Carousel): swiping on your own POS to earn 5X multipliers legally.
+- [ ] **Week 6: Debt Floating & Cash Flow**
+  - Post 11 (Reel): The "Infinite Float" Loop (rotating IDFC cash and Amex POS).
+  - Post 12 (Carousel): The "Whale Bounce" (Floating ₹10 Lakhs of working capital at a profit).
+- [ ] **Week 7: Tax & Compliance Swipes**
+  - Post 13 (Reel): How to pay your corporate GST and income tax using reward cards.
+  - Post 14 (Carousel): Keeping POS spend tax-compliant under GST rules.
+- [ ] **Week 8: B2B Milestones & Delegations**
+  - Post 15 (Reel): Setting up secondary cards for team members to consolidate business points.
+  - Post 16 (Carousel): The Taj e-Gift Voucher Milestone roadmap (₹7.5L spend strategy).
+
+---
+
+## 🗓️ Month 3: Lifestyle, Upgrades, & Conversions (Weeks 9 - 12)
+*Goal: Highlight high-end aspirational results (luxury stays/upgrades) and drive massive app downloads.*
+
+### 📋 Month 3 Production Tasks:
+- [ ] **Week 9: Hotel Stays & Vacation Math**
+  - Post 17 (Reel): Booking Maldives overwater villas for 40k Marriott Bonvoy points.
+  - Post 18 (Carousel): Switzerland for free: Squeezing €1,440 of direct value from Accor points.
+- [ ] **Week 10: Upgrades & Last-Minute Space**
+  - Post 19 (Reel): T-4 close-in award flight releases: Sourcing cheap seats 72 hours before takeoff.
+  - Post 20 (Carousel): Upgrading a cash Economy ticket to Business using 20k points.
+- [ ] **Week 11: International Spends & Forex**
+  - Post 21 (Reel): Overcoming Forex markup fees on international Google Ads/AWS billing.
+  - Post 22 (Carousel): HDFC Infinia vs. Axis Atlas: The ultimate premium card battle.
+- [ ] **Week 12: App Growth Push**
+  - Post 23 (Reel): Walkthrough of **The Indian Points Array** yield calculator features.
+  - Post 24 (Carousel): Join our Premium Concierge: Why 5 Lakh points deserve a dedicated architect.
+
+---
+
+## 🚀 Weekly Publishing Workflow (Checklist)
+- [ ] **Monday**: Script and film the Week's Reel.
+- [ ] **Tuesday**: Edit the Reel and add auto-captions (CapCut/Premiere).
+- [ ] **Wednesday**: Design the Carousel graphic (Canva/Figma).
+- [ ] **Thursday**: Write captions and tags (copying from the template bank).
+- [ ] **Friday**: Schedule the Reel for 8:30 AM and Carousel for 8:30 PM (Indian Standard Time).
