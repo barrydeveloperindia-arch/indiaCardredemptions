@@ -11,7 +11,7 @@ To attract high-earning credit cardholders and premium travelers, the brand must
 ### Logo & Profile Picture
 The official profile asset represents a credit card sleekly transitioning into a golden supersonic jet silhouette, set against an obsidian black background:
 
-![Official Brand Logo](file:///C:/Users/pc/.gemini/antigravity/brain/b28f4235-2371-40d0-a7f5-bb42429623af/artifacts/brand_logo_design.png)
+![Official Brand Logo](file:///C:/Users/pc/.gemini/antigravity/brain/b28f4235-2371-40d0-a7f5-bb42429623af/artifacts/updated_brand_logo.png)
 
 ### Design System
 *   **Palette**:
