@@ -13,14 +13,22 @@ The official profile asset represents a credit card sleekly transitioning into a
 
 ![Official Brand Logo](file:///C:/Users/pc/.gemini/antigravity/brain/b28f4235-2371-40d0-a7f5-bb42429623af/artifacts/updated_brand_logo.png)
 
-### Design System
-*   **Palette**:
-    *   **Obsidian Black (`#090A0F`)**: Primary background. Represents privacy and premium access.
-    *   **Metallic Gold (`#D4AF37`)**: Accents, borders, and callouts. Represents high yield and reward miles.
-    *   **Champagne Light (`#F5F2EB`)**: Body text. Softer than pure white to ease reading.
+### Design System (V2: Obsidian Gold & Holographic Quartz)
+*   **Color Palette**:
+    *   **Obsidian Base**: Deep Space to Obsidian Black gradient (`#030406` to `#0B0C10`) with an organic central radial gold wash.
+    *   **Metallic Gold (`#D4AF37`)**: Premium accents, active card borders, chart nodes, and key math highlights.
+    *   **Champagne Light (`#F5F2EB`)**: Highly readable body text.
+    *   **Holographic Highlights**: Translucent iridescent edge reflections (subtle cyan/magenta) mimicking light bouncing off luxury quartz crystals.
+*   **Glassmorphic Layouts**:
+    *   Use frosted glass panels for content backgrounds.
+    *   **Border**: $1.2$px gold border with $25\%$ opacity.
+    *   **Backdrop Blur**: $20$px radius.
 *   **Typography**:
-    *   *Headings*: **Playfair Display** or **Outfit** (Elegant, modern sans-serif).
-    *   *Body Text*: **Inter** (High readability on mobile devices).
+    *   *Headings*: **Outfit** (Bold, spacious sans-serif in Gold/White).
+    *   *Body Text*: **Inter** (Elegant, crisp sans-serif with $1.6$ line spacing).
+*   **3D Visual Motifs**:
+    *   All cover slides and primary graphics utilize a **luxury 3D rendering style**: detailed, high-fidelity 3D assets (marble scales, glass cards, hourglasses) placed on obsidian reflection mirrors.
+    *   **Standard Generator Prefix**: `Luxurious 3D render of [motif] on an obsidian mirror, volumetric gold lighting, glassmorphism panel, Octane render, photorealistic, 8k --aspect 4:5`
 
 ---
 

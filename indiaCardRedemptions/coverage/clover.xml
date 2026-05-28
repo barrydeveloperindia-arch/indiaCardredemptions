@@ -1,107 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1779456741010" clover="3.2.0">
-  <project timestamp="1779456741010" name="All files">
-    <metrics statements="218" coveredstatements="218" conditionals="177" coveredconditionals="177" methods="19" coveredmethods="19" elements="414" coveredelements="414" complexity="0" loc="218" ncloc="218" packages="1" files="11" classes="11"/>
-    <file name="aiHandler.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\aiHandler.ts">
-      <metrics statements="17" coveredstatements="17" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
-      <line num="20" count="3" type="stmt"/>
-      <line num="22" count="3" type="stmt"/>
-      <line num="24" count="3" type="stmt"/>
-      <line num="25" count="3" type="cond" truecount="2" falsecount="0"/>
-      <line num="26" count="1" type="stmt"/>
-      <line num="28" count="2" type="stmt"/>
-      <line num="29" count="2" type="stmt"/>
-      <line num="30" count="3" type="stmt"/>
+<coverage generated="1780004169868" clover="3.2.0">
+  <project timestamp="1780004169868" name="All files">
+    <metrics statements="325" coveredstatements="325" conditionals="261" coveredconditionals="261" methods="33" coveredmethods="33" elements="619" coveredelements="619" complexity="0" loc="325" ncloc="325" packages="1" files="14" classes="14"/>
+    <file name="aiHandler.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\aiHandler.ts">
+      <metrics statements="60" coveredstatements="60" conditionals="54" coveredconditionals="54" methods="4" coveredmethods="4"/>
       <line num="31" count="3" type="stmt"/>
-      <line num="34" count="2" type="stmt"/>
-      <line num="35" count="2" type="stmt"/>
-      <line num="36" count="3" type="stmt"/>
-      <line num="37" count="3" type="cond" truecount="2" falsecount="0"/>
-      <line num="38" count="2" type="stmt"/>
-      <line num="39" count="4" type="stmt"/>
-      <line num="40" count="4" type="stmt"/>
-      <line num="46" count="3" type="stmt"/>
+      <line num="33" count="3" type="stmt"/>
+      <line num="35" count="3" type="stmt"/>
+      <line num="36" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="37" count="1" type="stmt"/>
+      <line num="39" count="2" type="stmt"/>
+      <line num="40" count="2" type="stmt"/>
+      <line num="41" count="3" type="stmt"/>
+      <line num="42" count="3" type="stmt"/>
+      <line num="45" count="2" type="stmt"/>
+      <line num="46" count="2" type="stmt"/>
+      <line num="47" count="3" type="stmt"/>
+      <line num="48" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="49" count="2" type="stmt"/>
+      <line num="50" count="4" type="stmt"/>
+      <line num="51" count="4" type="stmt"/>
+      <line num="57" count="3" type="stmt"/>
+      <line num="71" count="10" type="stmt"/>
+      <line num="74" count="10" type="stmt"/>
+      <line num="75" count="10" type="stmt"/>
+      <line num="78" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="79" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="82" count="10" type="stmt"/>
+      <line num="83" count="11" type="cond" truecount="4" falsecount="0"/>
+      <line num="84" count="9" type="cond" truecount="2" falsecount="0"/>
+      <line num="85" count="8" type="cond" truecount="2" falsecount="0"/>
+      <line num="86" count="7" type="cond" truecount="2" falsecount="0"/>
+      <line num="87" count="6" type="stmt"/>
+      <line num="88" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="91" count="10" type="stmt"/>
+      <line num="92" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="93" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="96" count="10" type="stmt"/>
+      <line num="97" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="98" count="5" type="stmt"/>
+      <line num="102" count="10" type="cond" truecount="4" falsecount="0"/>
+      <line num="103" count="3" type="stmt"/>
+      <line num="107" count="10" type="stmt"/>
+      <line num="108" count="10" type="stmt"/>
+      <line num="110" count="10" type="cond" truecount="4" falsecount="0"/>
+      <line num="111" count="3" type="stmt"/>
+      <line num="113" count="10" type="cond" truecount="5" falsecount="0"/>
+      <line num="114" count="1" type="stmt"/>
+      <line num="118" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="119" count="7" type="stmt"/>
+      <line num="123" count="10" type="cond" truecount="3" falsecount="0"/>
+      <line num="125" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="126" count="10" type="stmt"/>
+      <line num="127" count="10" type="stmt"/>
+      <line num="130" count="10" type="stmt"/>
+      <line num="131" count="10" type="stmt"/>
+      <line num="133" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="134" count="5" type="stmt"/>
+      <line num="135" count="5" type="cond" truecount="2" falsecount="0"/>
+      <line num="136" count="4" type="stmt"/>
+      <line num="138" count="1" type="stmt"/>
+      <line num="142" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="143" count="10" type="stmt"/>
+      <line num="144" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="146" count="10" type="stmt"/>
     </file>
-    <file name="arbitrageCalculator.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\arbitrageCalculator.ts">
+    <file name="arbitrageCalculator.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\arbitrageCalculator.ts">
       <metrics statements="6" coveredstatements="6" conditionals="6" coveredconditionals="6" methods="2" coveredmethods="2"/>
       <line num="11" count="4" type="cond" truecount="4" falsecount="0"/>
       <line num="12" count="1" type="stmt"/>
       <line num="13" count="1" type="stmt"/>
-      <line num="17" count="8" type="cond" truecount="2" falsecount="0"/>
-      <line num="18" count="6" type="stmt"/>
-      <line num="19" count="6" type="stmt"/>
+      <line num="17" count="18" type="cond" truecount="2" falsecount="0"/>
+      <line num="18" count="16" type="stmt"/>
+      <line num="19" count="16" type="stmt"/>
     </file>
-    <file name="envConfig.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\envConfig.ts">
+    <file name="bridgeHelper.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\bridgeHelper.ts">
+      <metrics statements="22" coveredstatements="22" conditionals="18" coveredconditionals="18" methods="3" coveredmethods="3"/>
+      <line num="10" count="6" type="stmt"/>
+      <line num="11" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="12" count="1" type="stmt"/>
+      <line num="14" count="5" type="cond" truecount="4" falsecount="0"/>
+      <line num="15" count="1" type="stmt"/>
+      <line num="17" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="18" count="2" type="stmt"/>
+      <line num="20" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="23" count="1" type="stmt"/>
+      <line num="33" count="5" type="stmt"/>
+      <line num="34" count="5" type="cond" truecount="2" falsecount="0"/>
+      <line num="35" count="2" type="stmt"/>
+      <line num="37" count="3" type="cond" truecount="4" falsecount="0"/>
+      <line num="38" count="1" type="stmt"/>
+      <line num="40" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="43" count="1" type="stmt"/>
+      <line num="53" count="3" type="stmt"/>
+      <line num="54" count="3" type="stmt"/>
+      <line num="55" count="2" type="stmt"/>
+      <line num="57" count="1" type="stmt"/>
+    </file>
+    <file name="envConfig.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\envConfig.ts">
       <metrics statements="1" coveredstatements="1" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
       <line num="13" count="2" type="stmt"/>
     </file>
-    <file name="loyaltyMatrixEngine.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\loyaltyMatrixEngine.ts">
+    <file name="haptics.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\haptics.ts">
+      <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="4" count="2" type="stmt"/>
+      <line num="5" count="2" type="stmt"/>
+      <line num="11" count="1" type="stmt"/>
+      <line num="12" count="1" type="stmt"/>
+      <line num="13" count="1" type="stmt"/>
+      <line num="19" count="1" type="stmt"/>
+      <line num="20" count="1" type="stmt"/>
+      <line num="21" count="1" type="stmt"/>
+    </file>
+    <file name="loyaltyMatrixEngine.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\loyaltyMatrixEngine.ts">
       <metrics statements="56" coveredstatements="56" conditionals="64" coveredconditionals="64" methods="4" coveredmethods="4"/>
-      <line num="18" count="2" type="stmt"/>
-      <line num="35" count="56" type="cond" truecount="2" falsecount="0"/>
-      <line num="37" count="55" type="stmt"/>
-      <line num="40" count="55" type="cond" truecount="2" falsecount="0"/>
+      <line num="18" count="5" type="stmt"/>
+      <line num="35" count="84" type="cond" truecount="2" falsecount="0"/>
+      <line num="37" count="83" type="stmt"/>
+      <line num="40" count="83" type="cond" truecount="2" falsecount="0"/>
       <line num="41" count="5" type="cond" truecount="2" falsecount="0"/>
-      <line num="46" count="50" type="cond" truecount="2" falsecount="0"/>
-      <line num="47" count="15" type="stmt"/>
-      <line num="48" count="15" type="cond" truecount="2" falsecount="0"/>
-      <line num="49" count="8" type="stmt"/>
+      <line num="46" count="78" type="cond" truecount="2" falsecount="0"/>
+      <line num="47" count="25" type="stmt"/>
+      <line num="48" count="25" type="cond" truecount="2" falsecount="0"/>
+      <line num="49" count="18" type="stmt"/>
       <line num="53" count="7" type="stmt"/>
       <line num="60" count="7" type="cond" truecount="2" falsecount="0"/>
       <line num="61" count="6" type="stmt"/>
-      <line num="66" count="36" type="cond" truecount="2" falsecount="0"/>
-      <line num="68" count="8" type="cond" truecount="4" falsecount="0"/>
+      <line num="66" count="54" type="cond" truecount="2" falsecount="0"/>
+      <line num="68" count="12" type="cond" truecount="4" falsecount="0"/>
       <line num="69" count="7" type="cond" truecount="2" falsecount="0"/>
       <line num="70" count="6" type="cond" truecount="4" falsecount="0"/>
       <line num="73" count="5" type="stmt"/>
       <line num="76" count="5" type="cond" truecount="2" falsecount="0"/>
       <line num="77" count="4" type="stmt"/>
-      <line num="82" count="29" type="cond" truecount="2" falsecount="0"/>
-      <line num="83" count="16" type="stmt"/>
-      <line num="90" count="16" type="cond" truecount="2" falsecount="0"/>
-      <line num="91" count="15" type="stmt"/>
-      <line num="96" count="14" type="cond" truecount="2" falsecount="0"/>
-      <line num="97" count="7" type="cond" truecount="2" falsecount="0"/>
-      <line num="98" count="2" type="cond" truecount="2" falsecount="0"/>
-      <line num="102" count="8" type="cond" truecount="2" falsecount="0"/>
+      <line num="82" count="43" type="cond" truecount="2" falsecount="0"/>
+      <line num="83" count="26" type="stmt"/>
+      <line num="90" count="26" type="cond" truecount="2" falsecount="0"/>
+      <line num="91" count="25" type="stmt"/>
+      <line num="96" count="18" type="cond" truecount="2" falsecount="0"/>
+      <line num="97" count="11" type="cond" truecount="2" falsecount="0"/>
+      <line num="98" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="102" count="12" type="cond" truecount="2" falsecount="0"/>
       <line num="103" count="4" type="cond" truecount="2" falsecount="0"/>
       <line num="104" count="2" type="cond" truecount="2" falsecount="0"/>
-      <line num="107" count="5" type="stmt"/>
-      <line num="114" count="9" type="stmt"/>
-      <line num="115" count="9" type="cond" truecount="2" falsecount="0"/>
+      <line num="107" count="9" type="stmt"/>
+      <line num="114" count="19" type="stmt"/>
+      <line num="115" count="19" type="cond" truecount="2" falsecount="0"/>
       <line num="116" count="2" type="stmt"/>
-      <line num="122" count="7" type="stmt"/>
-      <line num="123" count="7" type="cond" truecount="2" falsecount="0"/>
+      <line num="122" count="17" type="stmt"/>
+      <line num="123" count="17" type="cond" truecount="2" falsecount="0"/>
       <line num="124" count="2" type="stmt"/>
-      <line num="130" count="5" type="stmt"/>
-      <line num="141" count="12" type="stmt"/>
-      <line num="143" count="12" type="stmt"/>
-      <line num="144" count="24" type="stmt"/>
-      <line num="145" count="24" type="cond" truecount="2" falsecount="0"/>
-      <line num="146" count="20" type="stmt"/>
-      <line num="147" count="20" type="stmt"/>
-      <line num="148" count="20" type="stmt"/>
-      <line num="150" count="20" type="stmt"/>
-      <line num="151" count="20" type="cond" truecount="2" falsecount="0"/>
-      <line num="152" count="11" type="stmt"/>
-      <line num="153" count="9" type="cond" truecount="4" falsecount="0"/>
+      <line num="130" count="15" type="stmt"/>
+      <line num="141" count="22" type="stmt"/>
+      <line num="143" count="22" type="stmt"/>
+      <line num="144" count="52" type="stmt"/>
+      <line num="145" count="52" type="cond" truecount="2" falsecount="0"/>
+      <line num="146" count="34" type="stmt"/>
+      <line num="147" count="34" type="stmt"/>
+      <line num="148" count="34" type="stmt"/>
+      <line num="150" count="34" type="stmt"/>
+      <line num="151" count="34" type="cond" truecount="2" falsecount="0"/>
+      <line num="152" count="21" type="stmt"/>
+      <line num="153" count="13" type="cond" truecount="4" falsecount="0"/>
       <line num="154" count="2" type="stmt"/>
-      <line num="155" count="7" type="cond" truecount="2" falsecount="0"/>
+      <line num="155" count="11" type="cond" truecount="2" falsecount="0"/>
       <line num="156" count="1" type="stmt"/>
-      <line num="159" count="20" type="stmt"/>
-      <line num="171" count="12" type="stmt"/>
-      <line num="172" count="8" type="cond" truecount="2" falsecount="0"/>
+      <line num="159" count="34" type="stmt"/>
+      <line num="171" count="22" type="stmt"/>
+      <line num="172" count="12" type="cond" truecount="2" falsecount="0"/>
       <line num="173" count="3" type="stmt"/>
-      <line num="175" count="5" type="cond" truecount="4" falsecount="0"/>
+      <line num="175" count="9" type="cond" truecount="4" falsecount="0"/>
     </file>
-    <file name="matrixEngine.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\matrixEngine.ts">
+    <file name="matrixEngine.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\matrixEngine.ts">
       <metrics statements="4" coveredstatements="4" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
       <line num="3" count="1" type="stmt"/>
       <line num="14" count="5" type="cond" truecount="4" falsecount="0"/>
       <line num="15" count="3" type="stmt"/>
       <line num="17" count="2" type="stmt"/>
     </file>
-    <file name="mccChecker.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\mccChecker.ts">
+    <file name="mccChecker.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\mccChecker.ts">
       <metrics statements="27" coveredstatements="27" conditionals="40" coveredconditionals="40" methods="1" coveredmethods="1"/>
       <line num="3" count="1" type="stmt"/>
       <line num="13" count="10" type="stmt"/>
@@ -131,7 +211,7 @@
       <line num="52" count="1" type="stmt"/>
       <line num="56" count="2" type="stmt"/>
     </file>
-    <file name="milestoneTracker.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\milestoneTracker.ts">
+    <file name="milestoneTracker.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\milestoneTracker.ts">
       <metrics statements="52" coveredstatements="52" conditionals="23" coveredconditionals="23" methods="3" coveredmethods="3"/>
       <line num="18" count="5" type="stmt"/>
       <line num="24" count="5" type="stmt"/>
@@ -149,44 +229,54 @@
       <line num="44" count="2" type="stmt"/>
       <line num="47" count="5" type="stmt"/>
       <line num="49" count="5" type="stmt"/>
-      <line num="66" count="9" type="stmt"/>
-      <line num="72" count="9" type="stmt"/>
-      <line num="73" count="9" type="stmt"/>
-      <line num="74" count="9" type="stmt"/>
-      <line num="75" count="9" type="stmt"/>
-      <line num="77" count="9" type="stmt"/>
-      <line num="78" count="27" type="cond" truecount="2" falsecount="0"/>
-      <line num="79" count="12" type="stmt"/>
-      <line num="80" count="12" type="stmt"/>
-      <line num="81" count="12" type="cond" truecount="2" falsecount="0"/>
+      <line num="66" count="23" type="stmt"/>
+      <line num="72" count="23" type="stmt"/>
+      <line num="73" count="23" type="stmt"/>
+      <line num="74" count="23" type="stmt"/>
+      <line num="75" count="23" type="stmt"/>
+      <line num="77" count="23" type="stmt"/>
+      <line num="78" count="69" type="cond" truecount="2" falsecount="0"/>
+      <line num="79" count="22" type="stmt"/>
+      <line num="80" count="22" type="stmt"/>
+      <line num="81" count="22" type="cond" truecount="2" falsecount="0"/>
       <line num="82" count="2" type="stmt"/>
-      <line num="84" count="12" type="stmt"/>
-      <line num="85" count="12" type="cond" truecount="2" falsecount="0"/>
-      <line num="86" count="10" type="stmt"/>
+      <line num="84" count="22" type="stmt"/>
+      <line num="85" count="22" type="cond" truecount="2" falsecount="0"/>
+      <line num="86" count="20" type="stmt"/>
       <line num="88" count="2" type="stmt"/>
-      <line num="93" count="9" type="cond" truecount="2" falsecount="0"/>
-      <line num="94" count="2" type="stmt"/>
-      <line num="97" count="9" type="stmt"/>
-      <line num="99" count="9" type="stmt"/>
-      <line num="120" count="13" type="stmt"/>
-      <line num="121" count="13" type="stmt"/>
-      <line num="122" count="13" type="stmt"/>
-      <line num="124" count="13" type="cond" truecount="2" falsecount="0"/>
-      <line num="125" count="11" type="stmt"/>
-      <line num="128" count="11" type="cond" truecount="2" falsecount="0"/>
+      <line num="93" count="23" type="cond" truecount="2" falsecount="0"/>
+      <line num="94" count="6" type="stmt"/>
+      <line num="97" count="23" type="stmt"/>
+      <line num="99" count="23" type="stmt"/>
+      <line num="120" count="23" type="stmt"/>
+      <line num="121" count="23" type="stmt"/>
+      <line num="122" count="23" type="stmt"/>
+      <line num="124" count="23" type="cond" truecount="2" falsecount="0"/>
+      <line num="125" count="21" type="stmt"/>
+      <line num="128" count="21" type="cond" truecount="2" falsecount="0"/>
       <line num="129" count="1" type="stmt"/>
-      <line num="130" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="130" count="20" type="cond" truecount="2" falsecount="0"/>
       <line num="131" count="1" type="stmt"/>
-      <line num="132" count="9" type="cond" truecount="2" falsecount="0"/>
+      <line num="132" count="19" type="cond" truecount="2" falsecount="0"/>
       <line num="133" count="1" type="stmt"/>
-      <line num="135" count="8" type="stmt"/>
-      <line num="136" count="8" type="stmt"/>
-      <line num="137" count="8" type="stmt"/>
-      <line num="141" count="13" type="stmt"/>
-      <line num="142" count="13" type="stmt"/>
-      <line num="144" count="13" type="stmt"/>
+      <line num="135" count="18" type="stmt"/>
+      <line num="136" count="18" type="stmt"/>
+      <line num="137" count="18" type="stmt"/>
+      <line num="141" count="23" type="stmt"/>
+      <line num="142" count="23" type="stmt"/>
+      <line num="144" count="23" type="stmt"/>
     </file>
-    <file name="offlineCache.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\offlineCache.ts">
+    <file name="network.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\network.ts">
+      <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+      <line num="11" count="6" type="stmt"/>
+      <line num="12" count="6" type="stmt"/>
+      <line num="13" count="6" type="stmt"/>
+      <line num="16" count="6" type="stmt"/>
+      <line num="22" count="1" type="stmt"/>
+      <line num="23" count="1" type="stmt"/>
+      <line num="25" count="3" type="stmt"/>
+    </file>
+    <file name="offlineCache.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\offlineCache.ts">
       <metrics statements="10" coveredstatements="10" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
       <line num="4" count="1" type="stmt"/>
       <line num="12" count="2" type="stmt"/>
@@ -199,7 +289,7 @@
       <line num="32" count="1" type="stmt"/>
       <line num="34" count="1" type="stmt"/>
     </file>
-    <file name="pdfParser.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\pdfParser.ts">
+    <file name="pdfParser.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\pdfParser.ts">
       <metrics statements="21" coveredstatements="21" conditionals="10" coveredconditionals="10" methods="1" coveredmethods="1"/>
       <line num="15" count="3" type="stmt"/>
       <line num="16" count="3" type="stmt"/>
@@ -223,7 +313,7 @@
       <line num="47" count="2" type="stmt"/>
       <line num="52" count="3" type="stmt"/>
     </file>
-    <file name="pdfSanitizer.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\pdfSanitizer.ts">
+    <file name="pdfSanitizer.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\pdfSanitizer.ts">
       <metrics statements="11" coveredstatements="11" conditionals="12" coveredconditionals="12" methods="1" coveredmethods="1"/>
       <line num="20" count="6" type="cond" truecount="2" falsecount="0"/>
       <line num="21" count="1" type="stmt"/>
@@ -237,8 +327,8 @@
       <line num="38" count="1" type="stmt"/>
       <line num="41" count="1" type="stmt"/>
     </file>
-    <file name="travelApi.ts" path="C:\Users\pc\Documents\Antigravity\indiaCardRedemptions\src\utils\travelApi.ts">
-      <metrics statements="13" coveredstatements="13" conditionals="8" coveredconditionals="8" methods="2" coveredmethods="2"/>
+    <file name="travelApi.ts" path="C:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions\src\utils\travelApi.ts">
+      <metrics statements="39" coveredstatements="39" conditionals="24" coveredconditionals="24" methods="5" coveredmethods="5"/>
       <line num="16" count="6" type="cond" truecount="2" falsecount="0"/>
       <line num="17" count="1" type="stmt"/>
       <line num="20" count="5" type="stmt"/>
@@ -252,6 +342,32 @@
       <line num="54" count="3" type="stmt"/>
       <line num="55" count="1" type="stmt"/>
       <line num="57" count="1" type="stmt"/>
+      <line num="79" count="7" type="cond" truecount="2" falsecount="0"/>
+      <line num="80" count="1" type="stmt"/>
+      <line num="83" count="6" type="cond" truecount="2" falsecount="0"/>
+      <line num="84" count="2" type="stmt"/>
+      <line num="91" count="4" type="stmt"/>
+      <line num="92" count="4" type="stmt"/>
+      <line num="118" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="119" count="1" type="stmt"/>
+      <line num="122" count="2" type="stmt"/>
+      <line num="123" count="2" type="stmt"/>
+      <line num="125" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="126" count="1" type="stmt"/>
+      <line num="129" count="1" type="stmt"/>
+      <line num="135" count="1" type="stmt"/>
+      <line num="158" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="159" count="1" type="stmt"/>
+      <line num="162" count="2" type="stmt"/>
+      <line num="163" count="2" type="stmt"/>
+      <line num="185" count="3" type="stmt"/>
+      <line num="186" count="3" type="stmt"/>
+      <line num="187" count="3" type="stmt"/>
+      <line num="188" count="3" type="cond" truecount="4" falsecount="0"/>
+      <line num="189" count="1" type="stmt"/>
+      <line num="190" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="191" count="1" type="stmt"/>
+      <line num="193" count="3" type="stmt"/>
     </file>
   </project>
 </coverage>
