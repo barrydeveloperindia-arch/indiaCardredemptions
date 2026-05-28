@@ -1,6 +1,6 @@
 import os
 import shutil
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 # Base Directory
 BASE_DIR = r"c:\Users\SAM\Documents\Antigravity\indiaCardredemptions\indiaCardRedemptions"
@@ -87,6 +87,8 @@ def create_slide_base(title_text):
         w = title_font.getlength(title_text)
     except AttributeError:
         w = title_font.getbbox(title_text)[2]
+    # Draw shadow first
+    draw.text(((1080 - w) // 2 + 3, 100 + 3), title_text, fill=(0, 0, 0, 220), font=title_font)
     draw.text(((1080 - w) // 2, 100), title_text, fill=COLOR_GOLD, font=title_font)
     
     # Overlay TPA logo top right
@@ -99,6 +101,23 @@ def create_slide_base(title_text):
     return img, draw
 
 def add_motif(img, motif_name, y_offset=260):
+    # 1. Golden Back-Glow behind the motif to integrate it with the gold theme
+    glow_size = 500
+    glow_img = Image.new("RGBA", (glow_size, glow_size), (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow_img)
+    glow_draw.ellipse([50, 50, glow_size - 50, glow_size - 50], fill=(212, 175, 55, 25))
+    glow_img = glow_img.filter(ImageFilter.GaussianBlur(40))
+    img.paste(glow_img, ((1080 - glow_size) // 2, y_offset + 50), glow_img)
+    
+    # 2. Contact Shadow under the motif
+    shadow_w, shadow_h = 420, 50
+    shadow_img = Image.new("RGBA", (shadow_w, shadow_h), (0, 0, 0, 0))
+    shadow_draw = ImageDraw.Draw(shadow_img)
+    shadow_draw.ellipse([10, 5, shadow_w - 10, shadow_h - 5], fill=(0, 0, 0, 160))
+    shadow_img = shadow_img.filter(ImageFilter.GaussianBlur(15))
+    img.paste(shadow_img, ((1080 - shadow_w) // 2, y_offset + 530), shadow_img)
+
+    # 3. Paste the actual 3D Motif on top
     motif_path = os.path.join(IMAGES_DIR, f"3d_{motif_name}.png")
     if os.path.exists(motif_path):
         motif = Image.open(motif_path).convert("RGBA")
@@ -115,6 +134,8 @@ def add_body_text(draw, text_lines, y_start=920):
             w = body_font.getlength(line)
         except AttributeError:
             w = body_font.getbbox(line)[2]
+        # Draw shadow first
+        draw.text(((1080 - w) // 2 + 2, y + 2), line, fill=(0, 0, 0, 220), font=body_font)
         draw.text(((1080 - w) // 2, y), line, fill=COLOR_TEXT, font=body_font)
         y += 60
 
@@ -131,6 +152,8 @@ def draw_card(draw, x_start, y_start, width, height, title, lines, badge_text, b
         w = title_font.getlength(title)
     except AttributeError:
         w = title_font.getbbox(title)[2]
+    # Shadow
+    draw.text((x_start + (width - w) // 2 + 2, y_start + 42), title, fill=(0, 0, 0, 220), font=title_font)
     draw.text((x_start + (width - w) // 2, y_start + 40), title, fill=COLOR_GOLD, font=title_font)
     
     # Divider line (Thin translucent separator)
@@ -149,6 +172,8 @@ def draw_card(draw, x_start, y_start, width, height, title, lines, badge_text, b
             w = row_font.getlength(line)
         except AttributeError:
             w = row_font.getbbox(line)[2]
+        # Shadow
+        draw.text((x_start + (width - w) // 2 + 1, y + 1), line, fill=(0, 0, 0, 180), font=row_font)
         draw.text((x_start + (width - w) // 2, y), line, fill=COLOR_TEXT, font=row_font)
         y += line_spacing
         
@@ -179,6 +204,8 @@ def generate_math_slide(title_text, card1_spec, card2_spec):
         w = save_font.getlength(save_text)
     except AttributeError:
         w = save_font.getbbox(save_text)[2]
+    # Draw shadow first
+    draw.text(((1080 - w) // 2 + 2, 1052), save_text, fill=(0, 0, 0, 220), font=save_font)
     draw.text(((1080 - w) // 2, 1050), save_text, fill=COLOR_GOLD, font=save_font)
     
     return img
