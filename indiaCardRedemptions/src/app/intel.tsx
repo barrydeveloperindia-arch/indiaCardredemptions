@@ -25,9 +25,9 @@ export default function IntelScreen() {
       imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
-        <title>Credit Card News & Intel | The Points Array</title>
+        <title>Credit Card News & Intel | The Indian Points Array</title>
         <meta name="description" content="Live updates on credit card devaluations, routing sweet spots, and unannounced changes in the Indian rewards ecosystem." />
-        <meta property="og:title" content="Credit Card News & Intel | The Points Array" />
+        <meta property="og:title" content="Credit Card News & Intel | The Indian Points Array" />
         <meta property="og:description" content="Live updates on credit card devaluations, routing sweet spots, and unannounced changes in the Indian rewards ecosystem." />
       </Head>
 
@@ -44,7 +44,7 @@ export default function IntelScreen() {
           <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.header}>
             <View>
               <ThemedText style={styles.subTitle} type="code">
-                THE POINTS ARRAY INTEL
+                THE INDIAN POINTS ARRAY INTEL
               </ThemedText>
               <ThemedText style={styles.mainTitle} type="title">
                 The Latest Intelligence

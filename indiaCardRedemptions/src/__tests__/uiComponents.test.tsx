@@ -437,7 +437,7 @@ describe('IntelScreen Component UI Elements', () => {
     const { getByText, queryAllByText } = render(<IntelScreen />);
 
     // Header validation
-    expect(getByText(/THE POINTS ARRAY INTEL/i)).toBeTruthy();
+    expect(getByText(/THE INDIAN POINTS ARRAY INTEL/i)).toBeTruthy();
     expect(getByText(/The Latest Intelligence/i)).toBeTruthy();
     
     // Asserting that a devaluation warning is rendered

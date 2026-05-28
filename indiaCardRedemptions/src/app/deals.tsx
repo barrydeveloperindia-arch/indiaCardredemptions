@@ -31,9 +31,9 @@ export default function DealsScreen() {
       imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
-        <title>Live Point Sales Tracker | The Points Array</title>
+        <title>Live Point Sales Tracker | The Indian Points Array</title>
         <meta name="description" content="A dynamic ledger of live airline and hotel point sales with automatic wallet cross-referencing." />
-        <meta property="og:title" content="Live Point Sales Tracker | The Points Array" />
+        <meta property="og:title" content="Live Point Sales Tracker | The Indian Points Array" />
         <meta property="og:description" content="A dynamic ledger of live airline and hotel point sales with automatic wallet cross-referencing." />
       </Head>
 

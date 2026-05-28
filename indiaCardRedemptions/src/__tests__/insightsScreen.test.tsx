@@ -52,7 +52,7 @@ describe('InsightsScreen (Hacks & Multi-Dips)', () => {
   it('should render the facts section with live MCC checker by default', () => {
     const { getByText, getByPlaceholderText } = render(<InsightsScreen />);
 
-    expect(getByText('THE POINTS ARRAY HACKS')).toBeTruthy();
+    expect(getByText('THE INDIAN POINTS ARRAY HACKS')).toBeTruthy();
     expect(getByText('Insights & Multi-Dips')).toBeTruthy();
     expect(getByText('💡 CARD FACTS & EXCLUSIONS')).toBeTruthy();
     expect(getByText('🔥 DOUBLE & TRIPLE DIPS')).toBeTruthy();
@@ -83,7 +83,7 @@ describe('InsightsScreen (Hacks & Multi-Dips)', () => {
     fireEvent.press(getByText('🔥 DOUBLE & TRIPLE DIPS'));
 
     // Should display paywall
-    expect(getByText('Unlock The Points Array Pro')).toBeTruthy();
+    expect(getByText('Unlock The Indian Points Array Pro')).toBeTruthy();
     expect(getByText('Subscribe ₹4,999 / year')).toBeTruthy();
 
     // Calculators should be present but locked visually (within DOM)
@@ -93,6 +93,6 @@ describe('InsightsScreen (Hacks & Multi-Dips)', () => {
     fireEvent.press(getByText('Subscribe ₹4,999 / year'));
 
     // Paywall should disappear
-    expect(queryByText('Unlock The Points Array Pro')).toBeNull();
+    expect(queryByText('Unlock The Indian Points Array Pro')).toBeNull();
   });
 });

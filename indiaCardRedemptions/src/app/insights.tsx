@@ -51,9 +51,9 @@ export default function InsightsScreen() {
       imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
-        <title>Double/Triple Dip Calculator & Atlas Checker | The Points Array</title>
+        <title>Double/Triple Dip Calculator & Atlas Checker | The Indian Points Array</title>
         <meta name="description" content="Calculate extreme ROI with double and triple dips on HDFC SmartBuy and Marriott. Check live Axis Atlas MCC exclusions like BharatNXT." />
-        <meta property="og:title" content="Double/Triple Dip Calculator & Atlas Checker | The Points Array" />
+        <meta property="og:title" content="Double/Triple Dip Calculator & Atlas Checker | The Indian Points Array" />
         <meta property="og:description" content="Calculate extreme ROI with double and triple dips on HDFC SmartBuy and Marriott. Check live Axis Atlas MCC exclusions like BharatNXT." />
       </Head>
 
@@ -70,7 +70,7 @@ export default function InsightsScreen() {
           <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.header}>
             <View>
               <ThemedText style={styles.subTitle} type="code">
-                THE POINTS ARRAY HACKS
+                THE INDIAN POINTS ARRAY HACKS
               </ThemedText>
               <ThemedText style={styles.mainTitle} type="title">
                 Insights & Multi-Dips
@@ -293,7 +293,7 @@ export default function InsightsScreen() {
                   <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center', padding: Spacing.five }]}>
                     <View style={styles.paywallBox}>
                       <ThemedText style={{ fontSize: 40, textAlign: 'center', marginBottom: Spacing.two }}>🔒</ThemedText>
-                      <ThemedText style={styles.paywallTitle}>Unlock The Points Array Pro</ThemedText>
+                      <ThemedText style={styles.paywallTitle}>Unlock The Indian Points Array Pro</ThemedText>
                       <ThemedText style={styles.paywallDesc}>
                         Get full access to our proprietary Double & Triple Dip calculators, exact routing blueprints, and private arbitrage groups.
                       </ThemedText>

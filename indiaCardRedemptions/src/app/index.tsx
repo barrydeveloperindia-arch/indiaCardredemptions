@@ -243,7 +243,7 @@ export default function HomeScreen() {
       imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
-        <title>The Points Array | Hotel & Flight Arbitrage Solver</title>
+        <title>The Indian Points Array | Hotel & Flight Arbitrage Solver</title>
       </Head>
       
       <Animated.View entering={FadeIn.duration(1500)} style={StyleSheet.absoluteFillObject}>

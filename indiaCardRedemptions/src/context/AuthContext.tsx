@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Authenticate to access Points Array',
+      promptMessage: 'Authenticate to access The Indian Points Array',
       fallbackLabel: 'Use Password',
     });
 

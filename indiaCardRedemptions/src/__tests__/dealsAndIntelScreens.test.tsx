@@ -72,7 +72,7 @@ describe('IntelScreen Visual Layout', () => {
   it('should render devaluations and unannounced updates with impact boxes', () => {
     const { getByText, queryAllByText } = render(<IntelScreen />);
 
-    expect(getByText('THE POINTS ARRAY INTEL')).toBeTruthy();
+    expect(getByText('THE INDIAN POINTS ARRAY INTEL')).toBeTruthy();
     expect(getByText('The Latest Intelligence')).toBeTruthy();
 
     // Devaluations unannounced alert badges

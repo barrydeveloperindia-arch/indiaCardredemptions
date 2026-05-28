@@ -29,7 +29,7 @@ export default function ConciergeScreen() {
       imageStyle={{ width: '100%', height: '100%', opacity: 0.35 }}
     >
       <Head>
-        <title>Concierge & Executive Strategy | The Points Array</title>
+        <title>Concierge & Executive Strategy | The Indian Points Array</title>
       </Head>
 
       <Animated.View entering={FadeIn.duration(1500)} style={StyleSheet.absoluteFillObject}>
@@ -45,7 +45,7 @@ export default function ConciergeScreen() {
           <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.header}>
             <View>
               <ThemedText style={styles.subTitle} type="code">
-                THE POINTS ARRAY BLACK
+                THE INDIAN POINTS ARRAY BLACK
               </ThemedText>
               <ThemedText style={styles.mainTitle} type="title">
                 Executive Concierge

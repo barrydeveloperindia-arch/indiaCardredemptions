@@ -65,7 +65,7 @@ describe('TabTwoScreen (Explore/Arbitrage Screen)', () => {
       </WalletProvider>
     );
 
-    expect(getByText('THE POINTS ARRAY')).toBeTruthy();
+    expect(getByText('THE INDIAN POINTS ARRAY')).toBeTruthy();
     expect(getByText('Point Arbitrage')).toBeTruthy();
     expect(getByText('🏨 Hotel Arbitrage')).toBeTruthy();
     expect(getByText('✈️ London & Europe Solver')).toBeTruthy();

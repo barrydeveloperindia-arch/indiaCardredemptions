@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
             Something went wrong.
           </ThemedText>
           <ThemedText style={styles.message}>
-            The Points Array application encountered an unexpected error. Please restart the app.
+            The Indian Points Array application encountered an unexpected error. Please restart the app.
           </ThemedText>
         </View>
       );

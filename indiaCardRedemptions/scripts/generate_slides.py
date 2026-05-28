@@ -119,11 +119,11 @@ def add_body_text(draw, text_lines, y_start=920):
         y += 60
 
 def draw_card(draw, x_start, y_start, width, height, title, lines, badge_text, badge_color):
-    # Rounded card background (Frosted translucent white)
-    draw.rounded_rectangle([x_start, y_start, x_start + width, y_start + height], radius=24, fill=(255, 255, 255, 240))
+    # Rounded card background (Frosted glassmorphic dark charcoal)
+    draw.rounded_rectangle([x_start, y_start, x_start + width, y_start + height], radius=24, fill=(18, 20, 28, 200))
     
     # Card outer border outline (Thin gold-translucent)
-    draw.rounded_rectangle([x_start, y_start, x_start + width, y_start + height], radius=24, outline=(212, 175, 55, 120), width=2)
+    draw.rounded_rectangle([x_start, y_start, x_start + width, y_start + height], radius=24, outline=(212, 175, 55, 76), width=2)
     
     # Card Title
     title_font = FONTS["bold"](42)
@@ -131,10 +131,10 @@ def draw_card(draw, x_start, y_start, width, height, title, lines, badge_text, b
         w = title_font.getlength(title)
     except AttributeError:
         w = title_font.getbbox(title)[2]
-    draw.text((x_start + (width - w) // 2, y_start + 40), title, fill=(9, 10, 15, 255), font=title_font)
+    draw.text((x_start + (width - w) // 2, y_start + 40), title, fill=COLOR_GOLD, font=title_font)
     
-    # Divider line
-    draw.line([(x_start + 30, y_start + 110), (x_start + width - 30, y_start + 110)], fill=(200, 200, 200, 255), width=2)
+    # Divider line (Thin translucent separator)
+    draw.line([(x_start + 30, y_start + 110), (x_start + width - 30, y_start + 110)], fill=(212, 175, 55, 40), width=2)
     
     # Body rows (with wrapping support to prevent overflow)
     row_font = FONTS["body"](26)
@@ -149,7 +149,7 @@ def draw_card(draw, x_start, y_start, width, height, title, lines, badge_text, b
             w = row_font.getlength(line)
         except AttributeError:
             w = row_font.getbbox(line)[2]
-        draw.text((x_start + (width - w) // 2, y), line, fill=(50, 50, 50, 255), font=row_font)
+        draw.text((x_start + (width - w) // 2, y), line, fill=COLOR_TEXT, font=row_font)
         y += line_spacing
         
     # Badge (Net profit)

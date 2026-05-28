@@ -66,7 +66,7 @@ export default function TabTwoScreen() {
           {/* Header */}
           <View style={styles.header}>
             <ThemedText style={styles.subTitle} type="code">
-              THE POINTS ARRAY
+              THE INDIAN POINTS ARRAY
             </ThemedText>
             <ThemedText style={styles.mainTitle} type="title">
               Point Arbitrage

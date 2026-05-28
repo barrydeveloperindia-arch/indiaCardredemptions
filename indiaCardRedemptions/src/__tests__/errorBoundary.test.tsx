@@ -38,6 +38,6 @@ describe('ErrorBoundary Component', () => {
     );
 
     expect(getByText('Something went wrong.')).toBeTruthy();
-    expect(getByText(/The Points Array application encountered an unexpected error/i)).toBeTruthy();
+    expect(getByText(/The Indian Points Array application encountered an unexpected error/i)).toBeTruthy();
   });
 });
