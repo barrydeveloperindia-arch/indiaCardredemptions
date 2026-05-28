@@ -68,14 +68,26 @@ def wrap_text(text, font, max_width):
         lines.append(' '.join(current_line))
     return lines
 
+def create_plain_luxury_background():
+    # Base solid dark obsidian background
+    base_color = (9, 10, 15, 255)  # `#090A0F`
+    img = Image.new("RGBA", (1080, 1350), base_color)
+    
+    # Add a soft, elegant central radial gold glow (no distracting lines)
+    glow_size = 900
+    glow_img = Image.new("RGBA", (glow_size, glow_size), (0, 0, 0, 0))
+    glow_draw = ImageDraw.Draw(glow_img)
+    # Very soft, translucent gold ellipse
+    glow_draw.ellipse([100, 100, glow_size - 100, glow_size - 100], fill=(212, 175, 55, 12))
+    # Blur it heavily to create a seamless radial vignette
+    glow_img = glow_img.filter(ImageFilter.GaussianBlur(120))
+    
+    # Paste in the center of the canvas
+    img.paste(glow_img, ((1080 - glow_size) // 2, (1350 - glow_size) // 2), glow_img)
+    return img
+
 def create_slide_base(title_text):
-    bg_path = os.path.join(IMAGES_DIR, "dark_luxury_bg.png")
-    if os.path.exists(bg_path):
-        img = Image.open(bg_path).convert("RGBA")
-        img = img.resize((1080, 1350), Image.Resampling.LANCZOS)
-    else:
-        img = Image.new("RGBA", (1080, 1350), COLOR_BG)
-        
+    img = create_plain_luxury_background()
     draw = ImageDraw.Draw(img)
     
     # Draw gold border line at the bottom
