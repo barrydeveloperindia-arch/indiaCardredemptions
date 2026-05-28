@@ -6,7 +6,7 @@ This localized Knowledge Item serves as the master reference for future developm
 
 ## 📌 Metadata
 *   **Domain:** Credit Card Reward Tracking, Arbitrage Calculators, and Travel Redemption Routing
-*   **Repository:** `barrydeveloperindia-arch/MESEnglabs` (indiaCardRedemptions)
+*   **Repository:** `barrydeveloperindia-arch/indiaCardredemptions` (indiaCardRedemptions)
 *   **Key Modules:** `src/components/WalletCard.tsx`, `src/components/ArbitrageCalculator.tsx`, `src/components/OfflineBanner.tsx`
 
 ---
