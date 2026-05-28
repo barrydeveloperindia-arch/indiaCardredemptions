@@ -6,19 +6,25 @@ This document defines the protocols for autonomous implementation runs, commenti
 
 ## 🤖 Autonomous Implementation Workflow
 
-When executing coding tasks, the agent operates in an autonomous loop to ensure complete execution without requiring user manual edits:
+When executing coding tasks, the agent operates in a strict, test-first autonomous loop (TDD) and asset verification loop to ensure correctness and premium quality before commit/push, without requiring user manual edits:
 
 ```mermaid
 graph TD
-    A[Read Task Requirements] --> B[Write Failing Jest Tests]
-    B --> C[Propose and Run Test Command]
-    C -->|Verify Failure| D[Write Minimal TypeScript Code]
-    D --> E[Propose and Run Lint & Test Check]
-    E -->|If Errors Exist| F[Apply Code Fixes]
+    A[Read Task Requirements] --> B[Write Failing Tests (Red Stage)]
+    B --> C[Verify Test Fails]
+    C --> D[Write Minimal Code/Implementation]
+    D --> E[Run Lint & Test Check (Green Stage)]
+    E -->|If Errors Exist| F[Apply Code/Asset Fixes]
     F --> E
-    E -->|If 100% Green| G[Commit Code & Git Push to Remote]
-    G --> H[Finalize Work & Document Diff]
+    E -->|If 100% Green| G[Run Visual QA Verification Loop]
+    G -->|Verify Asset Blending/Feathering| H[Commit Code & Git Push to Remote]
+    H --> I[Finalize Work & Document Diff]
 ```
+
+### Strict Test-First & Verification Policies
+1. **TDD Mandatory for Code**: Any code changes or new logic must have a corresponding failing unit/integration test written and verified *before* writing the implementation.
+2. **Visual Verification Loop**: Programmatic asset generation must be validated via automated quality check scripts (e.g. border feathering, gradient analysis) to verify that motifs blend seamlessly without jagged edges.
+3. **Commit Gate**: Never commit or push changes unless all unit tests and visual verification tests are 100% passing.
 
 ### Git Remote Push Requirement
 To ensure continuous delivery and absolute backup safety, a `git push` command targeting the remote repository must be run immediately following any feature completion.

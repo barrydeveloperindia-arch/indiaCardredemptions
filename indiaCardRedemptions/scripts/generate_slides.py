@@ -119,9 +119,16 @@ def remove_black_background(image, threshold=15):
     for y in range(height):
         for x in range(width):
             r, g, b, a = pix[x, y]
-            # Key out the solid black background to make it transparent
-            if r < threshold and g < threshold and b < threshold:
+            v = max(r, g, b)
+            if v < threshold:
                 pix[x, y] = (r, g, b, 0)
+            elif v > 60:
+                # Retain the original alpha or full opacity if it is a bright pixel
+                pix[x, y] = (r, g, b, a if a != 0 else 255)
+            else:
+                # Smooth transition window from threshold to 60
+                t = (v - threshold) / (60.0 - threshold)
+                pix[x, y] = (r, g, b, int(t * 255))
     return rgba
 
 def add_motif(img, motif_name, y_offset=260):

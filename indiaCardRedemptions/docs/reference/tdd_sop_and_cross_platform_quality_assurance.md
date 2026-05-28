@@ -85,3 +85,17 @@ export const getTransferRatio = (cardId: string, partnerId: string): number => {
 
 ### Step 3: Refactor
 Extend the logic to load from `transferMatrix.json` dynamically while asserting the test continues to pass.
+
+---
+
+## 🎨 Visual Asset Quality Assurance SOP
+
+To ensure premium aesthetics without jagged, cropped outlines or "sticker-floating" artifacts, all programmatically generated graphics must pass a strict Visual Quality Assurance (VQA) check.
+
+### 1. The Blending & Transparency Standard
+*   **No Jagged Borders:** Keying out solid backgrounds must use a **luminance-mapped smooth alpha transition** (feathering) rather than a hard color threshold.
+*   **Feathered Edges:** The transition zone ($0 < \text{alpha} < 255$) must contain a smooth gradient of alpha values to prevent pixelated halos on dark backgrounds.
+*   **Shadow Grounding:** Every floating 3D motif must have a contact shadow beneath it to ground it in space.
+
+### 2. The Verification Loop
+Before committing any visual slides to the remote repository, developer agents must run automated verification checks (using Python scripts like `scripts/test_image_blending.py`) to validate transparency gradients and verify that no hard cropping occurred.
