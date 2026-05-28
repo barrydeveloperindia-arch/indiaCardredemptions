@@ -103,14 +103,26 @@ def create_slide_base(title_text):
     draw.text(((1080 - w) // 2 + 3, 100 + 3), title_text, fill=(0, 0, 0, 220), font=title_font)
     draw.text(((1080 - w) // 2, 100), title_text, fill=COLOR_GOLD, font=title_font)
     
-    # Overlay TPA logo top right
-    logo_path = os.path.join(IMAGES_DIR, "ultra_minimalist_logo_soft_dark.png")
+    # Overlay TPA logo top right (using our actual brand logo minimalist_logo.png)
+    logo_path = os.path.join(IMAGES_DIR, "minimalist_logo.png")
     if os.path.exists(logo_path):
         logo = Image.open(logo_path).convert("RGBA")
         logo_resized = logo.resize((120, 120), Image.Resampling.LANCZOS)
         img.paste(logo_resized, (920, 30), logo_resized)
         
     return img, draw
+
+def remove_black_background(image, threshold=15):
+    rgba = image.convert("RGBA")
+    pix = rgba.load()
+    width, height = rgba.size
+    for y in range(height):
+        for x in range(width):
+            r, g, b, a = pix[x, y]
+            # Key out the solid black background to make it transparent
+            if r < threshold and g < threshold and b < threshold:
+                pix[x, y] = (r, g, b, 0)
+    return rgba
 
 def add_motif(img, motif_name, y_offset=260):
     # 1. Golden Back-Glow behind the motif to integrate it with the gold theme
@@ -132,8 +144,10 @@ def add_motif(img, motif_name, y_offset=260):
     # 3. Paste the actual 3D Motif on top
     motif_path = os.path.join(IMAGES_DIR, f"3d_{motif_name}.png")
     if os.path.exists(motif_path):
-        motif = Image.open(motif_path).convert("RGBA")
-        motif_resized = motif.resize((600, 600), Image.Resampling.LANCZOS)
+        motif = Image.open(motif_path)
+        # Dynamic chroma keying: remove black background box for seamless blending
+        motif_transparent = remove_black_background(motif, threshold=15)
+        motif_resized = motif_transparent.resize((600, 600), Image.Resampling.LANCZOS)
         img.paste(motif_resized, ((1080 - 600) // 2, y_offset), motif_resized)
     else:
         print(f"Warning: Motif {motif_name} not found at {motif_path}")
