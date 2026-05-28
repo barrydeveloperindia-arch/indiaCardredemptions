@@ -112,7 +112,7 @@ def create_slide_base(title_text):
         
     return img, draw
 
-def remove_black_background(image, threshold=15):
+def remove_black_background(image, threshold=15, fade_margin=120):
     rgba = image.convert("RGBA")
     pix = rgba.load()
     width, height = rgba.size
@@ -120,15 +120,27 @@ def remove_black_background(image, threshold=15):
         for x in range(width):
             r, g, b, a = pix[x, y]
             v = max(r, g, b)
+            
+            # Base alpha calculation
             if v < threshold:
-                pix[x, y] = (r, g, b, 0)
+                alpha = 0
             elif v > 60:
-                # Retain the original alpha or full opacity if it is a bright pixel
-                pix[x, y] = (r, g, b, a if a != 0 else 255)
+                alpha = a if a != 0 else 255
             else:
                 # Smooth transition window from threshold to 60
                 t = (v - threshold) / (60.0 - threshold)
-                pix[x, y] = (r, g, b, int(t * 255))
+                alpha = int(t * 255)
+                
+            # Apply smooth boundary fade to prevent hard cropped edges
+            dx = min(x, width - 1 - x)
+            dy = min(y, height - 1 - y)
+            d = min(dx, dy)
+            if d < fade_margin:
+                # Quadratic fade for smoother transition near the edges
+                fade_factor = (d / float(fade_margin)) ** 2
+                alpha = int(alpha * fade_factor)
+                
+            pix[x, y] = (r, g, b, alpha)
     return rgba
 
 def add_motif(img, motif_name, y_offset=260):
