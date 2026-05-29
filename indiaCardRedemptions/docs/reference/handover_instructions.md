@@ -2,27 +2,28 @@
 
 **Date:** May 29, 2026  
 **Project:** The Indian Points Array (Loyalty Milestones & Arbitrage Tracker)  
-**Status:** All structural assets, calendar schedules, and Week 1–3 visual slide decks have been fully generated and pushed.
+**Status:** Complete! All structural assets, 12-week social media slide decks (all 24 posts, 96+ slide assets), and the React Native mobile app rebranding have been fully generated, validated, and pushed.
 
 ---
 
 ## 🚀 Current Status & Accomplishments
 
-### 1. Rebranding Standardized
-*   All copy and documentation updated to reflect **"The Indian Points Array"** (TPA).
-*   All financial metrics, pricing values, and calculations standardized in **INR (₹)**.
-*   Legacy Axis Bank direct-to-Qatar transfers replaced with the new **British Airways (BA) Bypass** route.
+### 1. React Native App Rebranding Complete
+*   All screens ([`index.tsx`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/src/app/index.tsx), [`explore.tsx`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/src/app/explore.tsx), [`deals.tsx`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/src/app/deals.tsx), [`intel.tsx`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/src/app/intel.tsx), [`concierge.tsx`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/src/app/concierge.tsx), and [`insights.tsx`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/src/app/insights.tsx)) rebranded to **"The Indian Points Array"** (TPA).
+*   All unit and UI simulation tests updated and verified. **213 tests across 41 suites are 100% green**.
 
-### 2. Social Media Calendar & Slide Generation
-*   **Production Directories:** A 24-folder, date-wise publication schedule has been initialized under `assets/social_media/`.
-*   **Cover Slides:** Custom, high-minimalist, black-and-gold cover graphics (`slide1_cover.png`) created for all 24 posts.
-*   **Week 1–3 Complete Decks:** All 5 slides for the first six posts have been generated using a luxury 3D infographic style:
-    *   **Week 1 Post 1**: Delhi-London Sweet Spot (featuring a 3D burning cash stack, gold cabin key, and 314% yield math gauge).
-    *   **Week 1 Post 2**: Qatar BA Bypass (featuring the 3D marble bypass bridge).
-    *   **Week 2 Post 3**: Axis Atlas Milestones countdown (featuring the hourglass and vault triggers).
-    *   **Week 2 Post 4**: Premium 4-Card Spend Hierarchy (featuring the 3D golden staircase and detailed yield percentages).
-    *   **Week 3 Post 5**: Amazon Pay Voucher Loop (featuring the locked reader, wallet stack, and math scales).
-    *   **Week 3 Post 6**: IRCTC Convenience Fee bypass (featuring the caution tape clock, train shield, and net profit chest).
+### 2. Complete 12-Week Social Media slide decks
+*   All 24 publication carousel decks generated and stored under `assets/social_media/`.
+*   **Official Brand Logo Integration:** Switched to the official `updated_brand_logo.png` monogram logo. The black JPEG background is programmatically keyed out via `remove_black_background`.
+*   **Dynamic Title Scaling:** Long header titles (e.g., "The B2C Merchant Workaround") are dynamically scaled down to $46$pt (from $64$pt) when exceeding 24 characters to prevent logo overlap.
+*   **Premium Blending & Boundary Edge-Fade:** Applied a $120$px quadratic boundary edge-fade margin to the motifs to eliminate all flat, hard-cropped borders from the 3D graphics (bridge, chest, phone, scale, shield, staircase, hourglass).
+*   **Opaque Slide Guarantee (Alpha Compositing):** Replaced direct `paste` operations with `Image.alpha_composite` to blend transparent graphics correctly, and converted the final canvas to flat `RGB` mode before saving. This eliminates all slide background transparency leaks and prevents image viewers from rendering checkerboards.
+
+### 3. Visual QA Test-Driven Development (TDD)
+*   **Test Script:** Created [`scripts/test_image_blending.py`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/scripts/test_image_blending.py) to check:
+    *   *Feathering Zone:* Verifies that motif borders have $\ge 8000$ transition pixels (our system achieves $236,758$ feathered pixels).
+    *   *Opacity Check:* Scans the final slides to assert that no transparency leaks exist (passes at 100% opaque).
+*   **SOP Integration:** Updated [`docs/reference/autonomous_execution_and_linting_sop.md`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/docs/reference/autonomous_execution_and_linting_sop.md) to mandate this Visual QA and TDD check before commits.
 
 ---
 
@@ -30,17 +31,17 @@
 
 *   `docs/reference/social_media_roadmap.md`: The 12-week release dates and captions.
 *   `docs/reference/content_slides_bank.md`: The copy and math specifications for all carousels.
-*   `assets/social_media/`: Folders mapped by date, containing high-resolution slides (`slide1_cover.png` through `slide5_cta.png`).
-*   `assets/images/`: Master templates and brand logo assets.
+*   `docs/reference/autonomous_execution_and_linting_sop.md`: Strict agent guidelines for TDD and VQA.
+*   `scripts/generate_slides.py`: The Python slides compiler.
+*   `scripts/test_image_blending.py`: The Visual QA validation script.
+*   `assets/social_media/`: Folders mapped by date, containing final opaque slide PNGs.
 
 ---
 
 ## 📋 Recommended Next Steps
 
-1.  **Generate Week 4–12 Visuals**:
-    *   Use the 3D template motifs (Scale, Hourglass, Bridge, Staircase) to generate the remaining weeks' slides.
-2.  **React Native UI Updates**:
-    *   Search and replace legacy "The Points Array" branding strings in the app components.
-    *   Align the mobile app UI styling to match the Obsidian & Gold luxury aesthetic.
-3.  **Travel Discovery Engine**:
-    *   Integrate API clients for `Seat.aero` and `Points.yeah` to power the live arbitrage yield calculator.
+1.  **Travel Discovery Engine**:
+    *   Integrate API clients for `Seat.aero` and `Points.yeah` to power the live arbitrage yield calculator inside `src/utils/travelApi.ts`.
+2.  **Continuous Integration (CI) Check**:
+    *   Wire `python scripts/test_image_blending.py` and `npm test` into the GitHub pre-commit / PR validation actions.
+

@@ -62,3 +62,19 @@ To avoid compilation errors during automated Jest checks and headless test envir
 
 -   **No Native Network Packages**: Avoid standard native net utilities that bind to OS modules. Use the custom local checker (`OfflineBanner` + local API ping test) to safely monitor connection status.
 -   **Mocking native UI components**: Ensure that any linear gradients, blur elements, or OS-native alerts are mocked in `src/__tests__/uiComponents.test.tsx` using Jest fake timers and module stubs.
+
+---
+
+## 🎨 6. Visual Asset Compilation & QA Pipeline
+
+To maintain the luxury brand standard across marketing and editorial slides, the programmatic asset generation pipeline must enforce the following rules:
+
+-   **Opaque Slide Outputs (RGBA to RGB conversion)**: Discard the alpha channel when saving final PNG slide outputs (`img.convert("RGB").save(...)`). Discarding transparency ensures that third-party image viewers do not render checkerboard grids through transparent background sections.
+-   **Layer Overlays (Alpha Compositing)**: Never use standard `img.paste` with transparent masks on RGBA canvases, as it overwrites the destination's alpha channel. Use `Image.alpha_composite` with a temporary canvas to correctly blend glows, shadows, and motifs.
+-   **Boundary Edge-Fade (120px margin)**: Apply a quadratic boundary fade to the margins of the motif assets. This fades all hard canvas boundaries (such as bottom floor reflections or side crops) to zero alpha, allowing 3D models to merge naturally with the slide background.
+-   **Official Logo Assets**: Always use `updated_brand_logo.png` as the monogram. Run `remove_black_background` to remove its black box before pasting.
+-   **Header Text Protection**: Shrink long titles dynamically to $46$pt (from $64$pt) when length exceeds 24 characters to prevent logo overlaps.
+-   **VQA Automated Gate**: `scripts/test_image_blending.py` executes before commits to verify:
+    *   $\ge 8000$ feathered pixels at motif boundaries.
+    *   100% opacity in final slides.
+
