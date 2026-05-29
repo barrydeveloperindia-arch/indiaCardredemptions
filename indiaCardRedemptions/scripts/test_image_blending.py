@@ -63,9 +63,36 @@ def test_hourglass_blending_quality():
     
     print("Pass: Blending quality is premium (smooth feathered border, no jagged cropping!).")
 
+def test_slide_opacity():
+    print("[QA] Checking generated slide opacity (ensuring no transparency leaks)...")
+    
+    # Import SOCIAL_DIR
+    from scripts.generate_slides import SOCIAL_DIR
+    
+    slide_path = os.path.join(SOCIAL_DIR, "2026-06-22_week4_post7_app_launch", "slide2.png")
+    if not os.path.exists(slide_path):
+        print("Generated slides not found. Skipping slide opacity test.")
+        return
+        
+    img = Image.open(slide_path)
+    pix = img.load()
+    width, height = img.size
+    
+    # Scan for any transparent pixels
+    for y in range(0, height, 10): # step to speed up check
+        for x in range(0, width, 10):
+            pixel = pix[x, y]
+            if len(pixel) == 4 and pixel[3] < 255:
+                raise AssertionError(
+                    f"Fail: Slide contains transparent pixels at ({x}, {y}) with alpha={pixel[3]}. "
+                    "The slide background is leaking transparency, causing checkerboards to render in image viewers."
+                )
+    print("Pass: Slide has 100% opaque background (no transparency leakage!).")
+
 if __name__ == "__main__":
     try:
         test_hourglass_blending_quality()
+        test_slide_opacity()
     except AssertionError as e:
         print(str(e))
         sys.exit(1)

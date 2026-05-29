@@ -82,19 +82,35 @@ def create_plain_luxury_background():
     # Blur it heavily to create a seamless radial vignette
     glow_img = glow_img.filter(ImageFilter.GaussianBlur(120))
     
-    # Paste in the center of the canvas
-    img.paste(glow_img, ((1080 - glow_size) // 2, (1350 - glow_size) // 2), glow_img)
+    # Paste in the center of the canvas using alpha composite to preserve opacity
+    temp_glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    temp_glow.paste(glow_img, ((1080 - glow_size) // 2, (1350 - glow_size) // 2))
+    img = Image.alpha_composite(img, temp_glow)
     return img
 
 def create_slide_base(title_text):
     img = create_plain_luxury_background()
+    
+    # Overlay TPA logo top right (using our actual brand logo updated_brand_logo.png)
+    logo_path = os.path.join(IMAGES_DIR, "updated_brand_logo.png")
+    if os.path.exists(logo_path):
+        logo = Image.open(logo_path)
+        logo_transparent = remove_black_background(logo, threshold=15)
+        logo_resized = logo_transparent.resize((120, 120), Image.Resampling.LANCZOS)
+        
+        # Paste via alpha composite to keep slide fully opaque
+        temp_logo = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        temp_logo.paste(logo_resized, (920, 30))
+        img = Image.alpha_composite(img, temp_logo)
+        
     draw = ImageDraw.Draw(img)
     
     # Draw gold border line at the bottom
     draw.line([(0, 1345), (1080, 1345)], fill=COLOR_GOLD, width=10)
     
-    # Draw title
-    title_font = FONTS["title"](64)
+    # Draw title (adjust font size for long titles to prevent logo overlaps)
+    font_size = 46 if len(title_text) > 24 else 64
+    title_font = FONTS["title"](font_size)
     try:
         w = title_font.getlength(title_text)
     except AttributeError:
@@ -102,13 +118,6 @@ def create_slide_base(title_text):
     # Draw shadow first
     draw.text(((1080 - w) // 2 + 3, 100 + 3), title_text, fill=(0, 0, 0, 220), font=title_font)
     draw.text(((1080 - w) // 2, 100), title_text, fill=COLOR_GOLD, font=title_font)
-    
-    # Overlay TPA logo top right (using our actual brand logo minimalist_logo.png)
-    logo_path = os.path.join(IMAGES_DIR, "minimalist_logo.png")
-    if os.path.exists(logo_path):
-        logo = Image.open(logo_path).convert("RGBA")
-        logo_resized = logo.resize((120, 120), Image.Resampling.LANCZOS)
-        img.paste(logo_resized, (920, 30), logo_resized)
         
     return img, draw
 
@@ -150,7 +159,10 @@ def add_motif(img, motif_name, y_offset=260):
     glow_draw = ImageDraw.Draw(glow_img)
     glow_draw.ellipse([50, 50, glow_size - 50, glow_size - 50], fill=(212, 175, 55, 25))
     glow_img = glow_img.filter(ImageFilter.GaussianBlur(40))
-    img.paste(glow_img, ((1080 - glow_size) // 2, y_offset + 50), glow_img)
+    
+    temp_glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    temp_glow.paste(glow_img, ((1080 - glow_size) // 2, y_offset + 50))
+    img = Image.alpha_composite(img, temp_glow)
     
     # 2. Contact Shadow under the motif
     shadow_w, shadow_h = 420, 50
@@ -158,7 +170,10 @@ def add_motif(img, motif_name, y_offset=260):
     shadow_draw = ImageDraw.Draw(shadow_img)
     shadow_draw.ellipse([10, 5, shadow_w - 10, shadow_h - 5], fill=(0, 0, 0, 160))
     shadow_img = shadow_img.filter(ImageFilter.GaussianBlur(15))
-    img.paste(shadow_img, ((1080 - shadow_w) // 2, y_offset + 530), shadow_img)
+    
+    temp_shadow = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    temp_shadow.paste(shadow_img, ((1080 - shadow_w) // 2, y_offset + 530))
+    img = Image.alpha_composite(img, temp_shadow)
 
     # 3. Paste the actual 3D Motif on top
     motif_path = os.path.join(IMAGES_DIR, f"3d_{motif_name}.png")
@@ -167,9 +182,14 @@ def add_motif(img, motif_name, y_offset=260):
         # Dynamic chroma keying: remove black background box for seamless blending
         motif_transparent = remove_black_background(motif, threshold=15)
         motif_resized = motif_transparent.resize((600, 600), Image.Resampling.LANCZOS)
-        img.paste(motif_resized, ((1080 - 600) // 2, y_offset), motif_resized)
+        
+        temp_motif = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        temp_motif.paste(motif_resized, ((1080 - 600) // 2, y_offset))
+        img = Image.alpha_composite(img, temp_motif)
     else:
         print(f"Warning: Motif {motif_name} not found at {motif_path}")
+        
+    return img
 
 def add_body_text(draw, text_lines, y_start=920):
     body_font = FONTS["body"](38)
@@ -257,7 +277,8 @@ def generate_math_slide(title_text, card1_spec, card2_spec):
 
 def make_slide(folder_name, slide_num, title, motif, body_text):
     img, draw = create_slide_base(title)
-    add_motif(img, motif)
+    img = add_motif(img, motif)
+    draw = ImageDraw.Draw(img)
     wrapped = []
     body_font = FONTS["body"](38)
     for line in body_text:
@@ -266,14 +287,16 @@ def make_slide(folder_name, slide_num, title, motif, body_text):
     
     dest_dir = os.path.join(SOCIAL_DIR, folder_name)
     os.makedirs(dest_dir, exist_ok=True)
-    img.save(os.path.join(dest_dir, f"slide{slide_num}.png"))
+    # Save as RGB to discard the alpha channel and ensure 100% opacity in final PNGs
+    img.convert("RGB").save(os.path.join(dest_dir, f"slide{slide_num}.png"))
     print(f"Generated Slide {slide_num} for {folder_name}")
 
 def make_math(folder_name, title, card1, card2):
     img = generate_math_slide(title, card1, card2)
     dest_dir = os.path.join(SOCIAL_DIR, folder_name)
     os.makedirs(dest_dir, exist_ok=True)
-    img.save(os.path.join(dest_dir, "slide4_math.png"))
+    # Save as RGB to discard the alpha channel and ensure 100% opacity in final PNGs
+    img.convert("RGB").save(os.path.join(dest_dir, "slide4_math.png"))
     print(f"Generated Slide 4 (Math) for {folder_name}")
 
 def copy_cta(folder_name):
