@@ -1,8 +1,24 @@
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { fetchAndParseDeals } from './dealsScraper';
+import { pointSales } from '../src/data/pointSales';
+import { getInstagramRssFeed, getInstagramJsonFeed } from './instagramScraper';
 
 const app = express();
+
+// CORS middleware to allow Expo web client cross-origin requests
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Idempotency-Key');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
 app.use(express.json());
 
 // In-Memory Simulation databases and caches
@@ -145,6 +161,56 @@ export function redisCacheMiddleware(req: Request, res: Response, next: NextFunc
 }
 
 // API Route Hookups
+let cachedDeals: any[] | null = null;
+let dealsCacheExpiry = 0;
+const DEALS_CACHE_TTL = 10 * 60 * 1000; // 10 minutes cache
+
+app.get('/api/deals', async (_req, res) => {
+  const now = Date.now();
+  if (cachedDeals && now < dealsCacheExpiry) {
+    return res.json({ deals: cachedDeals, _cached: true });
+  }
+
+  try {
+    const liveDeals = await fetchAndParseDeals();
+    if (liveDeals && liveDeals.length > 0) {
+      const livePartners = new Set(liveDeals.map(d => d.partner));
+      const filteredStatic = pointSales.filter(s => !livePartners.has(s.partner));
+      const mergedDeals = [...liveDeals, ...filteredStatic];
+
+      cachedDeals = mergedDeals;
+      dealsCacheExpiry = now + DEALS_CACHE_TTL;
+      return res.json({ deals: mergedDeals, _cached: false });
+    }
+  } catch (err) {
+    console.error('Failed to retrieve live deals feed, falling back to static pointsSales:', err);
+  }
+
+  // Fallback to static mock pointSales if scraper fails or returns no deals
+  return res.json({ deals: pointSales, _cached: false, _fallback: true });
+});
+
+app.get('/api/rss/instagram', async (_req, res) => {
+  try {
+    const xml = await getInstagramRssFeed();
+    res.header('Content-Type', 'application/xml');
+    return res.status(200).send(xml);
+  } catch (err) {
+    console.error('Failed to generate Instagram RSS feed:', err);
+    return res.status(500).json({ error: 'Failed to generate RSS feed' });
+  }
+});
+
+app.get('/api/instagram', async (_req, res) => {
+  try {
+    const posts = await getInstagramJsonFeed();
+    return res.status(200).json({ posts });
+  } catch (err) {
+    console.error('Failed to generate Instagram JSON feed:', err);
+    return res.status(500).json({ error: 'Failed to generate JSON feed' });
+  }
+});
+
 app.get('/api/search/flights', rateLimiter, redisCacheMiddleware, (_req, res) => {
   res.json({
     flights: [

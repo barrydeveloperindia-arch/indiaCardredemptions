@@ -33,10 +33,10 @@ export function OfflineBanner() {
   }
 
   return (
-    <View style={styles.container}>
-      <BlurView intensity={30} tint="dark" style={styles.banner}>
-        <ThemedText style={styles.bannerText} type="smallBold">
-          ⚠️ YOU ARE OFFLINE - Using Local Rewards Cache
+    <View style={styles.container} pointerEvents="none">
+      <BlurView intensity={40} tint="dark" style={styles.banner}>
+        <ThemedText style={styles.bannerText} type="code">
+          [OFFLINE] YOU ARE OFFLINE - Using Local Rewards Cache
         </ThemedText>
       </BlurView>
     </View>
@@ -46,25 +46,33 @@ export function OfflineBanner() {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 50,
-    left: Spacing.four,
-    right: Spacing.four,
+    top: 70, // position it just below the static header
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
     zIndex: 9999,
   },
   banner: {
-    paddingVertical: Spacing.two,
+    paddingVertical: 8,
     paddingHorizontal: Spacing.four,
-    borderRadius: 8,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#F59E0B',
+    borderColor: '#D4AF37',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    backgroundColor: 'rgba(9, 10, 15, 0.9)',
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
   bannerText: {
-    color: '#FBBF24',
-    fontSize: 12,
-    letterSpacing: 1,
+    color: '#D4AF37',
+    fontSize: 11,
+    letterSpacing: 1.5,
+    fontWeight: 'bold',
   },
 });

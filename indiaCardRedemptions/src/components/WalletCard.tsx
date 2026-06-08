@@ -250,7 +250,7 @@ export function WalletCard({
               {milestoneProgress.tajVoucherEarned && (
                 <View style={styles.tajBadge}>
                   <ThemedText style={styles.tajText} type="code">
-                    👑 ₹10,000 Taj Voucher Unlocked!
+                    [TAJ] ₹10,000 Taj Voucher Unlocked!
                   </ThemedText>
                 </View>
               )}

@@ -7,6 +7,9 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image } from 'expo-image';
 
+/**
+ * @feature FT-108_ConciergeBooking
+ */
 export default function ConsultationScreen() {
   const [name, setName] = useState('');
   const [destination, setDestination] = useState('');
@@ -35,7 +38,7 @@ export default function ConsultationScreen() {
         colors={['rgba(9, 10, 15, 0.75)', 'rgba(9, 10, 15, 0.95)']}
         style={StyleSheet.absoluteFillObject}
       />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={Platform.OS === 'web' ? ['left', 'right'] : ['top', 'left', 'right']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>

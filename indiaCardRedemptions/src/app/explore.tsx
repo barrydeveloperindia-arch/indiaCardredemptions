@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Pressable, ImageBackground, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, View, Pressable, ImageBackground, ActivityIndicator, TouchableOpacity, useWindowDimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { ArbitrageCalculator } from '@/components/ArbitrageCalculator';
+import { TransferBridge } from '@/components/TransferBridge';
 import { useWallet } from '@/context/WalletContext';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { BlurView } from 'expo-blur';
@@ -10,6 +11,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { PassengerForm } from '@/components/PassengerForm';
 import { createDuffelOrder } from '@/utils/travelApi';
 
+/**
+ * @feature FT-104_ExploreScreen
+ */
 export default function TabTwoScreen() {
   const { walletBalances, cards } = useWallet();
   const [activeMode, setActiveMode] = useState<'hotel' | 'flight'>('hotel');
@@ -50,6 +54,234 @@ export default function TabTwoScreen() {
   const axisPointsRequired = Math.round(pointsNeeded * 1.25);
   const axisFeasible = axisBalance >= axisPointsRequired;
 
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const cabinSelectionSection = (
+    <BlurView intensity={20} tint="dark" style={styles.flightCard}>
+      <ThemedText style={styles.inputLabel} type="code">
+        SELECT DESIRED CABIN CLASS
+      </ThemedText>
+      
+      <View style={styles.cabinRow}>
+        <Pressable
+          onPress={() => setCabinClass('business')}
+          style={[styles.cabinTab, cabinClass === 'business' && styles.cabinTabActive]}>
+          <ThemedText
+            style={cabinClass === 'business' ? styles.cabinTextActive : styles.cabinText}
+            type="smallBold">
+            Business Class (65k Aeroplan)
+          </ThemedText>
+        </Pressable>
+
+        <Pressable
+          onPress={() => setCabinClass('economy')}
+          style={[styles.cabinTab, cabinClass === 'economy' && styles.cabinTabActive]}>
+          <ThemedText
+            style={cabinClass === 'economy' ? styles.cabinTextActive : styles.cabinText}
+            type="smallBold">
+            Economy Class (35k Avios)
+          </ThemedText>
+        </Pressable>
+      </View>
+
+      <ThemedText style={styles.targetLabel} type="code">
+        TARGET PROGRAM: {targetProgram}
+      </ThemedText>
+    </BlurView>
+  );
+
+  const transferBridgeSection = (
+    <TransferBridge
+      fromBank="HSBC / AXIS"
+      toProgram={cabinClass === 'business' ? 'Aeroplan' : 'Qatar Avios'}
+      ratio={cabinClass === 'business' ? '1:1 / 5:4' : '1:1 / 5:4'}
+    />
+  );
+
+  const bankTransferOptionsSection = (
+    <View style={{ gap: Spacing.three }}>
+      <ThemedText style={styles.pathwayTitle} type="subtitle">
+        Available Bank Transfer Options
+      </ThemedText>
+
+      {/* HSBC Premier Pathway */}
+      <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
+        <View style={styles.pathwayLeft}>
+          <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
+            HSBC Premier Credit Card
+          </ThemedText>
+          <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
+            Ratio: 10:10 | Points Required: {hsbcPointsRequired.toLocaleString()}
+          </ThemedText>
+          <ThemedText style={[styles.notesText, { color: hsbcFeasible ? '#34D399' : '#FCA5A5' }]}>
+            {hsbcFeasible 
+              ? `Best 1:1 Value. Feasible from your ${hsbcBalance.toLocaleString()} points balance!` 
+              : `Insufficient balance. You have ${hsbcBalance.toLocaleString()} points, need ${hsbcPointsRequired.toLocaleString()}!`
+            }
+          </ThemedText>
+        </View>
+        <View
+          style={[
+            styles.feasibilityBadge,
+            { backgroundColor: hsbcFeasible ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' },
+          ]}>
+          <ThemedText
+            style={{ color: hsbcFeasible ? '#34D399' : '#FCA5A5', fontSize: 10, fontWeight: 'bold' }}>
+            {hsbcFeasible ? 'FEASIBLE' : 'NEED POINTS'}
+          </ThemedText>
+        </View>
+      </BlurView>
+
+      {/* Axis Magnus Burgundy Pathway */}
+      <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
+        <View style={styles.pathwayLeft}>
+          <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
+            Axis Magnus for Burgundy
+          </ThemedText>
+          <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
+            Ratio: 5:4 | Points Required: {axisPointsRequired.toLocaleString()}
+          </ThemedText>
+          <ThemedText style={[styles.notesText, { color: axisFeasible ? '#34D399' : '#FCA5A5' }]}>
+            {axisFeasible 
+              ? `Burgundy Accelerated Partner. Feasible from your ${axisBalance.toLocaleString()} points balance!`
+              : `Insufficient balance. You have ${axisBalance.toLocaleString()} points, need ${axisPointsRequired.toLocaleString()}!`
+            }
+          </ThemedText>
+        </View>
+        <View
+          style={[
+            styles.feasibilityBadge,
+            { backgroundColor: axisFeasible ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' },
+          ]}>
+          <ThemedText
+            style={{ color: axisFeasible ? '#34D399' : '#FCA5A5', fontSize: 10, fontWeight: 'bold' }}>
+            {axisFeasible ? 'FEASIBLE' : 'NEED POINTS'}
+          </ThemedText>
+        </View>
+      </BlurView>
+    </View>
+  );
+
+  const actionPlanSection = (
+    <BlurView intensity={20} tint="dark" style={styles.strategyCard}>
+      <ThemedText style={styles.strategyTitle} type="subtitle">
+        London Outbound Action Plan
+      </ThemedText>
+
+      <View style={styles.strategyRow}>
+        <View style={styles.strategyNum}><ThemedText style={styles.strategyNumText}>1</ThemedText></View>
+        <View style={styles.strategyTextCol}>
+          <ThemedText style={styles.strategyHeading} type="smallBold">Transfer to Outbound Partner</ThemedText>
+          <ThemedText style={styles.strategyDesc}>
+            {cabinClass === 'business' 
+              ? 'Transfer 65,000 points from HSBC Premier directly to Air Canada Aeroplan. Aeroplan has no fuel surcharges on Star Alliance flights (Swiss/Lufthansa).'
+              : 'Transfer 35,000 points from HSBC Premier directly to Qatar Airways Avios. Standard economy taxes DEL-LHR are under ₹5,000.'
+            }
+          </ThemedText>
+        </View>
+      </View>
+
+      <View style={styles.strategyRow}>
+        <View style={styles.strategyNum}><ThemedText style={styles.strategyNumText}>2</ThemedText></View>
+        <View style={styles.strategyTextCol}>
+          <ThemedText style={styles.strategyHeading} type="smallBold">Secure the Return Leg</ThemedText>
+          <ThemedText style={styles.strategyDesc}>
+            Use Singapore Airlines KrisFlyer (from HSBC/Axis) or Virgin Atlantic Flying Club to return to India, checking for Promo Awards that lower points required by up to 25%.
+          </ThemedText>
+        </View>
+      </View>
+
+      <View style={styles.strategyRow}>
+        <View style={styles.strategyNum}><ThemedText style={styles.strategyNumText}>3</ThemedText></View>
+        <View style={styles.strategyTextCol}>
+          <ThemedText style={styles.strategyHeading} type="smallBold">Maximize London Hotels</ThemedText>
+          <ThemedText style={styles.strategyDesc}>
+            Use the Hotel Arbitrage tab to check Fairmont Windsor Park or Marriott hotels. London cash rates are high, yielding elite RpP values of ₹1.2+ per point!
+          </ThemedText>
+        </View>
+      </View>
+    </BlurView>
+  );
+
+  const cashBookingSection = (
+    <View style={styles.bookingContainer}>
+      {bookingState === 'idle' && (
+        <TouchableOpacity
+          style={styles.bookCashBtn}
+          onPress={() => setBookingState('form')}
+          activeOpacity={0.7}
+        >
+          <ThemedText style={styles.bookCashText} type="smallBold">
+            Book Cash Flight (Duffel API Checkout)
+          </ThemedText>
+        </TouchableOpacity>
+      )}
+
+      {bookingState === 'form' && (
+        <View>
+          <PassengerForm onSubmit={handlePassengerSubmit} />
+          <Pressable
+            style={styles.cancelBtn}
+            onPress={() => setBookingState('idle')}
+          >
+            <ThemedText style={styles.cancelText} type="smallBold">
+              Cancel Booking
+            </ThemedText>
+          </Pressable>
+        </View>
+      )}
+
+      {bookingState === 'booking' && (
+        <BlurView intensity={20} tint="dark" style={styles.loadingCard}>
+          <ActivityIndicator size="large" color="#D4AF37" />
+          <ThemedText style={styles.loadingText} type="smallBold">
+            Processing Flight Booking via Duffel...
+          </ThemedText>
+        </BlurView>
+      )}
+
+      {bookingState === 'confirmed' && (
+        <BlurView intensity={25} tint="dark" style={styles.confirmationCard}>
+          <ThemedText style={styles.confirmedTitle} type="title">
+            Booking Confirmed!
+          </ThemedText>
+          <View style={styles.divider} />
+          
+          <View style={styles.confirmRow}>
+            <ThemedText style={styles.confirmLabel}>PNR Reference:</ThemedText>
+            <ThemedText style={styles.confirmVal} type="code">
+              {bookingDetails?.bookingReference}
+            </ThemedText>
+          </View>
+
+          <View style={styles.confirmRow}>
+            <ThemedText style={styles.confirmLabel}>Passenger:</ThemedText>
+            <ThemedText style={styles.confirmVal} type="smallBold">
+              {passengerData?.firstName} {passengerData?.lastName}
+            </ThemedText>
+          </View>
+
+          <View style={styles.confirmRow}>
+            <ThemedText style={styles.confirmLabel}>Ticket Status:</ThemedText>
+            <ThemedText style={[styles.confirmVal, { color: '#10B981' }]}>
+              {bookingDetails?.status?.toUpperCase()}
+            </ThemedText>
+          </View>
+
+          <Pressable
+            style={styles.resetBtn}
+            onPress={() => setBookingState('idle')}
+          >
+            <ThemedText style={styles.resetBtnText} type="smallBold">
+              Book Another Flight
+            </ThemedText>
+          </Pressable>
+        </BlurView>
+      )}
+    </View>
+  );
+
   return (
     <ImageBackground 
       source={require('../../assets/images/dark_luxury_bg.png')} 
@@ -61,7 +293,7 @@ export default function TabTwoScreen() {
         colors={['rgba(9, 10, 15, 0.75)', 'rgba(9, 10, 15, 0.95)']}
         style={StyleSheet.absoluteFillObject}
       />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={Platform.OS === 'web' ? ['left', 'right'] : ['top', 'left', 'right']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
@@ -81,7 +313,7 @@ export default function TabTwoScreen() {
               <ThemedText
                 style={activeMode === 'hotel' ? styles.modeButtonTextActive : styles.modeButtonText}
                 type="smallBold">
-                🏨 Hotel Arbitrage
+                Hotel Arbitrage
               </ThemedText>
             </Pressable>
 
@@ -91,7 +323,7 @@ export default function TabTwoScreen() {
               <ThemedText
                 style={activeMode === 'flight' ? styles.modeButtonTextActive : styles.modeButtonText}
                 type="smallBold">
-                ✈️ London & Europe Solver
+                London & Europe Solver
               </ThemedText>
             </Pressable>
           </BlurView>
@@ -106,215 +338,27 @@ export default function TabTwoScreen() {
                 London & Europe Trip Solver
               </ThemedText>
 
-              <BlurView intensity={20} tint="dark" style={styles.flightCard}>
-                <ThemedText style={styles.inputLabel} type="code">
-                  SELECT DESIRED CABIN CLASS
-                </ThemedText>
-                
-                <View style={styles.cabinRow}>
-                  <Pressable
-                    onPress={() => setCabinClass('business')}
-                    style={[styles.cabinTab, cabinClass === 'business' && styles.cabinTabActive]}>
-                    <ThemedText
-                      style={cabinClass === 'business' ? styles.cabinTextActive : styles.cabinText}
-                      type="smallBold">
-                      👑 Business Class (65k Aeroplan)
-                    </ThemedText>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => setCabinClass('economy')}
-                    style={[styles.cabinTab, cabinClass === 'economy' && styles.cabinTabActive]}>
-                    <ThemedText
-                      style={cabinClass === 'economy' ? styles.cabinTextActive : styles.cabinText}
-                      type="smallBold">
-                      🎫 Economy Class (35k Avios)
-                    </ThemedText>
-                  </Pressable>
-                </View>
-
-                <ThemedText style={styles.targetLabel} type="code">
-                  TARGET PROGRAM: {targetProgram}
-                </ThemedText>
-              </BlurView>
-
-              {/* Dynamic live transfer pathways */}
-              <ThemedText style={styles.pathwayTitle} type="subtitle">
-                Available Bank Transfer Options
-              </ThemedText>
-
-              {/* HSBC Premier Pathway */}
-              <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
-                <View style={styles.pathwayLeft}>
-                  <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
-                    HSBC Premier Credit Card
-                  </ThemedText>
-                  <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
-                    Ratio: 10:10 | Points Required: {hsbcPointsRequired.toLocaleString()}
-                  </ThemedText>
-                  <ThemedText style={[styles.notesText, { color: hsbcFeasible ? '#34D399' : '#FCA5A5' }]}>
-                    {hsbcFeasible 
-                      ? `👑 Best 1:1 Value. Feasible from your ${hsbcBalance.toLocaleString()} points balance!` 
-                      : `❌ Insufficient balance. You have ${hsbcBalance.toLocaleString()} points, need ${hsbcPointsRequired.toLocaleString()}!`
-                    }
-                  </ThemedText>
-                </View>
-                <View
-                  style={[
-                    styles.feasibilityBadge,
-                    { backgroundColor: hsbcFeasible ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' },
-                  ]}>
-                  <ThemedText
-                    style={{ color: hsbcFeasible ? '#34D399' : '#FCA5A5', fontSize: 10, fontWeight: 'bold' }}>
-                    {hsbcFeasible ? 'FEASIBLE' : 'NEED POINTS'}
-                  </ThemedText>
-                </View>
-              </BlurView>
-
-              {/* Axis Magnus Burgundy Pathway */}
-              <BlurView intensity={20} tint="dark" style={styles.pathwayRow}>
-                <View style={styles.pathwayLeft}>
-                  <ThemedText style={{ color: '#F3F4F6', fontWeight: 'bold' }} type="smallBold">
-                    Axis Magnus for Burgundy
-                  </ThemedText>
-                  <ThemedText style={{ color: '#9CA3AF', fontSize: 11 }}>
-                    Ratio: 5:4 | Points Required: {axisPointsRequired.toLocaleString()}
-                  </ThemedText>
-                  <ThemedText style={[styles.notesText, { color: axisFeasible ? '#34D399' : '#FCA5A5' }]}>
-                    {axisFeasible 
-                      ? `⚡ Burgundy Accelerated Partner. Feasible from your ${axisBalance.toLocaleString()} points balance!`
-                      : `❌ Insufficient balance. You have ${axisBalance.toLocaleString()} points, need ${axisPointsRequired.toLocaleString()}!`
-                    }
-                  </ThemedText>
-                </View>
-                <View
-                  style={[
-                    styles.feasibilityBadge,
-                    { backgroundColor: axisFeasible ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)' },
-                  ]}>
-                  <ThemedText
-                    style={{ color: axisFeasible ? '#34D399' : '#FCA5A5', fontSize: 10, fontWeight: 'bold' }}>
-                    {axisFeasible ? 'FEASIBLE' : 'NEED POINTS'}
-                  </ThemedText>
-                </View>
-              </BlurView>
-
-              {/* Step-by-Step London Strategy */}
-              <BlurView intensity={20} tint="dark" style={styles.strategyCard}>
-                <ThemedText style={styles.strategyTitle} type="subtitle">
-                  🗺️ London Outbound Action Plan
-                </ThemedText>
-
-                <View style={styles.strategyRow}>
-                  <View style={styles.strategyNum}><ThemedText style={styles.strategyNumText}>1</ThemedText></View>
-                  <View style={styles.strategyTextCol}>
-                    <ThemedText style={styles.strategyHeading} type="smallBold">Transfer to Outbound Partner</ThemedText>
-                    <ThemedText style={styles.strategyDesc}>
-                      {cabinClass === 'business' 
-                        ? 'Transfer 65,000 points from HSBC Premier directly to Air Canada Aeroplan. Aeroplan has no fuel surcharges on Star Alliance flights (Swiss/Lufthansa).'
-                        : 'Transfer 35,000 points from HSBC Premier directly to Qatar Airways Avios. Standard economy taxes DEL-LHR are under ₹5,000.'
-                      }
-                    </ThemedText>
+              {isDesktop ? (
+                <View style={styles.gridContainer}>
+                  <View style={styles.gridLeftColumn}>
+                    {cabinSelectionSection}
+                    {transferBridgeSection}
+                  </View>
+                  <View style={styles.gridRightColumn}>
+                    {bankTransferOptionsSection}
+                    {actionPlanSection}
+                    {cashBookingSection}
                   </View>
                 </View>
-
-                <View style={styles.strategyRow}>
-                  <View style={styles.strategyNum}><ThemedText style={styles.strategyNumText}>2</ThemedText></View>
-                  <View style={styles.strategyTextCol}>
-                    <ThemedText style={styles.strategyHeading} type="smallBold">Secure the Return Leg</ThemedText>
-                    <ThemedText style={styles.strategyDesc}>
-                      Use Singapore Airlines KrisFlyer (from HSBC/Axis) or Virgin Atlantic Flying Club to return to India, checking for Promo Awards that lower points required by up to 25%.
-                    </ThemedText>
-                  </View>
+              ) : (
+                <View style={{ gap: Spacing.four }}>
+                  {cabinSelectionSection}
+                  {transferBridgeSection}
+                  {bankTransferOptionsSection}
+                  {actionPlanSection}
+                  {cashBookingSection}
                 </View>
-
-                <View style={styles.strategyRow}>
-                  <View style={styles.strategyNum}><ThemedText style={styles.strategyNumText}>3</ThemedText></View>
-                  <View style={styles.strategyTextCol}>
-                    <ThemedText style={styles.strategyHeading} type="smallBold">Maximize London Hotels</ThemedText>
-                    <ThemedText style={styles.strategyDesc}>
-                      Use the 🏨 Hotel Arbitrage tab to check Fairmont Windsor Park or Marriott hotels. London cash rates are high, yielding elite RpP values of ₹1.2+ per point!
-                    </ThemedText>
-                  </View>
-                </View>
-              </BlurView>
-
-              {/* Duffel In-App Cash Booking Integration */}
-              <View style={styles.bookingContainer}>
-                {bookingState === 'idle' && (
-                  <TouchableOpacity
-                    style={styles.bookCashBtn}
-                    onPress={() => setBookingState('form')}
-                    activeOpacity={0.7}
-                  >
-                    <ThemedText style={styles.bookCashText} type="smallBold">
-                      ✈️ Book Cash Flight (Duffel API Checkout)
-                    </ThemedText>
-                  </TouchableOpacity>
-                )}
-
-                {bookingState === 'form' && (
-                  <View>
-                    <PassengerForm onSubmit={handlePassengerSubmit} />
-                    <Pressable
-                      style={styles.cancelBtn}
-                      onPress={() => setBookingState('idle')}
-                    >
-                      <ThemedText style={styles.cancelText} type="smallBold">
-                        Cancel Booking
-                      </ThemedText>
-                    </Pressable>
-                  </View>
-                )}
-
-                {bookingState === 'booking' && (
-                  <BlurView intensity={20} tint="dark" style={styles.loadingCard}>
-                    <ActivityIndicator size="large" color="#D4AF37" />
-                    <ThemedText style={styles.loadingText} type="smallBold">
-                      Processing Flight Booking via Duffel...
-                    </ThemedText>
-                  </BlurView>
-                )}
-
-                {bookingState === 'confirmed' && (
-                  <BlurView intensity={25} tint="dark" style={styles.confirmationCard}>
-                    <ThemedText style={styles.confirmedTitle} type="title">
-                      Booking Confirmed! 🎉
-                    </ThemedText>
-                    <View style={styles.divider} />
-                    
-                    <View style={styles.confirmRow}>
-                      <ThemedText style={styles.confirmLabel}>PNR Reference:</ThemedText>
-                      <ThemedText style={styles.confirmVal} type="code">
-                        {bookingDetails?.bookingReference}
-                      </ThemedText>
-                    </View>
-
-                    <View style={styles.confirmRow}>
-                      <ThemedText style={styles.confirmLabel}>Passenger:</ThemedText>
-                      <ThemedText style={styles.confirmVal} type="smallBold">
-                        {passengerData?.firstName} {passengerData?.lastName}
-                      </ThemedText>
-                    </View>
-
-                    <View style={styles.confirmRow}>
-                      <ThemedText style={styles.confirmLabel}>Ticket Status:</ThemedText>
-                      <ThemedText style={[styles.confirmVal, { color: '#10B981' }]}>
-                        {bookingDetails?.status?.toUpperCase()}
-                      </ThemedText>
-                    </View>
-
-                    <Pressable
-                      style={styles.resetBtn}
-                      onPress={() => setBookingState('idle')}
-                    >
-                      <ThemedText style={styles.resetBtnText} type="smallBold">
-                        Book Another Flight
-                      </ThemedText>
-                    </Pressable>
-                  </BlurView>
-                )}
-              </View>
+              )}
             </View>
           )}
         </ScrollView>
@@ -334,6 +378,19 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: MaxContentWidth,
     width: '100%',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    gap: Spacing.six,
+    width: '100%',
+  },
+  gridLeftColumn: {
+    flex: 1.1,
+    gap: Spacing.five,
+  },
+  gridRightColumn: {
+    flex: 0.9,
+    gap: Spacing.five,
   },
   scrollContent: {
     paddingHorizontal: Spacing.four,

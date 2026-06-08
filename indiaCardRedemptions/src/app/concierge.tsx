@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, TextInput, Pressable, ImageBackground, Platform } from 'react-native';
+import { ScrollView, StyleSheet, View, TextInput, Pressable, ImageBackground, Platform, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -10,16 +10,197 @@ import Animated, { FadeInDown, FadeIn, SlideInRight } from 'react-native-reanima
 import { Image } from 'expo-image';
 import { parseTravelScenario } from '@/utils/aiHandler';
 
+/**
+ * @feature FT-108_ConciergeBooking
+ */
 export default function ConciergeScreen() {
   const [name, setName] = useState('');
   const [portfolio, setPortfolio] = useState('');
   const [destination, setDestination] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
   const analysis = destination.trim().length > 5 ? parseTravelScenario(destination, {
     amex_platinum: 120000,
     axis_m4b: 56000,
   }) : null;
+
+  const headerSection = (
+    <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.header}>
+      <View>
+        <ThemedText style={styles.subTitle} type="code">
+          THE INDIAN POINTS ARRAY BLACK
+        </ThemedText>
+        <ThemedText style={styles.mainTitle} type="title">
+          Executive Concierge
+        </ThemedText>
+      </View>
+    </Animated.View>
+  );
+
+  const descriptionSection = (
+    <Animated.View entering={FadeInDown.delay(300).springify()}>
+      <ThemedText style={styles.pageDescription}>
+        Hand your points over to our Redemption Architects. We handle complex routing, airline waitlists, and ticket issuance so you can focus on the journey.
+      </ThemedText>
+    </Animated.View>
+  );
+
+  const heroBannerSection = (
+    <Animated.View entering={FadeInDown.delay(350).springify()}>
+      <Image 
+        source={require('../../assets/images/concierge_service_banner.png')}
+        style={styles.heroBanner}
+        resizeMode="cover"
+      />
+    </Animated.View>
+  );
+
+  const pricingSection = (
+    <Animated.View entering={FadeInDown.delay(400).springify()}>
+      <BlurView intensity={30} tint="dark" style={styles.pricingCard}>
+        <LinearGradient colors={['rgba(212, 175, 55, 0.2)', 'rgba(180, 133, 9, 0.05)']} style={StyleSheet.absoluteFillObject} />
+        <ThemedText style={styles.pricingBadge} type="code">FLAT FEE</ThemedText>
+        <View style={styles.pricingRow}>
+          <ThemedText style={styles.priceText}>₹15,000</ThemedText>
+          <ThemedText style={styles.priceSubtext}>/ ticket booked</ThemedText>
+        </View>
+        <ThemedText style={styles.pricingDesc}>
+          Pay only when your ticket is successfully ticketed. No upfront costs for routing research.
+        </ThemedText>
+      </BlurView>
+    </Animated.View>
+  );
+
+  const formSection = (
+    <Animated.View entering={FadeInDown.delay(500).springify()}>
+      <BlurView intensity={20} tint="dark" style={styles.formCard}>
+        <ThemedText style={styles.formTitle} type="subtitle">
+          Request a Strategy Blueprint
+        </ThemedText>
+
+        {submitted ? (
+          <View style={styles.successBox}>
+            <ThemedText style={{ color: '#34D399', fontSize: 40, textAlign: 'center', marginBottom: Spacing.two }}>✓</ThemedText>
+            <ThemedText style={{ color: '#1A1E26', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>Request Received.</ThemedText>
+            <ThemedText style={{ color: '#4B5563', fontSize: 12, textAlign: 'center', marginTop: Spacing.one }}>
+              An architect will contact you within 4 hours.
+            </ThemedText>
+          </View>
+        ) : (
+          <>
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.inputLabel} type="code">YOUR NAME</ThemedText>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. Rahul Sharma"
+                placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                value={name}
+                onChangeText={setName}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.inputLabel} type="code">APPROX. PORTFOLIO BALANCE</ThemedText>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. 400,000 HDFC + 200,000 Amex"
+                placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                value={portfolio}
+                onChangeText={setPortfolio}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <ThemedText style={styles.inputLabel} type="code">DREAM DESTINATION & DATES</ThemedText>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="e.g. 2 adults to London in Business Class, late November."
+                placeholderTextColor="rgba(255, 255, 255, 0.45)"
+                multiline
+                numberOfLines={4}
+                value={destination}
+                onChangeText={setDestination}
+              />
+            </View>
+
+            {analysis && (
+              <View style={styles.scorecardContainer}>
+                <ThemedText style={styles.scorecardTitle} type="code">
+                  STRATEGY BLUEPRINT PREVIEW
+                </ThemedText>
+                
+                <View style={styles.scorecardRow}>
+                  <ThemedText style={styles.scorecardLabel}>Feasibility:</ThemedText>
+                  <View style={[
+                    styles.badge, 
+                    analysis.feasibilityScore === 'HIGH' ? styles.badgeHigh : 
+                    analysis.feasibilityScore === 'MEDIUM' ? styles.badgeMedium : 
+                    styles.badgeLow
+                  ]}>
+                    <ThemedText style={styles.badgeText}>
+                      {analysis.feasibilityScore}
+                    </ThemedText>
+                  </View>
+                </View>
+
+                <View style={styles.scorecardRow}>
+                  <ThemedText style={styles.scorecardLabel}>Passengers:</ThemedText>
+                  <ThemedText style={styles.scorecardValue}>
+                    {analysis.passengers.adults} Adults, {analysis.passengers.children} Kids
+                  </ThemedText>
+                </View>
+
+                <View style={styles.scorecardRow}>
+                  <ThemedText style={styles.scorecardLabel}>Identified Routes:</ThemedText>
+                  <ThemedText style={styles.scorecardValue}>
+                    {analysis.routes.map(r => `${r.origin} -> ${r.destination}`).join(' | ')}
+                  </ThemedText>
+                </View>
+
+                <View style={styles.scorecardRow}>
+                  <ThemedText style={styles.scorecardLabel}>Est. Points Required:</ThemedText>
+                  <ThemedText style={styles.scorecardValue}>
+                    {analysis.pointsRequiredEstimate.toLocaleString()} pts ({analysis.recommendedProgram})
+                  </ThemedText>
+                </View>
+
+                <View style={styles.scorecardRow}>
+                  <ThemedText style={styles.scorecardLabel}>Est. Cash Savings:</ThemedText>
+                  <ThemedText style={styles.savingsValue}>
+                    ₹{analysis.savingsEstimate.toLocaleString()}
+                  </ThemedText>
+                </View>
+              </View>
+            )}
+
+            <Pressable style={styles.submitBtn} onPress={() => setSubmitted(true)}>
+              <ThemedText style={styles.submitBtnText}>
+                {analysis 
+                  ? `Initialize Request (₹${analysis.conciergePremiumFee.toLocaleString()} Fee)` 
+                  : 'Initialize Request'}
+              </ThemedText>
+            </Pressable>
+          </>
+        )}
+      </BlurView>
+    </Animated.View>
+  );
+
+  const valuePropsSection = (
+    <View style={styles.valuePropsGrid}>
+      <Animated.View entering={SlideInRight.delay(600).springify()} style={styles.valueProp}>
+        <ThemedText style={styles.vpTitle} type="smallBold">Complex Routing</ThemedText>
+        <ThemedText style={styles.vpDesc}>We find &quot;sweet spots&quot; that generic search engines miss.</ThemedText>
+      </Animated.View>
+      <Animated.View entering={SlideInRight.delay(700).springify()} style={styles.valueProp}>
+        <ThemedText style={styles.vpTitle} type="smallBold">Call Center Bypass</ThemedText>
+        <ThemedText style={styles.vpDesc}>We sit on hold with airlines so you don&apos;t have to.</ThemedText>
+      </Animated.View>
+    </View>
+  );
 
   return (
     <ImageBackground 
@@ -39,177 +220,31 @@ export default function ConciergeScreen() {
         />
       </Animated.View>
 
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={Platform.OS === 'web' ? ['left', 'right'] : ['top', 'left', 'right']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Header Branding */}
-          <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.header}>
-            <View>
-              <ThemedText style={styles.subTitle} type="code">
-                THE INDIAN POINTS ARRAY BLACK
-              </ThemedText>
-              <ThemedText style={styles.mainTitle} type="title">
-                Executive Concierge
-              </ThemedText>
-            </View>
-          </Animated.View>
-
-          <Animated.View entering={FadeInDown.delay(300).springify()}>
-            <ThemedText style={styles.pageDescription}>
-              Hand your points over to our Redemption Architects. We handle complex routing, airline waitlists, and ticket issuance so you can focus on the journey.
-            </ThemedText>
-          </Animated.View>
-
-          <Animated.View entering={FadeInDown.delay(350).springify()}>
-            <Image 
-              source={require('../../assets/images/concierge_service_banner.png')}
-              style={styles.heroBanner}
-              resizeMode="cover"
-            />
-          </Animated.View>
-
-          {/* Pricing Tier */}
-          <Animated.View entering={FadeInDown.delay(400).springify()}>
-            <BlurView intensity={30} tint="dark" style={styles.pricingCard}>
-              <LinearGradient colors={['rgba(212, 175, 55, 0.2)', 'rgba(180, 133, 9, 0.05)']} style={StyleSheet.absoluteFillObject} />
-              <ThemedText style={styles.pricingBadge} type="code">FLAT FEE</ThemedText>
-              <View style={styles.pricingRow}>
-                <ThemedText style={styles.priceText}>₹15,000</ThemedText>
-                <ThemedText style={styles.priceSubtext}>/ ticket booked</ThemedText>
+          {isDesktop ? (
+            <View style={styles.gridContainer}>
+              <View style={styles.gridLeftColumn}>
+                {headerSection}
+                {descriptionSection}
+                {heroBannerSection}
+                {pricingSection}
+                {valuePropsSection}
               </View>
-              <ThemedText style={styles.pricingDesc}>
-                Pay only when your ticket is successfully ticketed. No upfront costs for routing research.
-              </ThemedText>
-            </BlurView>
-          </Animated.View>
-
-          {/* Inquiry Form */}
-          <Animated.View entering={FadeInDown.delay(500).springify()}>
-            <BlurView intensity={20} tint="dark" style={styles.formCard}>
-              <ThemedText style={styles.formTitle} type="subtitle">
-                Request a Strategy Blueprint
-              </ThemedText>
-
-              {submitted ? (
-                <View style={styles.successBox}>
-                  <ThemedText style={{ color: '#34D399', fontSize: 40, textAlign: 'center', marginBottom: Spacing.two }}>✓</ThemedText>
-                  <ThemedText style={{ color: '#1A1E26', fontSize: 16, textAlign: 'center', fontWeight: 'bold' }}>Request Received.</ThemedText>
-                  <ThemedText style={{ color: '#4B5563', fontSize: 12, textAlign: 'center', marginTop: Spacing.one }}>
-                    An architect will contact you within 4 hours.
-                  </ThemedText>
-                </View>
-              ) : (
-                <>
-                  <View style={styles.inputGroup}>
-                    <ThemedText style={styles.inputLabel} type="code">YOUR NAME</ThemedText>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="e.g. Rahul Sharma"
-                      placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                      value={name}
-                      onChangeText={setName}
-                    />
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <ThemedText style={styles.inputLabel} type="code">APPROX. PORTFOLIO BALANCE</ThemedText>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="e.g. 400,000 HDFC + 200,000 Amex"
-                      placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                      value={portfolio}
-                      onChangeText={setPortfolio}
-                    />
-                  </View>
-
-                  <View style={styles.inputGroup}>
-                    <ThemedText style={styles.inputLabel} type="code">DREAM DESTINATION & DATES</ThemedText>
-                    <TextInput
-                      style={[styles.input, styles.textArea]}
-                      placeholder="e.g. 2 adults to London in Business Class, late November."
-                      placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                      multiline
-                      numberOfLines={4}
-                      value={destination}
-                      onChangeText={setDestination}
-                    />
-                  </View>
-
-                  {analysis && (
-                    <View style={styles.scorecardContainer}>
-                      <ThemedText style={styles.scorecardTitle} type="code">
-                        STRATEGY BLUEPRINT PREVIEW
-                      </ThemedText>
-                      
-                      <View style={styles.scorecardRow}>
-                        <ThemedText style={styles.scorecardLabel}>Feasibility:</ThemedText>
-                        <View style={[
-                          styles.badge, 
-                          analysis.feasibilityScore === 'HIGH' ? styles.badgeHigh : 
-                          analysis.feasibilityScore === 'MEDIUM' ? styles.badgeMedium : 
-                          styles.badgeLow
-                        ]}>
-                          <ThemedText style={styles.badgeText}>
-                            {analysis.feasibilityScore}
-                          </ThemedText>
-                        </View>
-                      </View>
-
-                      <View style={styles.scorecardRow}>
-                        <ThemedText style={styles.scorecardLabel}>Passengers:</ThemedText>
-                        <ThemedText style={styles.scorecardValue}>
-                          {analysis.passengers.adults} Adults, {analysis.passengers.children} Kids
-                        </ThemedText>
-                      </View>
-
-                      <View style={styles.scorecardRow}>
-                        <ThemedText style={styles.scorecardLabel}>Identified Routes:</ThemedText>
-                        <ThemedText style={styles.scorecardValue}>
-                          {analysis.routes.map(r => `${r.origin} -> ${r.destination}`).join(' | ')}
-                        </ThemedText>
-                      </View>
-
-                      <View style={styles.scorecardRow}>
-                        <ThemedText style={styles.scorecardLabel}>Est. Points Required:</ThemedText>
-                        <ThemedText style={styles.scorecardValue}>
-                          {analysis.pointsRequiredEstimate.toLocaleString()} pts ({analysis.recommendedProgram})
-                        </ThemedText>
-                      </View>
-
-                      <View style={styles.scorecardRow}>
-                        <ThemedText style={styles.scorecardLabel}>Est. Cash Savings:</ThemedText>
-                        <ThemedText style={styles.savingsValue}>
-                          ₹{analysis.savingsEstimate.toLocaleString()}
-                        </ThemedText>
-                      </View>
-                    </View>
-                  )}
-
-                  <Pressable style={styles.submitBtn} onPress={() => setSubmitted(true)}>
-                    <ThemedText style={styles.submitBtnText}>
-                      {analysis 
-                        ? `Initialize Request (₹${analysis.conciergePremiumFee.toLocaleString()} Fee)` 
-                        : 'Initialize Request'}
-                    </ThemedText>
-                  </Pressable>
-                </>
-              )}
-            </BlurView>
-          </Animated.View>
-
-          {/* Value Props */}
-          <View style={styles.valuePropsGrid}>
-            <Animated.View entering={SlideInRight.delay(600).springify()} style={styles.valueProp}>
-              <ThemedText style={styles.vpIcon}>🧭</ThemedText>
-              <ThemedText style={styles.vpTitle} type="smallBold">Complex Routing</ThemedText>
-              <ThemedText style={styles.vpDesc}>We find &quot;sweet spots&quot; that generic search engines miss.</ThemedText>
-            </Animated.View>
-            <Animated.View entering={SlideInRight.delay(700).springify()} style={styles.valueProp}>
-              <ThemedText style={styles.vpIcon}>📞</ThemedText>
-              <ThemedText style={styles.vpTitle} type="smallBold">Call Center Bypass</ThemedText>
-              <ThemedText style={styles.vpDesc}>We sit on hold with airlines so you don&apos;t have to.</ThemedText>
-            </Animated.View>
-          </View>
-
+              <View style={styles.gridRightColumn}>
+                {formSection}
+              </View>
+            </View>
+          ) : (
+            <View style={{ gap: Spacing.five }}>
+              {headerSection}
+              {descriptionSection}
+              {heroBannerSection}
+              {pricingSection}
+              {formSection}
+              {valuePropsSection}
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </ImageBackground>
@@ -229,6 +264,19 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: MaxContentWidth,
     width: '100%',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    gap: Spacing.six,
+    width: '100%',
+  },
+  gridLeftColumn: {
+    flex: 1.1,
+    gap: Spacing.five,
+  },
+  gridRightColumn: {
+    flex: 0.9,
+    gap: Spacing.five,
   },
   scrollContent: {
     paddingHorizontal: Spacing.four,

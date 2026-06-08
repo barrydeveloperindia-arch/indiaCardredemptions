@@ -50,7 +50,7 @@ jest.mock('expo-image', () => {
   };
 });
 
-describe('DealsScreen Visual Layout', () => {
+describe('DealsScreen Visual Layout [FT-105_DealsScreen]', () => {
   it('should render page headers and active buy deals list with purchase recommendations', () => {
     const { getByText } = render(
       <WalletProvider>
@@ -68,7 +68,77 @@ describe('DealsScreen Visual Layout', () => {
   });
 });
 
-describe('IntelScreen Visual Layout', () => {
+describe('Live Deals RSS Feed [FT-109_LiveDealsFeed]', () => {
+  let originalFetch: any;
+
+  beforeAll(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+  });
+
+  it('should fetch dynamic deals from backend and render them successfully', async () => {
+    const mockDeals = [
+      {
+        id: 'virgin_70_feed',
+        partner: 'Virgin Atlantic',
+        bonusPercentage: 70,
+        basePointsBought: 10000,
+        bonusPointsReceived: 7000,
+        totalUsdCost: 226,
+        endDate: 'June 30, 2026',
+        description: 'Virgin Atlantic Flying Club 70% buy bonus deal parsed from RSS feed.'
+      }
+    ];
+
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ deals: mockDeals }),
+      })
+    ) as jest.Mock;
+
+    const { findByText } = render(
+      <WalletProvider>
+        <DealsScreen />
+      </WalletProvider>
+    );
+
+    const dynamicDeal = await findByText('Virgin Atlantic');
+    expect(dynamicDeal).toBeTruthy();
+    expect(await findByText('70% BONUS')).toBeTruthy();
+    expect(await findByText(/Virgin Atlantic Flying Club 70%/i)).toBeTruthy();
+  });
+
+  it('should fall back to offline pointsSales when backend fetch fails', async () => {
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.reject(new Error('Fetch failed'))
+    ) as jest.Mock;
+
+    const { getByText } = render(
+      <WalletProvider>
+        <DealsScreen />
+      </WalletProvider>
+    );
+
+    expect(getByText('Hilton Honors')).toBeTruthy();
+    expect(getByText('Qatar Privilege Club')).toBeTruthy();
+  });
+});
+
+describe('IntelScreen Visual Layout [FT-106_IntelScreen]', () => {
+  let originalFetch: any;
+
+  beforeAll(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+  });
+
   it('should render devaluations and unannounced updates with impact boxes', () => {
     const { getByText, queryAllByText } = render(<IntelScreen />);
 
@@ -86,5 +156,50 @@ describe('IntelScreen Visual Layout', () => {
     // Tactical impact boxes
     const impactLabels = queryAllByText('TACTICAL IMPACT');
     expect(impactLabels.length).toBeGreaterThan(0);
+  });
+
+  it('should render tab switchers and default to ecosystem alerts', () => {
+    const { getByText, queryByText } = render(<IntelScreen />);
+    expect(getByText('ECOSYSTEM ALERTS')).toBeTruthy();
+    expect(getByText('INSTAGRAM FEED')).toBeTruthy();
+    // Should show static alert first
+    expect(getByText('Axis Atlas Excludes BharatNXT & Pice')).toBeTruthy();
+    // Should NOT show Instagram posts yet
+    expect(queryByText('INSTAGRAM')).toBeNull();
+  });
+
+  it('should fetch and render Instagram feed items when tab is switched', async () => {
+    const mockPosts = [
+      {
+        title: 'Mock Hyatt Post',
+        link: 'https://www.instagram.com/p/mock_hyatt',
+        description: 'Unlock Hyatt Globalist status with just 20 nights.',
+        pubDate: 'Mon, 08 Jun 2026 06:30:00 GMT'
+      }
+    ];
+
+    global.fetch = jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ posts: mockPosts }),
+      })
+    ) as jest.Mock;
+
+    const { getByText, findByText, queryByText } = render(<IntelScreen />);
+
+    const instagramTab = getByText('INSTAGRAM FEED');
+    // Simulate press
+    const { fireEvent } = require('@testing-library/react-native');
+    fireEvent.press(instagramTab);
+
+    // Wait and verify instagram post elements
+    const postTitle = await findByText('Mock Hyatt Post');
+    expect(postTitle).toBeTruthy();
+    expect(getByText('INSTAGRAM')).toBeTruthy();
+    expect(getByText(/Unlock Hyatt Globalist/)).toBeTruthy();
+    expect(getByText('VIEW ON INSTAGRAM')).toBeTruthy();
+
+    // Verify static alert is no longer showing
+    expect(queryByText('Axis Atlas Excludes BharatNXT & Pice')).toBeNull();
   });
 });

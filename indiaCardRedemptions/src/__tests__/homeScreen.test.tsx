@@ -62,7 +62,7 @@ jest.mock('../context/WalletContext', () => ({
   useWallet: jest.fn(),
 }));
 
-describe('HomeScreen Component & Logout Integration Specs', () => {
+describe('HomeScreen Component & Logout Integration Specs [FT-103_HomeDashboard]', () => {
   const mockLogout = jest.fn();
   const mockContextValue = {
     user: { email: 'admin@pointsarray.com' },

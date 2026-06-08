@@ -1,67 +1,42 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
-
 import '@/global.css';
 
 import { Platform } from 'react-native';
+import { Colors as TokensColors, Fonts as TokensFonts, Spacing as TokensSpacing } from './designTokens';
 
 export const Colors = {
   light: {
-    text: '#F3F4F6',
-    background: '#090A0F',
-    backgroundElement: '#14161F',
-    backgroundSelected: '#2A2D3A',
-    textSecondary: '#9CA3AF',
-    gold: '#D4AF37',
+    text: TokensColors.champagne,
+    background: TokensColors.obsidian,
+    backgroundElement: TokensColors.cardDark,
+    backgroundSelected: TokensColors.cardSelected,
+    textSecondary: TokensColors.slateGrey,
+    gold: TokensColors.accentGold,
   },
   dark: {
-    text: '#F3F4F6',
-    background: '#090A0F',
-    backgroundElement: '#14161F',
-    backgroundSelected: '#2A2D3A',
-    textSecondary: '#9CA3AF',
-    gold: '#D4AF37',
+    text: TokensColors.champagne,
+    background: TokensColors.obsidian,
+    backgroundElement: TokensColors.cardDark,
+    backgroundSelected: TokensColors.cardSelected,
+    textSecondary: TokensColors.slateGrey,
+    gold: TokensColors.accentGold,
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+export const Fonts = {
+  sans: TokensFonts.sans,
+  serif: TokensFonts.serif,
+  rounded: TokensFonts.sans,
+  mono: Platform.select({
+    ios: 'Courier',
+    android: 'monospace',
+    web: 'var(--font-mono)',
+    default: 'monospace',
+  }) || 'monospace',
+};
 
-export const Spacing = {
-  half: 2,
-  one: 4,
-  two: 8,
-  three: 16,
-  four: 24,
-  five: 32,
-  six: 64,
-} as const;
+export const Spacing = TokensSpacing;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+export const MaxContentWidth = Platform.OS === 'web' ? 1200 : 800;

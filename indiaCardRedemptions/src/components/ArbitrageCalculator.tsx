@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, View, TextInput, Pressable, ScrollView, ActivityIndicator, TouchableOpacity, Linking, Alert } from 'react-native';
+import { StyleSheet, View, TextInput, Pressable, ScrollView, ActivityIndicator, TouchableOpacity, Linking, Alert, Platform, useWindowDimensions } from 'react-native';
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import { PremiumSlider } from './PremiumSlider';
@@ -45,21 +45,21 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
 
   const presets = [
     {
-      label: '🏨 Fairmont Jaipur (Accor)',
+      label: 'Fairmont Jaipur (Accor)',
       cash: '25000',
       pts: '12500',
       partner: 'accor',
       image: require('../../assets/images/fairmont_jaipur_deal_1779184231669.png'),
     },
     {
-      label: '🏨 Westin Rishikesh',
+      label: 'Westin Rishikesh',
       cash: '42000',
       pts: '35000',
       partner: 'marriott_bonvoy',
       image: require('../../assets/images/luxury_resort_pool_1779184214418.png'),
     },
     {
-      label: '✈️ Singapore Biz',
+      label: 'Singapore Biz',
       cash: '50000',
       pts: '18000',
       partner: 'krisflyer',
@@ -109,13 +109,12 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
   const pathways = getOptimalTransferPathway(partner, numericPoints, walletBalances);
   const taxWarning = getTaxWarning(partner);
 
-  return (
-    <View style={styles.container}>
-      <ThemedText style={styles.sectionTitle} type="title">
-        Arbitrage Yield Analyzer
-      </ThemedText>
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const leftColumnContent = (
+    <View style={{ gap: Spacing.four }}>
       <BlurView intensity={20} tint="dark" style={styles.inputCard}>
-        {/* Quick Deal Presets */}
         <ThemedText style={styles.inputLabel} type="code">
           QUICK DEAL SIMULATORS (TAP TO TEST FLOW)
         </ThemedText>
@@ -233,8 +232,11 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
           </Pressable>
         </View>
       </BlurView>
+    </View>
+  );
 
-      {/* Yield visualizer panel */}
+  const rightColumnContent = (
+    <View style={{ gap: Spacing.four }}>
       {numericPoints > 0 && (
         <BlurView intensity={30} tint="dark" style={[styles.yieldPanel, { borderColor: yieldBadgeColor }]}>
           <View style={styles.yieldHeader}>
@@ -255,19 +257,17 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         </BlurView>
       )}
 
-      {/* Dynamic Surcharge warning */}
       {taxWarning.warning && (
         <BlurView intensity={20} style={styles.warningContainer}>
           <ThemedText style={styles.warningText} type="code">
-            ⚠️ TAX ALERT: {taxWarning.message}
+            [TAX WARNING]: {taxWarning.message}
           </ThemedText>
         </BlurView>
       )}
 
-      {/* Math Info Panel */}
       <Pressable onPress={() => setShowMath(!showMath)} style={styles.mathPanelHeader}>
         <ThemedText style={styles.mathTitle} type="smallBold">
-          {showMath ? '👇 Hide Arbitrage Logic Math' : '📖 How is Yield & Arbitrage calculated?'}
+          {showMath ? 'Hide Arbitrage Logic Math' : 'How is Yield & Arbitrage calculated?'}
         </ThemedText>
       </Pressable>
 
@@ -289,7 +289,6 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         </BlurView>
       )}
 
-      {/* Optimal transfer pathways */}
       <ThemedText style={styles.pathwayTitle} type="subtitle">
         Optimal Card Transfers
       </ThemedText>
@@ -336,7 +335,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
                   activeOpacity={0.7}
                 >
                   <ThemedText style={styles.bridgeBtnText} type="smallBold">
-                    📋 Copy Points
+                    Copy Points
                   </ThemedText>
                 </TouchableOpacity>
 
@@ -349,7 +348,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
                   activeOpacity={0.7}
                 >
                   <ThemedText style={styles.bridgeBtnText} type="smallBold">
-                    🌐 Open Bank
+                    Open Bank
                   </ThemedText>
                 </TouchableOpacity>
 
@@ -362,7 +361,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
                   activeOpacity={0.7}
                 >
                   <ThemedText style={styles.bridgeBtnText} type="smallBold">
-                    🔍 Search Rewards
+                    Search Rewards
                   </ThemedText>
                 </TouchableOpacity>
               </View>
@@ -383,7 +382,6 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         ))
       )}
 
-      {/* Hotel Booking Integration */}
       <View style={styles.bookingContainer}>
         {bookingState === 'idle' && (
           <TouchableOpacity
@@ -392,7 +390,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
             activeOpacity={0.7}
           >
             <ThemedText style={styles.bookCashText} type="smallBold">
-              🏨 Book Luxury Stay (Cash & Points Arbitrage)
+              Book Luxury Stay (Cash & Points Arbitrage)
             </ThemedText>
           </TouchableOpacity>
         )}
@@ -423,7 +421,7 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
         {bookingState === 'confirmed' && (
           <BlurView intensity={25} tint="dark" style={styles.confirmationCard}>
             <ThemedText style={styles.confirmedTitle} type="title">
-              Stay Confirmed! 🎉
+              Stay Confirmed!
             </ThemedText>
             <View style={styles.divider} />
             
@@ -473,6 +471,30 @@ export function ArbitrageCalculator({ walletBalances }: ArbitrageCalculatorProps
           </BlurView>
         )}
       </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <ThemedText style={styles.sectionTitle} type="title">
+        Arbitrage Yield Analyzer
+      </ThemedText>
+
+      {isDesktop ? (
+        <View style={styles.gridContainer}>
+          <View style={styles.gridLeftColumn}>
+            {leftColumnContent}
+          </View>
+          <View style={styles.gridRightColumn}>
+            {rightColumnContent}
+          </View>
+        </View>
+      ) : (
+        <View style={{ gap: Spacing.four }}>
+          {leftColumnContent}
+          {rightColumnContent}
+        </View>
+      )}
     </View>
   );
 }
@@ -840,5 +862,18 @@ const styles = StyleSheet.create({
     color: '#D4AF37',
     fontSize: 9,
     fontWeight: '600',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    gap: Spacing.six,
+    width: '100%',
+  },
+  gridLeftColumn: {
+    flex: 1.1,
+    gap: Spacing.five,
+  },
+  gridRightColumn: {
+    flex: 0.9,
+    gap: Spacing.five,
   },
 });

@@ -93,7 +93,7 @@ export const cardInsights: CardInsight[] = [
     category: 'Exclusions & Spends',
     title: 'Axis Atlas MCC Arbitrage Rules',
     description: 'Axis Atlas is the premier airmiles card in India, but it has strict merchant exclusions designed to block commercial bill pay platforms.',
-    icon: '⚡',
+    icon: 'INFO',
     bulletPoints: [
       'Inclusions: In-store shopping, international currency spends, dining, online aggregators, and direct travel spends.',
       'Strict Exclusions: Rental transactions, utilities, government tax payments, and wallet loading (Paytm/Mobikwik).',
@@ -107,7 +107,7 @@ export const cardInsights: CardInsight[] = [
     category: 'Milestone Rewards',
     title: 'IndusInd Avios Selection & Milestones',
     description: 'The IndusInd Avios card provides direct, devalue-protected transfers to Avios-based frequent flyer systems.',
-    icon: '✈️',
+    icon: 'AVIOS',
     bulletPoints: [
       'Partner Choice: Instantly select whether to credit earned Avios to Qatar Airways Privilege Club or British Airways Executive Club.',
       'Devaluation Proof: Transferring directly to Avios bypasses bank-side transfer ratio cuts.',
@@ -121,7 +121,7 @@ export const cardInsights: CardInsight[] = [
     category: 'Booking Parity',
     title: 'HSBC 1:1 Booking Multipliers',
     description: 'The HSBC Premier card maintains a standard 1:1 transfer ratio, making it an excellent baseline for international airline redemption programs.',
-    icon: '✨',
+    icon: 'PREMIUM',
     bulletPoints: [
       'Travel Multipliers: Booking through the HSBC Travel With Points (TWP) portal yields an accelerated 12X points.',
       'Zero-Point Exclusions: Rent, government taxes, wallet loading, and corporate bill payments earn 0 points.',
@@ -135,7 +135,7 @@ export const cardInsights: CardInsight[] = [
     category: 'Taj Upgrades',
     title: 'Amex Platinum Taj Upgrade Secrets',
     description: 'Beyond spend milestones, the Platinum Travel card unlocks elite tier upgrades across the premium Taj Hotels portfolio.',
-    icon: '🏰',
+    icon: 'TAJ',
     bulletPoints: [
       'Taj Voucher Unlock: Reaching the ₹7 Lakh spend milestone unlocks a ₹10,000 Taj Experiences e-Gift Card.',
       'Taj InnerCircle Gold: Complimentary gold tier membership in the Taj loyalty system, offering late checkouts and active upgrade vouchers.',
@@ -169,7 +169,7 @@ export const multiDipStrategies: MultiDipStrategy[] = [
     cardName: 'Amex Gold / Platinum Travel',
     hotelPartner: 'Amazon Pay (Utilities)',
     description: 'Buy Amazon Pay vouchers via Amex Gyftr (accelerated multipliers) and use Amazon Pay to clear utility and insurance bills with zero surcharges.',
-    icon: '🔥',
+    icon: 'DOUBLE',
     steps: [
       'Step 1: Go to Amex Gyftr Multiplier portal.',
       'Step 2: Purchase Amazon Pay vouchers (earning 5X accelerated reward points).',
@@ -197,7 +197,7 @@ export const multiDipStrategies: MultiDipStrategy[] = [
     cardName: 'Axis Bank Atlas',
     hotelPartner: 'Marriott Bonvoy',
     description: 'Book a Marriott stay directly using Axis Atlas. You earn 5x Edge Miles on the swipe AND earn full Bonvoy points + elite tier benefits at check-in.',
-    icon: '🏨',
+    icon: 'HOTEL',
     steps: [
       'Step 1: Book hotel stay directly on the Marriott app/website.',
       'Step 2: Pay the final checkout checkout checkout bill using Axis Atlas (earning 5 Edge Miles per ₹100).',
@@ -225,7 +225,7 @@ export const multiDipStrategies: MultiDipStrategy[] = [
     cardName: 'HDFC Infinia',
     hotelPartner: 'Marriott Bonvoy',
     description: 'Buy Marriott gift vouchers on HDFC SmartBuy (10X points) and redeem them during a Marriott Bonvoy global double-points stay promotion.',
-    icon: '💎',
+    icon: 'TRIPLE',
     steps: [
       'Step 1: Purchase Marriott e-Gift Cards on the HDFC SmartBuy voucher portal (earning 10X points, giving a massive 33.3% value back).',
       'Step 2: Register for the active Marriott Bonvoy seasonal stay promotion (e.g. 2,000 bonus points per stay).',

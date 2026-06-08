@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ScrollView, StyleSheet, View, TextInput, ImageBackground, Platform, Pressable, Dimensions } from 'react-native';
+import { ScrollView, StyleSheet, View, TextInput, ImageBackground, Platform, Pressable, Dimensions, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AuthContext } from '../context/AuthContext';
 import { ThemedText } from '@/components/ThemedText';
 import { WalletCard } from '@/components/WalletCard';
+import { WalletCardStack } from '@/components/WalletCardStack';
 import AffiliateEngine from '@/components/AffiliateEngine';
 import { useWallet } from '@/context/WalletContext';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -20,7 +21,7 @@ const CURATED_ARBITRAGE = [
     id: '1',
     destination: 'Jaipur',
     title: 'Fairmont Jaipur Palace',
-    yield: '🔥 ₹2.00 YIELD / PT',
+    yield: 'VALUED: ₹2.00 YIELD / PT',
     desc: 'Save ₹40,000 instantly using Accor points.',
     image: require('../../assets/images/fairmont_jaipur_deal_1779184231669.png'),
     strategy: 'Use Axis Atlas points for 2:1 transfer to Accor. High value for domestic luxury.'
@@ -29,7 +30,7 @@ const CURATED_ARBITRAGE = [
     id: '2',
     destination: 'Singapore',
     title: 'Singapore Airlines Suites',
-    yield: '💎 ₹4.50 YIELD / PT',
+    yield: 'ELITE: ₹4.50 YIELD / PT',
     desc: 'Fly First Class for 50,000 KrisFlyer miles.',
     image: require('../../assets/images/singapore_biz_deal_1779184247834.png'),
     strategy: 'Transfer HSBC Premier points directly to KrisFlyer (1:1). Perfect for ultra-long haul.'
@@ -38,7 +39,7 @@ const CURATED_ARBITRAGE = [
     id: '3',
     destination: 'Maldives',
     title: 'St. Regis Maldives',
-    yield: '🏝️ ₹3.10 YIELD / PT',
+    yield: 'PREMIUM: ₹3.10 YIELD / PT',
     desc: 'Overwater Villa using Marriott Bonvoy points.',
     image: require('../../assets/images/luxury_resort_pool_1779184214418.png'),
     strategy: 'Transfer Amex Platinum points to Marriott Bonvoy during the 30% bonus window.'
@@ -166,6 +167,9 @@ const SEARCH_DESTINATIONS = [
   }
 ];
 
+/**
+ * @feature FT-103_HomeDashboard
+ */
 export default function HomeScreen() {
   const { cards, updateBalance, updateSpend, walletBalances } = useWallet();
   const { logout } = useContext(AuthContext);
@@ -235,6 +239,188 @@ export default function HomeScreen() {
     );
   };
 
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const searchSection = (
+    <Animated.View entering={FadeInDown.delay(200).springify()}>
+      <View style={styles.heroHeader}>
+        <ThemedText style={styles.heroTitle} type="title">Where will your points take you?</ThemedText>
+      </View>
+      <BlurView intensity={30} tint="dark" style={[styles.searchContainer, searchFocused && { borderColor: '#D4AF37', shadowColor: '#D4AF37', shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 }]}>
+        <ThemedText style={styles.searchIcon}>/</ThemedText>
+        <TextInput
+          style={[styles.searchInput, { outlineStyle: 'none' } as any]}
+          placeholder='Search "London", "Maldives"...'
+          placeholderTextColor="rgba(255, 255, 255, 0.4)"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
+        />
+      </BlurView>
+    </Animated.View>
+  );
+
+  const searchResultsSection = searchQuery.trim() !== '' && (
+    <Animated.View entering={FadeInDown.delay(100).springify()}>
+      <ThemedText style={styles.sectionLabel} type="subtitle">Optimal Route Results</ThemedText>
+      {matchedDestinations.length === 0 ? (
+        <View style={styles.noResultsBox}>
+          <ThemedText style={{ color: '#4B5563', fontSize: 13, textAlign: 'center' }}>
+            No exact flight path matches in our automated database. Contact Concierge for offline custom routing.
+          </ThemedText>
+        </View>
+      ) : (
+        matchedDestinations.map(dest => {
+          const pathways = getOptimalTransferPathway(dest.partner, dest.requiredMiles, walletBalances);
+          return (
+            <View key={dest.partner} style={styles.searchResultCard}>
+              <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFillObject} />
+              <LinearGradient colors={['rgba(255, 255, 255, 0.75)', 'rgba(255, 255, 255, 0.45)']} style={StyleSheet.absoluteFillObject} />
+              
+              <View style={{ padding: Spacing.four }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <ThemedText style={{ fontSize: 16, fontWeight: 'bold', color: '#1A1E26' }}>{dest.name}</ThemedText>
+                  <View style={styles.partnerBadge}>
+                    <ThemedText style={styles.partnerBadgeText}>{dest.partnerName}</ThemedText>
+                  </View>
+                </View>
+                <ThemedText style={{ fontSize: 12, color: '#4B5563', marginTop: Spacing.one }}>{dest.description}</ThemedText>
+                
+                <View style={styles.divider} />
+                
+                <ThemedText style={{ fontSize: 11, fontWeight: 'bold', color: '#F59E0B', marginBottom: Spacing.two }}>OPTIMAL WALLET ROUTING</ThemedText>
+                
+                {pathways.length === 0 ? (
+                  <ThemedText style={{ fontSize: 12, color: '#DC2626' }}>No card in your wallet supports this transfer partner.</ThemedText>
+                ) : (
+                  pathways.map((path, idx) => (
+                    <View key={path.cardId} style={[styles.pathwayRow, idx > 0 && { marginTop: Spacing.two }]}>
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <ThemedText style={{ fontSize: 13, fontWeight: 'bold', color: '#1A1E26' }}>{path.cardName}</ThemedText>
+                          {path.notes && (
+                            <View style={styles.noteBadge}>
+                              <ThemedText style={styles.noteBadgeText}>{path.notes}</ThemedText>
+                            </View>
+                          )}
+                        </View>
+                        <ThemedText style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Ratio: {path.ratio.toFixed(1)}:1 | Requires: {path.pointsRequired.toLocaleString()} pts</ThemedText>
+                      </View>
+                      
+                      <View style={[styles.statusBadge, { backgroundColor: path.isFeasible ? '#D1FAE5' : '#FEE2E2' }]}>
+                        <ThemedText style={[styles.statusBadgeText, { color: path.isFeasible ? '#065F46' : '#991B1B' }]}>
+                          {path.isFeasible ? '✓ FEASIBLE' : '✗ INSUFFICIENT'}
+                        </ThemedText>
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+            </View>
+          );
+        })
+      )}
+    </Animated.View>
+  );
+
+  const carouselSection = (
+    <Animated.View entering={FadeInDown.delay(300).springify()}>
+      <CardCarousel />
+    </Animated.View>
+  );
+
+  const milestonesSection = (
+    <View>
+      <Animated.View entering={FadeInDown.delay(450).springify()}>
+        <ThemedText style={styles.sectionLabel} type="subtitle">Milestone Radar</ThemedText>
+      </Animated.View>
+      {renderVisualMilestones()}
+    </View>
+  );
+
+  const vipSection = isVipUser && (
+    <Animated.View entering={FadeInDown.delay(500).springify()}>
+      <Pressable style={styles.vipBanner} testID="vip-banner">
+        <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFillObject} />
+        <LinearGradient colors={['#1C1E24', '#0B0C10']} style={StyleSheet.absoluteFillObject} />
+        <View style={{ padding: Spacing.five }}>
+          <ThemedText style={{ color: '#D4AF37', fontSize: 10, letterSpacing: 2, fontWeight: 'bold' }}>EXECUTIVE SERVICE</ThemedText>
+          <ThemedText style={{ color: '#F3F4F6', fontSize: 20, fontWeight: 'bold', marginTop: Spacing.two }}>Too Many Points, Too Little Time?</ThemedText>
+          <ThemedText style={{ color: '#9CA3AF', fontSize: 13, marginTop: Spacing.two, lineHeight: 18 }}>
+            You have over 5 Lakh points. Our Redemption Architects can handle the complex routing and secure your next First Class flight for a flat fee.
+          </ThemedText>
+          <View style={styles.vipButton}>
+            <ThemedText style={styles.vipButtonText}>Book 1-on-1 Session (₹10,000)</ThemedText>
+          </View>
+        </View>
+      </Pressable>
+    </Animated.View>
+  );
+
+  const arbitrageSection = (
+    <Animated.View entering={FadeInDown.delay(700).springify()}>
+      <ThemedText style={styles.sectionLabel} type="subtitle">
+        {searchQuery ? `Arbitrage Strategies for "${searchQuery}"` : 'Curated Arbitrage'}
+      </ThemedText>
+      
+      {filteredDeals.length === 0 ? (
+        <View style={styles.noResultsBox}>
+          <ThemedText style={{ color: '#6B7280', fontSize: 13, textAlign: 'center' }}>
+            No active arbitrage strategies found for this destination. Please contact our Executive Concierge for custom routing.
+          </ThemedText>
+        </View>
+      ) : (
+        filteredDeals.map((deal) => (
+          <Pressable key={deal.id} style={styles.dealBanner}>
+            <Image source={deal.image} style={styles.dealImage} />
+            <LinearGradient colors={['transparent', 'rgba(255,255,255,0.95)']} style={styles.dealOverlay} />
+            <View style={styles.dealContent}>
+              <View style={styles.dealBadge}>
+                <BlurView intensity={30} style={styles.dealBadgeInner}>
+                  <ThemedText style={styles.dealBadgeText} type="code">{deal.yield}</ThemedText>
+                </BlurView>
+              </View>
+              <ThemedText style={styles.dealTitle} type="subtitle">{deal.title}</ThemedText>
+              <ThemedText style={styles.dealDesc}>{deal.desc}</ThemedText>
+              
+              <View style={styles.strategyBox}>
+                <ThemedText style={{ color: '#F59E0B', fontSize: 9, letterSpacing: 1, fontWeight: 'bold', marginBottom: Spacing.one }}>WALLET STRATEGY</ThemedText>
+                <ThemedText style={{ color: '#4B5563', fontSize: 11 }}>{deal.strategy}</ThemedText>
+              </View>
+            </View>
+          </Pressable>
+        ))
+      )}
+    </Animated.View>
+  );
+
+  const affiliateSection = (
+    <Animated.View entering={FadeInDown.delay(800).springify()}>
+      <AffiliateEngine recommendedCard="Axis Atlas" />
+    </Animated.View>
+  );
+
+  const walletSection = (
+    <View>
+      <Animated.View entering={FadeInDown.delay(900).springify()}>
+        <ThemedText style={styles.sectionLabel} type="subtitle">
+          Wallet Intelligence
+        </ThemedText>
+      </Animated.View>
+      <Animated.View entering={FadeInDown.delay(1000).springify()}>
+        <WalletCardStack
+          cards={cards}
+          selectedCardId={selectedCardId}
+          onSelectCard={setSelectedCardId}
+          onUpdateBalance={updateBalance}
+          onUpdateSpend={updateSpend}
+        />
+      </Animated.View>
+    </View>
+  );
+
   return (
     <ImageBackground 
       source={require('../../assets/images/dark_luxury_bg.png')} 
@@ -253,185 +439,35 @@ export default function HomeScreen() {
         />
       </Animated.View>
 
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={Platform.OS === 'web' ? ['left', 'right'] : ['top', 'left', 'right']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          
-          {/* Removed Dashboard Header & News Ticker to reduce clutter and focus on the core user problem: Which card to use and where to go. */}
-
-          {/* 1. Travel Search Bar - Hero Section */}
-          <Animated.View entering={FadeInDown.delay(200).springify()}>
-            <View style={styles.heroHeader}>
-              <ThemedText style={styles.heroTitle} type="title">Where will your points take you?</ThemedText>
-            </View>
-            <BlurView intensity={30} tint="dark" style={[styles.searchContainer, searchFocused && { borderColor: '#D4AF37', shadowColor: '#D4AF37', shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 }]}>
-              <ThemedText style={styles.searchIcon}>🔍</ThemedText>
-              <TextInput
-                style={[styles.searchInput, { outlineStyle: 'none' } as any]}
-                placeholder='Search "London", "Maldives"...'
-                placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-              />
-            </BlurView>
-          </Animated.View>
-
-          {/* Dynamic Search Results */}
-          {searchQuery.trim() !== '' && (
-            <Animated.View entering={FadeInDown.delay(100).springify()}>
-              <ThemedText style={styles.sectionLabel} type="subtitle">Optimal Route Results</ThemedText>
-              {matchedDestinations.length === 0 ? (
-                <View style={styles.noResultsBox}>
-                  <ThemedText style={{ color: '#4B5563', fontSize: 13, textAlign: 'center' }}>
-                    No exact flight path matches in our automated database. Contact Concierge for offline custom routing.
-                  </ThemedText>
-                </View>
-              ) : (
-                matchedDestinations.map(dest => {
-                  const pathways = getOptimalTransferPathway(dest.partner, dest.requiredMiles, walletBalances);
-                  return (
-                    <View key={dest.partner} style={styles.searchResultCard}>
-                      <BlurView intensity={30} tint="light" style={StyleSheet.absoluteFillObject} />
-                      <LinearGradient colors={['rgba(255, 255, 255, 0.75)', 'rgba(255, 255, 255, 0.45)']} style={StyleSheet.absoluteFillObject} />
-                      
-                      <View style={{ padding: Spacing.four }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <ThemedText style={{ fontSize: 16, fontWeight: 'bold', color: '#1A1E26' }}>{dest.name}</ThemedText>
-                          <View style={styles.partnerBadge}>
-                            <ThemedText style={styles.partnerBadgeText}>{dest.partnerName}</ThemedText>
-                          </View>
-                        </View>
-                        <ThemedText style={{ fontSize: 12, color: '#4B5563', marginTop: Spacing.one }}>{dest.description}</ThemedText>
-                        
-                        <View style={styles.divider} />
-                        
-                        <ThemedText style={{ fontSize: 11, fontWeight: 'bold', color: '#F59E0B', marginBottom: Spacing.two }}>OPTIMAL WALLET ROUTING</ThemedText>
-                        
-                        {pathways.length === 0 ? (
-                          <ThemedText style={{ fontSize: 12, color: '#DC2626' }}>No card in your wallet supports this transfer partner.</ThemedText>
-                        ) : (
-                          pathways.map((path, idx) => (
-                            <View key={path.cardId} style={[styles.pathwayRow, idx > 0 && { marginTop: Spacing.two }]}>
-                              <View style={{ flex: 1 }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                                  <ThemedText style={{ fontSize: 13, fontWeight: 'bold', color: '#1A1E26' }}>{path.cardName}</ThemedText>
-                                  {path.notes && (
-                                    <View style={styles.noteBadge}>
-                                      <ThemedText style={styles.noteBadgeText}>{path.notes}</ThemedText>
-                                    </View>
-                                  )}
-                                </View>
-                                <ThemedText style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Ratio: {path.ratio.toFixed(1)}:1 | Requires: {path.pointsRequired.toLocaleString()} pts</ThemedText>
-                              </View>
-                              
-                              <View style={[styles.statusBadge, { backgroundColor: path.isFeasible ? '#D1FAE5' : '#FEE2E2' }]}>
-                                <ThemedText style={[styles.statusBadgeText, { color: path.isFeasible ? '#065F46' : '#991B1B' }]}>
-                                  {path.isFeasible ? '✓ FEASIBLE' : '✗ INSUFFICIENT'}
-                                </ThemedText>
-                              </View>
-                            </View>
-                          ))
-                        )}
-                      </View>
-                    </View>
-                  );
-                })
-              )}
-            </Animated.View>
-          )}
-
-          {/* INFINITE CAROUSEL - Indian CC Ecosystem */}
-          <Animated.View entering={FadeInDown.delay(300).springify()}>
-            <CardCarousel />
-          </Animated.View>
-
-          {/* Graphical Milestone Radars */}
-          <Animated.View entering={FadeInDown.delay(450).springify()}>
-            <ThemedText style={styles.sectionLabel} type="subtitle">Milestone Radar</ThemedText>
-          </Animated.View>
-          {renderVisualMilestones()}
-
-          {/* VIP HIGH TICKET TRIGGER */}
-          {isVipUser && (
-            <Animated.View entering={FadeInDown.delay(500).springify()}>
-              <Pressable style={styles.vipBanner} testID="vip-banner">
-                <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFillObject} />
-                <LinearGradient colors={['#1C1E24', '#0B0C10']} style={StyleSheet.absoluteFillObject} />
-                <View style={{ padding: Spacing.five }}>
-                  <ThemedText style={{ color: '#D4AF37', fontSize: 10, letterSpacing: 2, fontWeight: 'bold' }}>EXECUTIVE SERVICE</ThemedText>
-                  <ThemedText style={{ color: '#F3F4F6', fontSize: 20, fontWeight: 'bold', marginTop: Spacing.two }}>Too Many Points, Too Little Time?</ThemedText>
-                  <ThemedText style={{ color: '#9CA3AF', fontSize: 13, marginTop: Spacing.two, lineHeight: 18 }}>
-                    You have over 5 Lakh points. Our Redemption Architects can handle the complex routing and secure your next First Class flight for a flat fee.
-                  </ThemedText>
-                  <View style={styles.vipButton}>
-                    <ThemedText style={styles.vipButtonText}>Book 1-on-1 Session (₹10,000)</ThemedText>
-                  </View>
-                </View>
-              </Pressable>
-            </Animated.View>
-          )}
-
-          {/* 2. Dynamic Arbitrage Filter - Solves User Problem */}
-          <Animated.View entering={FadeInDown.delay(700).springify()}>
-            <ThemedText style={styles.sectionLabel} type="subtitle">
-              {searchQuery ? `Arbitrage Strategies for "${searchQuery}"` : 'Curated Arbitrage'}
-            </ThemedText>
-            
-            {filteredDeals.length === 0 ? (
-              <View style={styles.noResultsBox}>
-                <ThemedText style={{ color: '#6B7280', fontSize: 13, textAlign: 'center' }}>
-                  No active arbitrage strategies found for this destination. Please contact our Executive Concierge for custom routing.
-                </ThemedText>
+          {isDesktop ? (
+            <View style={styles.gridContainer}>
+              <View style={styles.gridLeftColumn}>
+                {searchSection}
+                {searchResultsSection}
+                {carouselSection}
+                {walletSection}
               </View>
-            ) : (
-              filteredDeals.map((deal) => (
-                <Pressable key={deal.id} style={styles.dealBanner}>
-                  <Image source={deal.image} style={styles.dealImage} />
-                  <LinearGradient colors={['transparent', 'rgba(255,255,255,0.95)']} style={styles.dealOverlay} />
-                  <View style={styles.dealContent}>
-                    <View style={styles.dealBadge}>
-                      <BlurView intensity={30} style={styles.dealBadgeInner}>
-                        <ThemedText style={styles.dealBadgeText} type="code">{deal.yield}</ThemedText>
-                      </BlurView>
-                    </View>
-                    <ThemedText style={styles.dealTitle} type="subtitle">{deal.title}</ThemedText>
-                    <ThemedText style={styles.dealDesc}>{deal.desc}</ThemedText>
-                    
-                    <View style={styles.strategyBox}>
-                      <ThemedText style={{ color: '#F59E0B', fontSize: 9, letterSpacing: 1, fontWeight: 'bold', marginBottom: Spacing.one }}>WALLET STRATEGY</ThemedText>
-                      <ThemedText style={{ color: '#4B5563', fontSize: 11 }}>{deal.strategy}</ThemedText>
-                    </View>
-                  </View>
-                </Pressable>
-              ))
-            )}
-          </Animated.View>
-
-          {/* Monetization Engine */}
-          <Animated.View entering={FadeInDown.delay(800).springify()}>
-            <AffiliateEngine recommendedCard="Axis Atlas" />
-          </Animated.View>
-
-          {/* Cards List */}
-          <Animated.View entering={FadeInDown.delay(900).springify()}>
-            <ThemedText style={styles.sectionLabel} type="subtitle">
-              Wallet Intelligence
-            </ThemedText>
-          </Animated.View>
-          {cards.map((c, idx) => (
-            <Animated.View key={c.cardId} entering={FadeInDown.delay(1000 + idx * 100).springify()}>
-              <WalletCard
-                cardId={c.cardId}
-                balance={c.balance}
-                spend={c.spend}
-                isSelected={selectedCardId === c.cardId}
-                onSelect={() => setSelectedCardId(c.cardId)}
-                onUpdateBalance={(val) => updateBalance(c.cardId, val)}
-                onUpdateSpend={(val) => updateSpend(c.cardId, val)}
-              />
-            </Animated.View>
-          ))}
+              <View style={styles.gridRightColumn}>
+                {milestonesSection}
+                {vipSection}
+                {arbitrageSection}
+                {affiliateSection}
+              </View>
+            </View>
+          ) : (
+            <View style={{ gap: Spacing.five }}>
+              {searchSection}
+              {searchResultsSection}
+              {carouselSection}
+              {walletSection}
+              {milestonesSection}
+              {vipSection}
+              {arbitrageSection}
+              {affiliateSection}
+            </View>
+          )}
 
           {/* Logout Option at the bottom */}
           <Animated.View entering={FadeInDown.delay(1200).springify()} style={{ marginTop: Spacing.eight, alignItems: 'center', marginBottom: Spacing.four }}>
@@ -458,6 +494,19 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: MaxContentWidth,
     width: '100%',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    gap: Spacing.six,
+    width: '100%',
+  },
+  gridLeftColumn: {
+    flex: 1.1,
+    gap: Spacing.five,
+  },
+  gridRightColumn: {
+    flex: 0.9,
+    gap: Spacing.five,
   },
   scrollContent: {
     padding: Spacing.four,

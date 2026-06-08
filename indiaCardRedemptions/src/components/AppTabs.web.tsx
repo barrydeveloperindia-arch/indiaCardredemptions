@@ -6,20 +6,15 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
 import React from 'react';
-import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet, Platform } from 'react-native';
 
-import { ExternalLink } from './ExternalLink';
 import { ThemedText } from './ThemedText';
-import { ThemedView } from './ThemedView';
-
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing, Fonts } from '@/constants/theme';
 
 export default function AppTabs() {
   return (
-    <Tabs>
-      <TabSlot style={{ height: '100%' }} />
+    <Tabs style={styles.webTabsContainer}>
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href="/" asChild>
@@ -39,6 +34,7 @@ export default function AppTabs() {
           </TabTrigger>
         </CustomTabList>
       </TabList>
+      <TabSlot style={{ flex: 1 }} />
     </Tabs>
   );
 }
@@ -46,80 +42,108 @@ export default function AppTabs() {
 export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
   return (
     <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
-      <ThemedView
-        type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
-        style={styles.tabButtonView}>
-        <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
+      <View
+        style={[
+          styles.tabButtonView,
+          isFocused && styles.tabButtonViewSelected
+        ]}>
+        <ThemedText style={{ fontSize: 13, fontWeight: 'bold', color: isFocused ? '#D4AF37' : '#9CA3AF', letterSpacing: 0.5 }}>
           {children}
         </ThemedText>
-      </ThemedView>
+      </View>
     </Pressable>
   );
 }
 
 export function CustomTabList(props: TabListProps) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
-
   return (
     <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" style={styles.brandText}>
-          Expo Starter
+      <View style={styles.innerContainer}>
+        <ThemedText style={styles.brandText}>
+          THE POINTS ARRAY
         </ThemedText>
 
-        {props.children}
+        <View style={styles.tabButtonsRow}>
+          {props.children}
+        </View>
 
-        <ExternalLink href="https://docs.expo.dev" asChild>
-          <Pressable style={styles.externalPressable}>
-            <ThemedText type="link">Docs</ThemedText>
-            <SymbolView
-              tintColor={colors.text}
-              name={{ ios: 'arrow.up.right.square', web: 'link' }}
-              size={12}
-            />
-          </Pressable>
-        </ExternalLink>
-      </ThemedView>
+        <View style={styles.membershipBadge}>
+          <ThemedText style={styles.membershipText}>
+            BLACK MEMBERSHIP
+          </ThemedText>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  webTabsContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    ...Platform.select({
+      web: {
+        height: '100vh',
+      },
+      default: {
+        height: '100%',
+      },
+    }),
+    backgroundColor: '#090A0F',
+  },
   tabListContainer: {
-    position: 'absolute',
     width: '100%',
-    padding: Spacing.three,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
+    backgroundColor: '#14161F',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(212, 175, 55, 0.15)',
+    zIndex: 100,
   },
   innerContainer: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.five,
-    borderRadius: Spacing.five,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.six,
     flexDirection: 'row',
     alignItems: 'center',
-    flexGrow: 1,
-    gap: Spacing.two,
+    justifyContent: 'space-between',
+    width: '100%',
     maxWidth: MaxContentWidth,
+    alignSelf: 'center',
   },
   brandText: {
-    marginRight: 'auto',
+    fontSize: 14,
+    letterSpacing: 2,
+    color: '#D4AF37',
+    fontWeight: 'bold',
+  },
+  tabButtonsRow: {
+    flexDirection: 'row',
+    gap: Spacing.three,
   },
   pressed: {
     opacity: 0.7,
   },
   tabButtonView: {
-    paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.three,
-    borderRadius: Spacing.three,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.four,
+    borderRadius: Spacing.two,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
-  externalPressable: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.one,
-    marginLeft: Spacing.three,
+  tabButtonViewSelected: {
+    borderColor: 'rgba(212, 175, 55, 0.3)',
+    backgroundColor: 'rgba(212, 175, 55, 0.08)',
+  },
+  membershipBadge: {
+    borderWidth: 1,
+    borderColor: 'rgba(212, 175, 55, 0.4)',
+    paddingHorizontal: Spacing.three,
+    paddingVertical: 4,
+    borderRadius: Spacing.one,
+    backgroundColor: 'rgba(20, 22, 31, 0.5)',
+  },
+  membershipText: {
+    color: '#D4AF37',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
   },
 });

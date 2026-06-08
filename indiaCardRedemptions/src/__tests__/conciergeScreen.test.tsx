@@ -48,7 +48,7 @@ jest.mock('expo-image', () => {
   };
 });
 
-describe('ConciergeScreen Inquiry Submission Flow', () => {
+describe('ConciergeScreen Inquiry Submission Flow [FT-108_ConciergeBooking]', () => {
   it('should allow filling and submitting the concierge strategy blueprint request', () => {
     const { getByText, getByPlaceholderText } = render(<ConciergeScreen />);
 

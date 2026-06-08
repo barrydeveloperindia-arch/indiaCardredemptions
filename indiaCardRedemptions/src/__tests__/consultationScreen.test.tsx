@@ -27,7 +27,7 @@ jest.mock('expo-image', () => {
   };
 });
 
-describe('ConsultationScreen Submission Flow', () => {
+describe('ConsultationScreen Submission Flow [FT-108_ConciergeBooking]', () => {
   it('should render forms and submit strategy consultation request successfully', () => {
     const { getByText, getByPlaceholderText } = render(<ConsultationScreen />);
 

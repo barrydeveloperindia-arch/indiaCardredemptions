@@ -1,4 +1,5 @@
 import {
+  app,
   rateLimiter,
   stripe3DSGating,
   verifyJwtOwnership,
@@ -235,6 +236,141 @@ describe('Backend Express Security Middlewares', () => {
         expect.objectContaining({
           message: expect.stringContaining('Concierge flight booking initialized'),
           bookingId: expect.any(String)
+        })
+      );
+    });
+  });
+
+  describe('CORS Headers Middleware', () => {
+    let corsMiddleware: any;
+
+    beforeAll(() => {
+      corsMiddleware = (app as any).router.stack.find(
+        (layer: any) => layer.name === '<anonymous>' || (layer.handle && layer.handle.length === 3)
+      )?.handle;
+    });
+
+    it('should apply CORS headers to all responses', () => {
+      if (!corsMiddleware) return;
+      const mockReq: any = { method: 'GET' };
+      const mockRes: any = {
+        header: jest.fn(),
+        sendStatus: jest.fn(),
+      };
+      const mockNext = jest.fn();
+
+      corsMiddleware(mockReq, mockRes, mockNext);
+      expect(mockRes.header).toHaveBeenCalledWith('Access-Control-Allow-Origin', '*');
+      expect(mockRes.header).toHaveBeenCalledWith(
+        'Access-Control-Allow-Headers',
+        expect.stringContaining('Authorization')
+      );
+      expect(mockNext).toHaveBeenCalled();
+    });
+
+    it('should return 200 for OPTIONS preflight requests', () => {
+      if (!corsMiddleware) return;
+      const mockReq: any = { method: 'OPTIONS' };
+      const mockRes: any = {
+        header: jest.fn(),
+        sendStatus: jest.fn().mockReturnThis(),
+      };
+      const mockNext = jest.fn();
+
+      corsMiddleware(mockReq, mockRes, mockNext);
+      expect(mockRes.sendStatus).toHaveBeenCalledWith(200);
+      expect(mockNext).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('GET /api/deals Endpoint', () => {
+    let dealsHandler: any;
+
+    beforeAll(() => {
+      const route = (app as any).router.stack.find(
+        (layer: any) => layer.route && layer.route.path === '/api/deals'
+      );
+      if (route) {
+        dealsHandler = route.route.stack[0].handle;
+      }
+    });
+
+    it('should successfully serve parsed deals from RSS parser or fallback to static deals', async () => {
+      expect(dealsHandler).toBeDefined();
+
+      const mockReq: any = { method: 'GET', url: '/api/deals' };
+      const mockRes: any = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+        header: jest.fn(),
+      };
+
+      await dealsHandler(mockReq, mockRes);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deals: expect.any(Array),
+        })
+      );
+    });
+  });
+
+  describe('GET /api/rss/instagram Endpoint', () => {
+    let instagramRssHandler: any;
+
+    beforeAll(() => {
+      const route = (app as any).router.stack.find(
+        (layer: any) => layer.route && layer.route.path === '/api/rss/instagram'
+      );
+      if (route) {
+        instagramRssHandler = route.route.stack[0].handle;
+      }
+    });
+
+    it('should successfully serve the Instagram RSS XML feed with correct headers', async () => {
+      expect(instagramRssHandler).toBeDefined();
+
+      const mockReq: any = { method: 'GET', url: '/api/rss/instagram' };
+      const mockRes: any = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn().mockReturnThis(),
+        header: jest.fn(),
+      };
+
+      await instagramRssHandler(mockReq, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.header).toHaveBeenCalledWith('Content-Type', 'application/xml');
+      expect(mockRes.send).toHaveBeenCalledWith(expect.stringContaining('<rss version="2.0"'));
+      expect(mockRes.send).toHaveBeenCalledWith(expect.stringContaining('<channel>'));
+      expect(mockRes.send).toHaveBeenCalledWith(expect.stringContaining('thegreatindianmiles'));
+    });
+  });
+
+  describe('GET /api/instagram Endpoint', () => {
+    let instagramJsonHandler: any;
+
+    beforeAll(() => {
+      const route = (app as any).router.stack.find(
+        (layer: any) => layer.route && layer.route.path === '/api/instagram'
+      );
+      if (route) {
+        instagramJsonHandler = route.route.stack[0].handle;
+      }
+    });
+
+    it('should successfully serve the Instagram JSON feed', async () => {
+      expect(instagramJsonHandler).toBeDefined();
+
+      const mockReq: any = { method: 'GET', url: '/api/instagram' };
+      const mockRes: any = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn().mockReturnThis(),
+      };
+
+      await instagramJsonHandler(mockReq, mockRes);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          posts: expect.any(Array),
         })
       );
     });

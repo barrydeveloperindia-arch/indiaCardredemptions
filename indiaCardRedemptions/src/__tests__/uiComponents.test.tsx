@@ -255,7 +255,7 @@ describe('ArbitrageCalculator Component UI Elements', () => {
     );
 
     // Click on Book Luxury Stay button
-    const bookBtn = getByText('🏨 Book Luxury Stay (Cash & Points Arbitrage)');
+    const bookBtn = getByText('Book Luxury Stay (Cash & Points Arbitrage)');
     expect(bookBtn).toBeTruthy();
     fireEvent.press(bookBtn);
 
@@ -273,7 +273,7 @@ describe('ArbitrageCalculator Component UI Elements', () => {
     fireEvent.press(confirmBtn);
 
     // Should transition to confirmed stay panel
-    expect(await findByText('Stay Confirmed! 🎉')).toBeTruthy();
+    expect(await findByText('Stay Confirmed!')).toBeTruthy();
     expect(getByText('Booking Reference:')).toBeTruthy();
 
     // Click reset stay
@@ -281,7 +281,7 @@ describe('ArbitrageCalculator Component UI Elements', () => {
     fireEvent.press(resetBtn);
 
     // Should be back to idle state
-    expect(getByText('🏨 Book Luxury Stay (Cash & Points Arbitrage)')).toBeTruthy();
+    expect(getByText('Book Luxury Stay (Cash & Points Arbitrage)')).toBeTruthy();
   });
 
   it('should trigger points copying, open bank portal, and search rewards deep-links correctly', async () => {
@@ -294,9 +294,9 @@ describe('ArbitrageCalculator Component UI Elements', () => {
       <ArbitrageCalculator walletBalances={mockWallet} />
     );
 
-    const copyBtn = getByText('📋 Copy Points');
-    const openBankBtn = getByText('🌐 Open Bank');
-    const searchRewardsBtn = getByText('🔍 Search Rewards');
+    const copyBtn = getByText('Copy Points');
+    const openBankBtn = getByText('Open Bank');
+    const searchRewardsBtn = getByText('Search Rewards');
 
     expect(copyBtn).toBeTruthy();
     expect(openBankBtn).toBeTruthy();
@@ -333,7 +333,7 @@ describe('HomeScreen Usability & Stickiness Elements', () => {
     expect(getByPlaceholderText(/Search "London", "Maldives"\.\.\./i)).toBeTruthy();
 
     // 2. Deal of the Day Banner
-    expect(getByText(/🔥 ₹2\.00 YIELD \/ PT/i)).toBeTruthy();
+    expect(getByText(/VALUED: ₹2\.00 YIELD \/ PT/i)).toBeTruthy();
     expect(getByText(/Fairmont Jaipur Palace/i)).toBeTruthy();
 
     // 3. Dynamic Milestone Actionable Alerts
@@ -348,11 +348,11 @@ describe('InsightsScreen Component UI Elements', () => {
     const { getByText, getByPlaceholderText } = render(<InsightsScreen />);
 
     // Segmented tab selectors
-    expect(getByText(/💡 CARD FACTS & EXCLUSIONS/i)).toBeTruthy();
-    expect(getByText(/🔥 DOUBLE & TRIPLE DIPS/i)).toBeTruthy();
+    expect(getByText(/CARD FACTS & EXCLUSIONS/i)).toBeTruthy();
+    expect(getByText(/DOUBLE & TRIPLE DIPS/i)).toBeTruthy();
 
     // Defaults to facts tab & MCC Checker
-    expect(getByText(/🎯 Interactive Axis Atlas MCC Checker/i)).toBeTruthy();
+    expect(getByText(/Interactive Axis Atlas MCC Checker/i)).toBeTruthy();
     expect(getByPlaceholderText(/Enter merchant or processor name.../i)).toBeTruthy();
   });
 
@@ -374,11 +374,11 @@ describe('InsightsScreen Component UI Elements', () => {
   it('should toggle to the Double/Triple Dips section and render the ROI calculator', () => {
     const { getByText } = render(<InsightsScreen />);
 
-    const dipsTab = getByText(/🔥 DOUBLE & TRIPLE DIPS/i);
+    const dipsTab = getByText(/DOUBLE & TRIPLE DIPS/i);
     fireEvent.press(dipsTab);
 
     // Should display the calculator card and sliders
-    expect(getByText(/🚀 Double\/Triple Dip ROI Calculator/i)).toBeTruthy();
+    expect(getByText(/Double\/Triple Dip ROI Calculator/i)).toBeTruthy();
     expect(getByText(/Slide Campaign Spend/i)).toBeTruthy();
     
     // Default active strategy is Infinia Marriott stays with massive ROI output

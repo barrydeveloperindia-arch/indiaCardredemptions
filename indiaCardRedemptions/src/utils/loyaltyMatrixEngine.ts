@@ -149,11 +149,11 @@ export function getOptimalTransferPathway(
 
       let notes = '';
       if (cardId === 'hsbc_premier') {
-        notes = '👑 1:1 Premier Pathway. Max value!';
+        notes = '[PREMIER] 1:1 Premier Pathway. Max value!';
       } else if (cardId === 'axis_m4b' && ratio === 0.8) {
         notes = 'Burgundy 5:4 Pathway.';
       } else if (cardId === 'sbi_aurum') {
-        notes = '⚠️ Low yield devaluation. Avoid if possible.';
+        notes = '[WARNING] Low yield devaluation. Avoid if possible.';
       }
 
       recommendations.push({

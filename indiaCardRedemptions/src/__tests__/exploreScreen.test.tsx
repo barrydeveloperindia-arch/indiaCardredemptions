@@ -57,7 +57,7 @@ jest.mock('expo-symbols', () => {
   };
 });
 
-describe('TabTwoScreen (Explore/Arbitrage Screen)', () => {
+describe('TabTwoScreen (Explore/Arbitrage Screen) [FT-104_ExploreScreen]', () => {
   it('should render headers, default to Hotel Arbitrage, and display the calculator', () => {
     const { getByText } = render(
       <WalletProvider>
@@ -67,8 +67,8 @@ describe('TabTwoScreen (Explore/Arbitrage Screen)', () => {
 
     expect(getByText('THE INDIAN POINTS ARRAY')).toBeTruthy();
     expect(getByText('Point Arbitrage')).toBeTruthy();
-    expect(getByText('🏨 Hotel Arbitrage')).toBeTruthy();
-    expect(getByText('✈️ London & Europe Solver')).toBeTruthy();
+    expect(getByText('Hotel Arbitrage')).toBeTruthy();
+    expect(getByText('London & Europe Solver')).toBeTruthy();
 
     // Default activeMode is 'hotel', so ArbitrageCalculator should render
     expect(getByText('Arbitrage Yield Analyzer')).toBeTruthy();
@@ -81,13 +81,13 @@ describe('TabTwoScreen (Explore/Arbitrage Screen)', () => {
       </WalletProvider>
     );
 
-    const flightTab = getByText('✈️ London & Europe Solver');
+    const flightTab = getByText('London & Europe Solver');
     fireEvent.press(flightTab);
 
     // Should display Flight Solver UI
     expect(getByText('London & Europe Trip Solver')).toBeTruthy();
     expect(getByText('SELECT DESIRED CABIN CLASS')).toBeTruthy();
-    expect(getByText('👑 Business Class (65k Aeroplan)')).toBeTruthy();
+    expect(getByText('Business Class (65k Aeroplan)')).toBeTruthy();
 
     // Hotel Arbitrage calculator should be hidden
     expect(queryByText('Arbitrage Yield Analyzer')).toBeNull();
@@ -100,13 +100,13 @@ describe('TabTwoScreen (Explore/Arbitrage Screen)', () => {
       </WalletProvider>
     );
 
-    fireEvent.press(getByText('✈️ London & Europe Solver'));
+    fireEvent.press(getByText('London & Europe Solver'));
 
     // Default should be business class (Aeroplan)
     expect(getByText('TARGET PROGRAM: Air Canada Aeroplan (Star Alliance)')).toBeTruthy();
 
     // Switch to Economy class
-    const economyTab = getByText('🎫 Economy Class (35k Avios)');
+    const economyTab = getByText('Economy Class (35k Avios)');
     fireEvent.press(economyTab);
 
     expect(getByText('TARGET PROGRAM: Qatar Airways Avios (Oneworld)')).toBeTruthy();
@@ -119,10 +119,10 @@ describe('TabTwoScreen (Explore/Arbitrage Screen)', () => {
       </WalletProvider>
     );
 
-    fireEvent.press(getByText('✈️ London & Europe Solver'));
+    fireEvent.press(getByText('London & Europe Solver'));
 
     // Trigger Book flight cash booking
-    const bookBtn = getByText('✈️ Book Cash Flight (Duffel API Checkout)');
+    const bookBtn = getByText('Book Cash Flight (Duffel API Checkout)');
     expect(bookBtn).toBeTruthy();
     fireEvent.press(bookBtn);
 
@@ -137,13 +137,13 @@ describe('TabTwoScreen (Explore/Arbitrage Screen)', () => {
     fireEvent.press(confirmBtn);
 
     // Assert confirmed details
-    expect(await findByText('Booking Confirmed! 🎉')).toBeTruthy();
+    expect(await findByText('Booking Confirmed!')).toBeTruthy();
     expect(getByText('PNR Reference:')).toBeTruthy();
 
     const resetBtn = getByText('Book Another Flight');
     fireEvent.press(resetBtn);
 
     // Back to flight main screen
-    expect(getByText('✈️ Book Cash Flight (Duffel API Checkout)')).toBeTruthy();
+    expect(getByText('Book Cash Flight (Duffel API Checkout)')).toBeTruthy();
   });
 });

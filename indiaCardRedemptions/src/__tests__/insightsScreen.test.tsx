@@ -48,17 +48,17 @@ jest.mock('expo-image', () => {
   };
 });
 
-describe('InsightsScreen (Hacks & Multi-Dips)', () => {
+describe('InsightsScreen (Hacks & Multi-Dips) [FT-107_InsightsScreen]', () => {
   it('should render the facts section with live MCC checker by default', () => {
     const { getByText, getByPlaceholderText } = render(<InsightsScreen />);
 
     expect(getByText('THE INDIAN POINTS ARRAY HACKS')).toBeTruthy();
     expect(getByText('Insights & Multi-Dips')).toBeTruthy();
-    expect(getByText('💡 CARD FACTS & EXCLUSIONS')).toBeTruthy();
-    expect(getByText('🔥 DOUBLE & TRIPLE DIPS')).toBeTruthy();
+    expect(getByText('CARD FACTS & EXCLUSIONS')).toBeTruthy();
+    expect(getByText('DOUBLE & TRIPLE DIPS')).toBeTruthy();
 
     // Live MCC checker
-    expect(getByText('🎯 Interactive Axis Atlas MCC Checker')).toBeTruthy();
+    expect(getByText('Interactive Axis Atlas MCC Checker')).toBeTruthy();
     expect(getByPlaceholderText('Enter merchant or processor name...')).toBeTruthy();
   });
 
@@ -80,14 +80,14 @@ describe('InsightsScreen (Hacks & Multi-Dips)', () => {
     const { getByText, queryByText } = render(<InsightsScreen />);
 
     // Toggle to dips tab
-    fireEvent.press(getByText('🔥 DOUBLE & TRIPLE DIPS'));
+    fireEvent.press(getByText('DOUBLE & TRIPLE DIPS'));
 
     // Should display paywall
     expect(getByText('Unlock The Indian Points Array Pro')).toBeTruthy();
     expect(getByText('Subscribe ₹4,999 / year')).toBeTruthy();
 
     // Calculators should be present but locked visually (within DOM)
-    expect(getByText('🚀 Double/Triple Dip ROI Calculator')).toBeTruthy();
+    expect(getByText('Double/Triple Dip ROI Calculator')).toBeTruthy();
 
     // Click subscribe button to bypass paywall
     fireEvent.press(getByText('Subscribe ₹4,999 / year'));

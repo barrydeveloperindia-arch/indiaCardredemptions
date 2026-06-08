@@ -10,7 +10,7 @@
     "web": "expo start --web",
     "build:web": "expo export -p web",
     "lint": "expo lint",
-    "test": "jest",
+    "test": "python ./scripts/verify_tdd_compliance.py && jest",
     "backend": "ts-node backend/server.ts"
   },
   "dependencies": {

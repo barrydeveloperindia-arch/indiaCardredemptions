@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View, ImageBackground, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, StyleSheet, View, ImageBackground, Platform, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -20,8 +20,38 @@ const partnerBanners: Record<string, any> = {
   'Qatar Privilege Club': require('../../assets/images/deals_qatar_banner.png'),
 };
 
+/**
+ * @feature FT-105_DealsScreen
+ * @feature FT-109_LiveDealsFeed
+ */
 export default function DealsScreen() {
   const { walletBalances } = useWallet();
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const [deals, setDeals] = useState(pointSales);
+
+  useEffect(() => {
+    let active = true;
+    async function fetchDeals() {
+      try {
+        const response = await fetch('http://localhost:3000/api/deals');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        if (active && data && Array.isArray(data.deals)) {
+          setDeals(data.deals);
+        }
+      } catch (err) {
+        console.warn('Unable to retrieve dynamic deals feed, using offline data:', err);
+      }
+    }
+    fetchDeals();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <ImageBackground 
@@ -44,9 +74,8 @@ export default function DealsScreen() {
         />
       </Animated.View>
 
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={Platform.OS === 'web' ? ['left', 'right'] : ['top', 'left', 'right']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Header Branding */}
           <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.header}>
             <View>
               <ThemedText style={styles.subTitle} type="code">
@@ -64,15 +93,19 @@ export default function DealsScreen() {
             </ThemedText>
           </Animated.View>
 
-          <View style={styles.listContainer}>
-            {pointSales.map((sale, idx) => {
+          <View style={[styles.listContainer, isDesktop && { flexDirection: 'row', flexWrap: 'wrap' }]}>
+            {deals.map((sale, idx) => {
               const costData = calculateCostPerPoint(sale);
               const recommendation = getWalletRecommendation(sale, walletBalances);
 
               const bannerSource = partnerBanners[sale.partner];
 
               return (
-                <Animated.View key={sale.id} entering={SlideInRight.delay(400 + idx * 100).springify()}>
+                <Animated.View 
+                  key={sale.id} 
+                  entering={SlideInRight.delay(400 + idx * 100).springify()}
+                  style={isDesktop ? { flex: 1, minWidth: 350, maxWidth: 560 } : undefined}
+                >
                   <BlurView intensity={20} tint="dark" style={styles.dealCard}>
                     {bannerSource && (
                       <Image 
@@ -96,7 +129,6 @@ export default function DealsScreen() {
                       {sale.description}
                     </ThemedText>
 
-                    {/* Math Stats Box */}
                     <BlurView intensity={30} tint="dark" style={styles.mathGrid}>
                       <View style={styles.mathCol}>
                         <ThemedText style={styles.mathLabel} type="code">YIELD</ThemedText>
@@ -118,7 +150,6 @@ export default function DealsScreen() {
                       </View>
                     </BlurView>
 
-                    {/* Wallet Intelligence Recommendation */}
                     <View style={[
                       styles.recommendationBox,
                       recommendation.shouldBuy ? styles.recBuyBox : styles.recSkipBox
@@ -127,7 +158,7 @@ export default function DealsScreen() {
                         styles.recBadge,
                         recommendation.shouldBuy ? styles.recBuyText : styles.recSkipText
                       ]} type="code">
-                        {recommendation.shouldBuy ? '✅ RECOMMENDATION: ACQUIRE' : '🛑 RECOMMENDATION: SKIP'}
+                        {recommendation.shouldBuy ? 'RECOMMENDATION: ACQUIRE' : 'RECOMMENDATION: SKIP'}
                       </ThemedText>
                       <ThemedText style={styles.recReason}>
                         {recommendation.reason}

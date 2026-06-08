@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, TextInput, Pressable, ImageBackground, Platform } from 'react-native';
+import { ScrollView, StyleSheet, View, TextInput, Pressable, ImageBackground, Platform, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { PremiumSlider } from '@/components/PremiumSlider';
@@ -23,6 +23,9 @@ const insightBanners: Record<string, any> = {
   'amex_travel': require('../../assets/images/hacks_taj_banner.png'),
 };
 
+/**
+ * @feature FT-107_InsightsScreen
+ */
 export default function InsightsScreen() {
   const [activeTab, setActiveTab] = useState<'facts' | 'dips'>('facts');
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -42,6 +45,192 @@ export default function InsightsScreen() {
 
   const selectedStrategy = multiDipStrategies.find(s => s.id === selectedStrategyId) || multiDipStrategies[0];
   const calculatorOutput = selectedStrategy.calculateReturn(campaignSpend);
+
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const mccCheckerSection = (
+    <Animated.View entering={FadeInDown.delay(400).springify()}>
+      <BlurView intensity={20} tint="dark" style={styles.checkerCard}>
+        <View style={{ marginBottom: Spacing.four }}>
+          <ThemedText style={styles.checkerTitle} type="subtitle">
+            Interactive Axis Atlas MCC Checker
+          </ThemedText>
+          <ThemedText style={styles.checkerDesc}>
+            Enter a merchant name or payment gateway (e.g. &quot;BharatNXT&quot;, &quot;Renting&quot;, &quot;Taj Hotel&quot;) to verify if it qualifies for Edge Miles.
+          </ThemedText>
+        </View>
+        
+        <TextInput
+          style={styles.checkerInput}
+          value={mccSearch}
+          onChangeText={handleMccCheck}
+          placeholder="Enter merchant or processor name..."
+          placeholderTextColor="rgba(255, 255, 255, 0.45)"
+        />
+
+        <View style={[
+          styles.resultBox,
+          checkerResult.isEligible ? styles.eligibleBox : styles.excludedBox
+        ]}>
+          <View style={styles.resultHeader}>
+            <ThemedText style={[
+              styles.resultBadge,
+              checkerResult.isEligible ? styles.eligibleBadgeText : styles.excludedBadgeText
+            ]} type="code">
+              {checkerResult.isEligible ? `ELIGIBLE (${checkerResult.rewardMultiplier}X Edge Miles)` : 'EXCLUDED (0X Edge Miles)'}
+            </ThemedText>
+          </View>
+          <ThemedText style={styles.resultText}>
+            {checkerResult.reason}
+          </ThemedText>
+        </View>
+      </BlurView>
+    </Animated.View>
+  );
+
+  const cardFactsListSection = (
+    <View style={{ gap: Spacing.four }}>
+      <Animated.View entering={FadeInDown.delay(500).springify()}>
+        <ThemedText style={styles.sectionHeading} type="subtitle">
+          Interesting Premium Card Facts
+        </ThemedText>
+      </Animated.View>
+      
+      {cardInsights.map((insight, idx) => {
+        const bannerSource = insightBanners[insight.cardId];
+
+        return (
+          <Animated.View key={insight.cardId} entering={SlideInRight.delay(600 + idx * 100).springify()}>
+            <BlurView intensity={20} tint="dark" style={styles.factCard}>
+              {bannerSource && (
+                <Image 
+                  source={bannerSource} 
+                  style={styles.cardBanner} 
+                  resizeMode="cover"
+                />
+              )}
+              <View style={styles.factHeader}>
+                <ThemedText style={styles.factIcon}>{insight.icon}</ThemedText>
+                <View style={styles.factTitleCol}>
+                  <ThemedText style={styles.factCardCategory} type="code">
+                    {insight.category}
+                  </ThemedText>
+                  <ThemedText style={styles.factCardTitle} type="smallBold">
+                    {insight.title}
+                  </ThemedText>
+                </View>
+              </View>
+              <ThemedText style={styles.factDesc}>
+                {insight.description}
+              </ThemedText>
+              <View style={styles.bulletList}>
+                {insight.bulletPoints.map((bp, i) => (
+                  <View key={i} style={styles.bulletItem}>
+                    <ThemedText style={styles.bulletDot}>•</ThemedText>
+                    <ThemedText style={styles.bulletText}>{bp}</ThemedText>
+                  </View>
+                ))}
+              </View>
+            </BlurView>
+          </Animated.View>
+        );
+      })}
+    </View>
+  );
+
+  const roiCalculatorSection = (
+    <Animated.View entering={FadeInDown.delay(400).springify()}>
+      <BlurView intensity={20} tint="dark" style={styles.calculatorCard}>
+        <ThemedText style={styles.calcTitle} type="subtitle">
+          Double/Triple Dip ROI Calculator
+        </ThemedText>
+        <ThemedText style={styles.calcDesc}>
+          Select a dip strategy below and adjust your expected campaign/stay spend using the slider to calculate your Net ROI %.
+        </ThemedText>
+
+        <View style={styles.chipContainer}>
+          {multiDipStrategies.map((s) => {
+            const isSelected = selectedStrategyId === s.id;
+            return (
+              <Pressable 
+                key={s.id} 
+                onPress={() => setSelectedStrategyId(s.id)}
+                style={[styles.chipButton, isSelected && styles.activeChipButton]}
+              >
+                <ThemedText style={[styles.chipLabel, isSelected && styles.activeChipLabel]} type="smallBold">
+                  {s.type === 'triple' ? 'TRIPLE' : 'DOUBLE'} : {s.cardName.split(' ')[0]}
+                </ThemedText>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <View style={styles.sliderCol}>
+          <PremiumSlider
+            label="Slide Campaign Spend"
+            value={campaignSpend}
+            min={5000}
+            max={200000}
+            step={5000}
+            onChange={setCampaignSpend}
+            accentColor="#F59E0B"
+            valueSuffix=" INR"
+          />
+        </View>
+
+        <View style={styles.roiPanel}>
+          <View style={styles.roiCol}>
+            <ThemedText style={styles.roiLabel} type="code">NET VAL VALUE BACK</ThemedText>
+            <ThemedText style={styles.roiValue} type="subtitle">₹{calculatorOutput.valueBackINR.toLocaleString()}</ThemedText>
+          </View>
+          <View style={styles.roiColRight}>
+            <ThemedText style={styles.roiLabelRight} type="code">ACCELERATED RETURN</ThemedText>
+            <ThemedText style={styles.roiPercent}>
+              {calculatorOutput.roi.toFixed(1)}% ROI
+            </ThemedText>
+          </View>
+        </View>
+        
+        <ThemedText style={styles.roiTextDetail}>
+          *Estimated return factors in points worth (₹1/Marriott, ₹0.40/Amex) plus surcharge exclusions and milestone rewards.
+        </ThemedText>
+      </BlurView>
+    </Animated.View>
+  );
+
+  const strategyFlowSection = (
+    <View style={{ gap: Spacing.four }}>
+      <Animated.View entering={FadeInDown.delay(500).springify()}>
+        <ThemedText style={styles.sectionHeading} type="subtitle">
+          Strategy Blueprint: {selectedStrategy.name}
+        </ThemedText>
+      </Animated.View>
+
+      <Animated.View entering={FadeInDown.delay(600).springify()}>
+        <BlurView intensity={20} tint="dark" style={styles.flowCard}>
+          <ThemedText style={styles.flowDesc}>
+            {selectedStrategy.description}
+          </ThemedText>
+          
+          <View style={styles.stepMap}>
+            {selectedStrategy.steps.map((step, idx) => (
+              <View key={idx} style={styles.stepMapRow}>
+                <View style={styles.stepMapBubble}>
+                  <ThemedText style={styles.stepMapNum}>{idx + 1}</ThemedText>
+                </View>
+                <View style={styles.stepMapContent}>
+                  <ThemedText style={styles.stepMapText}>
+                    {step}
+                  </ThemedText>
+                </View>
+              </View>
+            ))}
+          </View>
+        </BlurView>
+      </Animated.View>
+    </View>
+  );
 
   return (
     <ImageBackground 
@@ -64,9 +253,8 @@ export default function InsightsScreen() {
         />
       </Animated.View>
 
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.safeArea} edges={Platform.OS === 'web' ? ['left', 'right'] : ['top', 'left', 'right']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Header Branding */}
           <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.header}>
             <View>
               <ThemedText style={styles.subTitle} type="code">
@@ -78,7 +266,6 @@ export default function InsightsScreen() {
             </View>
           </Animated.View>
 
-          {/* Premium Segmented Tab Selector */}
           <Animated.View entering={FadeInDown.delay(300).springify()}>
             <BlurView intensity={25} tint="dark" style={styles.tabContainer}>
               <Pressable 
@@ -86,7 +273,7 @@ export default function InsightsScreen() {
                 style={[styles.tabButton, activeTab === 'facts' && styles.activeTabButton]}
               >
                 <ThemedText style={[styles.tabLabel, activeTab === 'facts' && styles.activeTabLabel]} type="smallBold">
-                  💡 CARD FACTS & EXCLUSIONS
+                  CARD FACTS & EXCLUSIONS
                 </ThemedText>
               </Pressable>
               <Pressable 
@@ -94,218 +281,69 @@ export default function InsightsScreen() {
                 style={[styles.tabButton, activeTab === 'dips' && styles.activeTabButton]}
               >
                 <ThemedText style={[styles.tabLabel, activeTab === 'dips' && styles.activeTabLabel]} type="smallBold">
-                  🔥 DOUBLE & TRIPLE DIPS
+                  DOUBLE & TRIPLE DIPS
                 </ThemedText>
               </Pressable>
             </BlurView>
           </Animated.View>
 
-          {/* TAB 1: CARD FACTS & EXCLUSIONS */}
           {activeTab === 'facts' && (
             <View style={styles.sectionContainer}>
-              {/* Interactive Axis Atlas MCC Checker Widget */}
-              <Animated.View entering={FadeInDown.delay(400).springify()}>
-                <BlurView intensity={20} tint="dark" style={styles.checkerCard}>
-                  <ThemedText style={styles.checkerTitle} type="subtitle">
-                    🎯 Interactive Axis Atlas MCC Checker
-                  </ThemedText>
-                  <ThemedText style={styles.checkerDesc}>
-                    Enter a merchant name or payment gateway (e.g. &quot;BharatNXT&quot;, &quot;Renting&quot;, &quot;Taj Hotel&quot;) to verify if it qualifies for Edge Miles.
-                  </ThemedText>
-                  
-                  <TextInput
-                    style={styles.checkerInput}
-                    value={mccSearch}
-                    onChangeText={handleMccCheck}
-                    placeholder="Enter merchant or processor name..."
-                    placeholderTextColor="rgba(255, 255, 255, 0.45)"
-                  />
-
-                  {/* Glowing Output Result */}
-                  <View style={[
-                    styles.resultBox,
-                    checkerResult.isEligible ? styles.eligibleBox : styles.excludedBox
-                  ]}>
-                    <View style={styles.resultHeader}>
-                      <ThemedText style={[
-                        styles.resultBadge,
-                        checkerResult.isEligible ? styles.eligibleBadgeText : styles.excludedBadgeText
-                      ]} type="code">
-                        {checkerResult.isEligible ? `ELIGIBLE (${checkerResult.rewardMultiplier}X Edge Miles)` : 'EXCLUDED (0X Edge Miles)'}
-                      </ThemedText>
-                    </View>
-                    <ThemedText style={styles.resultText}>
-                      {checkerResult.reason}
-                    </ThemedText>
+              {isDesktop ? (
+                <View style={styles.gridContainer}>
+                  <View style={styles.gridLeftColumn}>
+                    {mccCheckerSection}
                   </View>
-                </BlurView>
-              </Animated.View>
-
-              {/* Dynamic Facts Cards */}
-              <Animated.View entering={FadeInDown.delay(500).springify()}>
-                <ThemedText style={styles.sectionHeading} type="subtitle">
-                  Interesting Premium Card Facts
-                </ThemedText>
-              </Animated.View>
-              
-              {cardInsights.map((insight, idx) => {
-                const bannerSource = insightBanners[insight.cardId];
-
-                return (
-                  <Animated.View key={insight.cardId} entering={SlideInRight.delay(600 + idx * 100).springify()}>
-                    <BlurView intensity={20} tint="dark" style={styles.factCard}>
-                      {bannerSource && (
-                        <Image 
-                          source={bannerSource} 
-                          style={styles.cardBanner} 
-                          resizeMode="cover"
-                        />
-                      )}
-                      <View style={styles.factHeader}>
-                      <ThemedText style={styles.factIcon}>{insight.icon}</ThemedText>
-                      <View style={styles.factTitleCol}>
-                        <ThemedText style={styles.factCardCategory} type="code">
-                          {insight.category}
-                        </ThemedText>
-                        <ThemedText style={styles.factCardTitle} type="smallBold">
-                          {insight.title}
-                        </ThemedText>
-                      </View>
-                    </View>
-                    <ThemedText style={styles.factDesc}>
-                      {insight.description}
-                    </ThemedText>
-                    <View style={styles.bulletList}>
-                      {insight.bulletPoints.map((bp, i) => (
-                        <View key={i} style={styles.bulletItem}>
-                          <ThemedText style={styles.bulletDot}>•</ThemedText>
-                          <ThemedText style={styles.bulletText}>{bp}</ThemedText>
-                        </View>
-                      ))}
-                    </View>
-                  </BlurView>
-                </Animated.View>
-              );})}
+                  <View style={styles.gridRightColumn}>
+                    {cardFactsListSection}
+                  </View>
+                </View>
+              ) : (
+                <View style={{ gap: Spacing.five }}>
+                  {mccCheckerSection}
+                  {cardFactsListSection}
+                </View>
+              )}
             </View>
           )}
 
-          {/* TAB 2: DOUBLE & TRIPLE DIPS */}
           {activeTab === 'dips' && (
             <View style={styles.sectionContainer}>
-              {/* Paywall Container */}
               <View style={{ position: 'relative' }}>
-              {/* Spend ROI Calculator Widget */}
-              <Animated.View entering={FadeInDown.delay(400).springify()}>
-                <BlurView intensity={20} tint="dark" style={styles.calculatorCard}>
-                  <ThemedText style={styles.calcTitle} type="subtitle">
-                    🚀 Double/Triple Dip ROI Calculator
-                  </ThemedText>
-                  <ThemedText style={styles.calcDesc}>
-                    Select a dip strategy below and adjust your expected campaign/stay spend using the slider to calculate your Net ROI %.
-                  </ThemedText>
+                {isDesktop ? (
+                  <View style={styles.gridContainer}>
+                    <View style={styles.gridLeftColumn}>
+                      {roiCalculatorSection}
+                    </View>
+                    <View style={styles.gridRightColumn}>
+                      {strategyFlowSection}
+                    </View>
+                  </View>
+                ) : (
+                  <View style={{ gap: Spacing.five }}>
+                    {roiCalculatorSection}
+                    {strategyFlowSection}
+                  </View>
+                )}
 
-                  {/* Strategy Selection Chips */}
-                  <View style={styles.chipContainer}>
-                    {multiDipStrategies.map((s) => {
-                      const isSelected = selectedStrategyId === s.id;
-                      return (
-                        <Pressable 
-                          key={s.id} 
-                          onPress={() => setSelectedStrategyId(s.id)}
-                          style={[styles.chipButton, isSelected && styles.activeChipButton]}
-                        >
-                          <ThemedText style={[styles.chipLabel, isSelected && styles.activeChipLabel]} type="smallBold">
-                            {s.type === 'triple' ? '💎 TRIPLE' : '🔥 DOUBLE'} : {s.cardName.split(' ')[0]}
-                          </ThemedText>
+                {!isSubscribed && (
+                  <View style={[StyleSheet.absoluteFillObject, { zIndex: 10, borderRadius: Spacing.three, overflow: 'hidden' }]}>
+                    <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center', padding: Spacing.five }]}>
+                      <View style={styles.paywallBox}>
+                        <ThemedText style={{ fontSize: 24, fontWeight: 'bold', color: '#D4AF37', textAlign: 'center', marginBottom: Spacing.two }}>PRO</ThemedText>
+                        <ThemedText style={styles.paywallTitle}>Unlock The Indian Points Array Pro</ThemedText>
+                        <ThemedText style={styles.paywallDesc}>
+                          Get full access to our proprietary Double & Triple Dip calculators, exact routing blueprints, and private arbitrage groups.
+                        </ThemedText>
+                        <Pressable style={styles.subscribeBtn} onPress={() => setIsSubscribed(true)}>
+                          <ThemedText style={styles.subscribeBtnText}>Subscribe ₹4,999 / year</ThemedText>
                         </Pressable>
-                      );
-                    })}
-                  </View>
-
-                  {/* Campaign Spend Slider */}
-                  <View style={styles.sliderCol}>
-                    <PremiumSlider
-                      label="Slide Campaign Spend"
-                      value={campaignSpend}
-                      min={5000}
-                      max={200000}
-                      step={5000}
-                      onChange={setCampaignSpend}
-                      accentColor="#F59E0B"
-                      valueSuffix=" INR"
-                    />
-                  </View>
-
-                  {/* ROI Output Card */}
-                  <View style={styles.roiPanel}>
-                    <View style={styles.roiCol}>
-                      <ThemedText style={styles.roiLabel} type="code">NET VAL VALUE BACK</ThemedText>
-                      <ThemedText style={styles.roiValue} type="subtitle">₹{calculatorOutput.valueBackINR.toLocaleString()}</ThemedText>
-                    </View>
-                    <View style={styles.roiColRight}>
-                      <ThemedText style={styles.roiLabelRight} type="code">ACCELERATED RETURN</ThemedText>
-                      <ThemedText style={styles.roiPercent}>
-                        {calculatorOutput.roi.toFixed(1)}% ROI
-                      </ThemedText>
-                    </View>
-                  </View>
-                  
-                  <ThemedText style={styles.roiTextDetail}>
-                    *Estimated return factors in points worth (₹1/Marriott, ₹0.40/Amex) plus surcharge exclusions and milestone rewards.
-                  </ThemedText>
-                </BlurView>
-              </Animated.View>
-
-              {/* Selected Strategy Flow Diagram */}
-              <Animated.View entering={FadeInDown.delay(500).springify()}>
-                <ThemedText style={styles.sectionHeading} type="subtitle">
-                  Strategy Blueprint: {selectedStrategy.name}
-                </ThemedText>
-              </Animated.View>
-
-              <Animated.View entering={FadeInDown.delay(600).springify()}>
-                <BlurView intensity={20} tint="dark" style={styles.flowCard}>
-                  <ThemedText style={styles.flowDesc}>
-                    {selectedStrategy.description}
-                  </ThemedText>
-                  
-                  {/* Visual Step Map */}
-                  <View style={styles.stepMap}>
-                    {selectedStrategy.steps.map((step, idx) => (
-                      <View key={idx} style={styles.stepMapRow}>
-                        <View style={styles.stepMapBubble}>
-                          <ThemedText style={styles.stepMapNum}>{idx + 1}</ThemedText>
-                        </View>
-                        <View style={styles.stepMapContent}>
-                          <ThemedText style={styles.stepMapText}>
-                            {step}
-                          </ThemedText>
-                        </View>
+                        <ThemedText style={{ fontSize: 10, color: '#6B7280', textAlign: 'center', marginTop: Spacing.three }}>Cancel anytime. Tax deductible for businesses.</ThemedText>
                       </View>
-                    ))}
+                    </BlurView>
                   </View>
-                </BlurView>
-              </Animated.View>
-
-              {/* THE PAYWALL OVERLAY */}
-              {!isSubscribed && (
-                <View style={[StyleSheet.absoluteFillObject, { zIndex: 10, borderRadius: Spacing.three, overflow: 'hidden' }]}>
-                  <BlurView intensity={60} tint="dark" style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center', padding: Spacing.five }]}>
-                    <View style={styles.paywallBox}>
-                      <ThemedText style={{ fontSize: 40, textAlign: 'center', marginBottom: Spacing.two }}>🔒</ThemedText>
-                      <ThemedText style={styles.paywallTitle}>Unlock The Indian Points Array Pro</ThemedText>
-                      <ThemedText style={styles.paywallDesc}>
-                        Get full access to our proprietary Double & Triple Dip calculators, exact routing blueprints, and private arbitrage groups.
-                      </ThemedText>
-                      <Pressable style={styles.subscribeBtn} onPress={() => setIsSubscribed(true)}>
-                        <ThemedText style={styles.subscribeBtnText}>Subscribe ₹4,999 / year</ThemedText>
-                      </Pressable>
-                      <ThemedText style={{ fontSize: 10, color: '#6B7280', textAlign: 'center', marginTop: Spacing.three }}>Cancel anytime. Tax deductible for businesses.</ThemedText>
-                    </View>
-                  </BlurView>
-                </View>
-              )}
-              </View> {/* End Paywall Container */}
+                )}
+              </View>
             </View>
           )}
         </ScrollView>
@@ -327,6 +365,19 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: MaxContentWidth,
     width: '100%',
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    gap: Spacing.six,
+    width: '100%',
+  },
+  gridLeftColumn: {
+    flex: 1.1,
+    gap: Spacing.five,
+  },
+  gridRightColumn: {
+    flex: 0.9,
+    gap: Spacing.five,
   },
   scrollContent: {
     paddingHorizontal: Spacing.four,
