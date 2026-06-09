@@ -78,3 +78,16 @@ To maintain the luxury brand standard across marketing and editorial slides, the
     *   $\ge 8000$ feathered pixels at motif boundaries.
     *   100% opacity in final slides.
 
+---
+
+## 🎬 7. Video Reels Rendering & Remotion Integration (June 2026 Update)
+
+To support automated high-fidelity short-form video generation, the project includes a Remotion-based rendering subsystem:
+
+-   **Remotion Subsystem ([`remotion-reel/`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/remotion-reel/))**: A React-based video compilation framework configured to render `.mp4` reel files.
+-   **Asset Pre-generation ([`scripts/generate_reel_assets.py`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/scripts/generate_reel_assets.py))**: A Python script that compiles high-resolution background assets, titles, and mathematical overlays tailored for a 9:16 aspect ratio. It keys out backgrounds, feathers borders, and places visual components in `/public` for Remotion to consume.
+-   **Execution Sequence**:
+    1. Run `python scripts/generate_reel_assets.py` to prepare the static graphics and configuration timing sheets.
+    2. Run `npx remotion render` inside the `remotion-reel/` directory to generate the final video file (`out.mp4`).
+
+
