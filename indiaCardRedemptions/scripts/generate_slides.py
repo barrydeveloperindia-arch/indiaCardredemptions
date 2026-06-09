@@ -311,6 +311,33 @@ def copy_cta(folder_name):
 # Post Configurations
 POSTS = {
     # ==========================
+    # Week 1 - Launch Post
+    # ==========================
+    "2026-06-09_week1_post1_catalog_trap": {
+        "motif": "scale",
+        "s2": {
+            "title": "The Catalog Point Trap",
+            "body": ["Banks push you to redeem points on electronics, home appliances, or catalog vouchers.", "Why? They value your points at under ₹0.25 per point to save their margins."]
+        },
+        "s3": {
+            "title": "Unlock Flight Arbitrage",
+            "body": ["Transfer points to international airline partners (like British Airways, Aeroplan, or Accor hotels).", "A Delhi to London Business Class seat values your points at ₹3.14 per point."]
+        },
+        "s4_math": {
+            "title": "Where to Redeem?",
+            "c1": {
+                "title": "Vouchers & Catalogs",
+                "lines": ["Amazon / Shopping vouchers", "Electronics catalog items", "Value: ₹0.20 - ₹0.25 per pt"],
+                "badge": "Low Yield Trap"
+            },
+            "c2": {
+                "title": "Airline & Hotel Partners",
+                "lines": ["Marriott Bonvoy stays", "Star Alliance business seats", "Value: ₹1.00 - ₹3.50+ per pt"],
+                "badge": "Elite Yield Arbitrage"
+            }
+        }
+    },
+    # ==========================
     # Week 4
     # ==========================
     "2026-06-22_week4_post7_app_launch": {
