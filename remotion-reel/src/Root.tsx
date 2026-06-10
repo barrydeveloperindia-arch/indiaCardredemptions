@@ -12,7 +12,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="CatalogTrapReel"
         component={CatalogTrapReel}
-        durationInFrames={960} // 32 seconds at 30 fps
+        durationInFrames={1515} // 50.5 seconds at 30 fps
         fps={30}
         width={1080}
         height={1920}

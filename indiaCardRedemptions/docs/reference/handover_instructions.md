@@ -1,8 +1,8 @@
 # Handover Instructions: The Indian Points Array
 
-**Date:** June 9, 2026  
+**Date:** June 10, 2026  
 **Project:** The Indian Points Array (Loyalty Milestones & Arbitrage Tracker)  
-**Status:** Complete! All structural assets, 12-week social media slide decks (now including the Week 1 Launch Post: 25 posts total, 100+ slide assets), the Remotion-based video reels generation pipeline, and the React Native mobile app rebranding have been fully generated, validated, and pushed.
+**Status:** Complete! All structural assets, 12-week social media slide decks (now including the Week 1 Launch Post: 25 posts total, 100+ slide assets), the safe-zone optimized Remotion-based video reels generation pipeline, and the React Native mobile app rebranding have been fully generated, validated, and pushed.
 
 ---
 
@@ -14,7 +14,12 @@
 
 ### 2. Social Media Slide Decks & Video Reels
 *   **Slide Decks:** Programmatic slides generated and saved under `assets/social_media/`, now featuring the **Week 1 Launch Post ("The Catalog Point Trap")**.
-*   **Video Reels:** Initialized a dynamic reels creation project using Remotion ([`remotion-reel/`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/remotion-reel/)) and a custom Python generator ([`generate_reel_assets.py`](file:///c:/Users/SAM/Documents/Antigravity/indiaCardredemptions/indiaCardRedemptions/scripts/generate_reel_assets.py)) for asset generation, allowing automated rendering of premium MP4 reel clips.
+*   **Video Reels Safe-Zone Optimization:** 
+    *   **Subtitles & Graphics Alignment:** Aligned all visual cards and titles to the Instagram Reels safe zones (**Y = 260px to 1420px**). Globally reduced subtitles to `text-7xl` and set their position to Y = 1350px (and Y = 900px in Scene 5) to prevent phone taskbars and captions from overlapping.
+    *   **Scene 3 Layout Refactoring:** Removed a global `scale: 2` zoom wrapper on Sequence 3 that pushed text out of bounds. Unnested the absolute Airport Escape card from the Top Title parent container, moving it directly under `<AbsoluteFill>` at `top-[440px]` to resolve overlapping. Enlarged the math multiplier text locally to `text-6xl` within a `w-32 h-32` box.
+    *   **Scene 5 CTA Optimization:** Relocated the App Store and Google Play buttons into the clean transitional outro panel (frames 221 onwards / global frame 1360) where no subtitles play. Bound them to the spring translation and opacity variables (`badgeY`, `badgeOpacity`) to enable smooth entry scaling and eliminate layout overlaps.
+    *   **Post Cover Photo:** Rendered a premium high-impact cover thumbnail `cover.png` at frame 60 and saved it at the project root for easy upload.
+    *   **Outro Musical Chime:** Synced a custom synthetic A Major chord chime (`outro_chime.wav`) to play at frame 1360.
 *   **Official Brand Logo Integration:** Switched to the official `updated_brand_logo.png` monogram logo. The black JPEG background is programmatically keyed out via `remove_black_background`.
 *   **Dynamic Title Scaling:** Long header titles (e.g., "The B2C Merchant Workaround") are dynamically scaled down to $46$pt (from $64$pt) when exceeding 24 characters to prevent logo overlap.
 *   **Premium Blending & Boundary Edge-Fade:** Applied a $120$px quadratic boundary edge-fade margin to the motifs to eliminate all flat, hard-cropped borders from the 3D graphics (bridge, chest, phone, scale, shield, staircase, hourglass).
